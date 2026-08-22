@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#F5F5F5" stroke-width="2.5"/><circle cx="20" cy="20" r="4" fill="#F5F5F5"/><text x="44" y="27" font-family="Helvetica,Arial,sans-serif" font-size="20" font-weight="600" fill="#F5F5F5">AWP</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 234 96" role="img" aria-label="AWP — Agent World Protocol">
+  <g fill="none" stroke="#FFFFFF" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M74 39.05A27.5 27.5 0 1 1 56.95 22"/>
+    <path d="M62.97 47.21A15 15 0 1 1 48.79 33.03"/>
+    <circle cx="63.03" cy="32.98" r="7.5" fill="#FFFFFF" stroke="none"/>
+  </g>
+  <path d="M93.22 70 107.52 26H116.7L131 70H124.38L111.2 29.86H112.88L99.84 70ZM100.64 60.08V54.1H123.62V60.08Z" fill="#FFFFFF"/>
+  <path d="M141.58 70 128.78 26H135.48L144.74 59.28L154 26.04L160.72 26L169.98 59.28L179.24 26H185.96L173.16 70H166.82L157.36 37.1L147.92 70Z" fill="#FFFFFF"/>
+  <path d="M191.06 70V26H208.84Q209.48 26 210.44 26.04Q211.38 26.1 212.22 26.24Q215.92 26.82 218.38 28.74Q220.84 30.68 222.04 33.6Q223.26 36.54 223.26 40.1Q223.26 43.66 222.04 46.58Q220.82 49.52 218.36 51.44Q215.9 53.38 212.22 53.94Q211.38 54.08 210.42 54.14Q209.46 54.2 208.84 54.2H197.46V70ZM197.46 48.16H208.6Q209.2 48.16 209.94 48.1Q210.7 48.04 211.38 47.88Q213.34 47.4 214.52 46.18Q215.7 44.94 216.24 43.34Q216.76 41.72 216.76 40.1Q216.76 38.48 216.24 36.86Q215.7 35.24 214.52 34.02Q213.34 32.78 211.38 32.32Q210.7 32.14 209.94 32.08Q209.2 32.02 208.6 32.02H197.46Z" fill="#FFFFFF"/>
+</svg>
