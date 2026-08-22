@@ -1,0 +1,29 @@
+---
+title: "Actions (normative)"
+description: "Submission envelope, idempotency, validation."
+---
+
+`action.submit` params:
+
+```json
+{
+  "action_id": "a-01J8ZK3E9WPT",        
+  "embodiment_id": "arm_01",
+  "type": "move_to_pose",
+  "params": { "pose": { "p_m": [0.4, 0.1, 0.3], "q": [0, 0, 0, 1] }, "frame": "base" },
+  "preempt": "replace",
+  "deadline_ms": 5000
+}
+```
+
+- `action_id` is client-generated and unique per session; resubmission with the same id MUST be idempotent (return current status, not double-execute). `[AWP-ACT-001]`
+- Worlds MUST validate `params` against the type's `params_schema` and reject invalid submissions with `AWP_PARAMS_INVALID` before any execution side effect. `[AWP-ACT-002]`
+- Submissions naming ungranted types or embodiments MUST be rejected with `AWP_FORBIDDEN`. `[AWP-ACT-003]`
+- `deadline_ms` is advisory in lockstep and binding in streaming: if not `completed` by the deadline the world MUST transition the action to `failed` with reason `deadline_exceeded` and apply the type's safe-abort behavior. `[AWP-ACT-004]`
+- The `preempt` field MUST be one of the policies the type declares (see [preemption](/spec/loop/preemption)). `[AWP-ACT-005]`
+
+## Trajectory chunks (informative idiom)
+
+Policies that emit action chunks — timed sequences of setpoints executed at 10–50 Hz — map onto the lifecycle without any special machinery: **a chunk is one action**. Submit `type: "follow_trajectory"` with `params.points` as an array of timestamped setpoints and `preempt: "replace"` (or `"blend"`); when the policy emits its next chunk, the new submission replaces the unexecuted tail of the running one, and the replaced action terminates `preempted` per [preemption](/spec/loop/preemption). This yields exactly the receding-horizon behavior chunked policies expect, plus acceptance, progress, clamping, and audit that raw streaming never had. A standard schema is proposed in [RFD-004](/community/rfds/rfd-004-follow-trajectory).
+
+For true high-rate servoing (100–1000 Hz setpoints), per-setpoint JSON-RPC submissions are inappropriate; agent→world data-plane **command channels** are proposed in [RFD-002](/community/rfds/rfd-002-command-channels).

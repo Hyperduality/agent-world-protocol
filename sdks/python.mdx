@@ -1,0 +1,23 @@
+---
+title: "Python SDK"
+description: "awp-sdk: AgentClient and WorldServer."
+---
+
+```bash
+pip install awp-sdk
+```
+
+**Agent side** — async context manager, typed manifest objects, awaitable action handles:
+
+```python
+from awp import AgentClient
+
+async with AgentClient("wss://world.example.com", token=TOKEN) as client:
+    manifest = await client.initialize(agent_name="my-agent")
+    session = await client.open_session(embodiment="arm_01", mode="streaming",
+                                        subscribe=["proprio", "events"])
+    async for frame in session.frames("proprio"):
+        ...
+```
+
+**World side** — decorator API shown in the [world quickstart](/quickstart-world); implements heartbeats, reconnection, idempotency, and the audit log so adapters only write domain logic.

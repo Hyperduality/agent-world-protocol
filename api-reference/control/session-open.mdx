@@ -1,0 +1,28 @@
+---
+title: "session.open"
+description: "Bind an embodiment, choose a time model, request grants. Agent → World."
+---
+
+<ParamField body="embodiment" type="string">Embodiment id, or omit for an observer session.</ParamField>
+<ParamField body="mode" type="string" required>`lockstep` or `streaming`.</ParamField>
+<ParamField body="subscribe" type="object[]">Channel requests: `{ channel, rate_hz? }`.</ParamField>
+<ParamField body="action_types" type="string[]">Requested grants. Default: all the embodiment offers.</ParamField>
+<ParamField body="seed" type="integer">Only if the world advertises `capabilities.seed`.</ParamField>
+<ParamField body="takeover" type="boolean">With `transfer_token`, take over a bound embodiment.</ParamField>
+
+**Result — `session.ready`:**
+
+```json
+{ "session_token": "st_9f2…", "reconnect_window_ms": 30000,
+  "granted": { "channels": [ { "channel": "grid_view", "rate_hz": null, "channel_id": 1 } ],
+               "action_types": ["move"], "envelopes": [] },
+  "stream_endpoints": [ { "binding": "inline" } ],
+  "frame_tree": { "frames": [ { "id": "world", "parent": null } ] },
+  "clock_anchor": "2026-08-22T18:00:00Z" }
+```
+
+**Errors:** 2001, 2002, 4001.
+
+<Note>
+A first-class `task` field (the language instruction conditioning the agent) is proposed in [RFD-003](/community/rfds/rfd-003-task); until stabilized, carry instructions in `extensions` with `x-<vendor>.` keys.
+</Note>

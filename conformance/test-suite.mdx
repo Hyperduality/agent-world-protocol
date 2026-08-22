@@ -1,0 +1,20 @@
+---
+title: "Conformance test suite"
+description: "Run awp-conformance against a world or agent; every assertion names a spec requirement."
+---
+
+```bash
+pip install awp-conformance
+awp-conformance run ws://localhost:8710 --profile core --profile sim
+awp-conformance agent ./my_agent_cmd --profile core     # harness drives your agent
+```
+
+Output maps failures to requirement IDs:
+
+```
+FAIL AWP-LIF-002  accepted/rejected not sent within 500 ms (streaming)
+WARN AWP-LIF-003  no progress updates for extended action
+PASS 41/43 (core), 12/12 (sim)
+```
+
+CI recipe: run the suite in a job against your adapter on every PR; MUSTs fail the build, SHOULDs annotate.

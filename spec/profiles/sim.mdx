@@ -1,0 +1,13 @@
+---
+title: "Sim profile"
+description: "Requirements added for simulation and evaluation worlds."
+---
+
+Adds to Core:
+
+- Lockstep time model with `on_tick` policy — AWP-TIM-002..004
+- Seeding, snapshot/restore, deterministic replay — AWP-REP-001..003
+- Sim-time timestamps (`ts_sim_ns`, `tick`) — AWP-CLK-003
+- `world.reset` support returning to a named initial state
+
+Intended for: RL/eval harnesses, game-logic testbeds, digital twins in analysis mode. The [gymnasium-bridge](/adapters/gymnasium-bridge) targets this profile.

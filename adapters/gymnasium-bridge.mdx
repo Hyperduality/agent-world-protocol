@@ -1,0 +1,11 @@
+---
+title: "Gymnasium bridge"
+description: "Expose any Gymnasium environment as a sim-profile AWP world."
+---
+
+```bash
+pip install awp-gymnasium
+awp-gym serve "LunarLander-v3" --port 8710
+```
+
+Mapping: observation space → one `proprio/json` (or `image/raw`) channel; action space → one `act` action type whose `params_schema` is generated from the space; `step()` → tick; `reset(seed)` → `world.reset`; reward and termination → the `events` channel (`{"reward": r, "terminated": bool}`), keeping AWP reward-agnostic. Snapshot support requires the env to be picklable; the bridge advertises capabilities honestly per env.

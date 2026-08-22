@@ -1,0 +1,18 @@
+---
+title: "Versioning policy"
+description: "Protocol semver, version negotiation, and deprecation."
+---
+
+- The protocol uses **semver** (`MAJOR.MINOR.PATCH`). Wire-visible breaking changes bump MAJOR; additive capabilities bump MINOR. `[AWP-VER-001]`
+- Agents send the list of protocol versions they support in `initialize`; the world MUST select the highest mutually supported version and echo it, or reject with `AWP_VERSION_UNSUPPORTED`. `[AWP-VER-002]`
+- Unknown fields in any message MUST be ignored, never treated as errors (forward compatibility). `[AWP-VER-003]`
+- Extension fields and modalities MUST use the `x-<vendor>.` prefix. `[AWP-VER-004]`
+- Deprecated features remain functional for at least one MINOR release after the deprecation notice appears in the [changelog](/community/changelog). `[AWP-VER-005]`
+
+## Wire version vs. artifact versions
+
+The negotiated protocol version alone determines wire compatibility. Schema artifact releases and SDK package versions describe those artifacts — type organization, codegen structure, APIs — and MAY change without any wire change. Consumers MUST NOT infer wire compatibility from artifact versions. `[AWP-VER-006]`
+
+## Capabilities gate optional features
+
+Within a wire version, optional features are discovered through the `capabilities` maps exchanged in manifests — never by version sniffing. A feature's normative text names its gating capability key; absent the key, the feature's messages MUST be rejected as unknown. `[AWP-VER-007]` (Generalization of the capability map is proposed in [RFD-006](/community/rfds/rfd-006-capabilities).)

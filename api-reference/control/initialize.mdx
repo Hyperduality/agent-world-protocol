@@ -1,0 +1,20 @@
+---
+title: "initialize"
+description: "Version negotiation and manifest exchange. Agent → World."
+---
+
+<ParamField body="protocol_versions" type="string[]" required>Versions the agent supports, e.g. `["0.1"]`.</ParamField>
+<ParamField body="agent" type="object" required>`{ name, version, vendor }`.</ParamField>
+<ParamField body="consumes_modalities" type="string[]" required>Modalities the agent can decode.</ParamField>
+<ParamField body="time_models" type="string[]">Modes the agent supports. Default: both.</ParamField>
+
+**Result:** the [world manifest](/api-reference/schemas/world-manifest) with the selected `protocol_version`.
+
+**Errors:** `AWP_VERSION_UNSUPPORTED` (1001).
+
+```json Request
+{ "jsonrpc": "2.0", "id": 1, "method": "initialize",
+  "params": { "protocol_versions": ["0.1"],
+              "agent": { "name": "quickstart", "version": "0.0.1", "vendor": "dev" },
+              "consumes_modalities": ["text/event+json"] } }
+```

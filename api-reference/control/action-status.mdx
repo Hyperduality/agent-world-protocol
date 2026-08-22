@@ -1,0 +1,12 @@
+---
+title: "action.status (notification)"
+description: "World → Agent transition notifications for every action."
+---
+
+```json
+{ "jsonrpc": "2.0", "method": "action.status",
+  "params": { "action_id": "a-01J8ZK3E9WPT", "state": "executing",
+              "progress": 0.4, "ts_mono_ns": 913005200000 } }
+```
+
+Terminal states carry `reason` (`failed`/`rejected`, per the [error taxonomy](/spec/loop/events-and-errors)), `clamped` when an envelope clamped execution, and `blended`/`aborted_at_progress` where applicable. Undelivered statuses are replayed on `session.resume` (AWP-LIF-006). A pull variant exists: request `action.status` with `{ action_id }` to fetch current state.

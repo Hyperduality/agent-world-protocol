@@ -1,0 +1,13 @@
+---
+title: "Wrap a GUI"
+description: "The browser or desktop as an AWP world."
+---
+
+GUI environments fit AWP naturally: the screen is an observation channel, input devices are action types, and the [GUI profile](/spec/profiles/gui) pins the schemas so GUI agents become portable across browser adapters.
+
+- Channels: `screenshot` (`image/jpeg`, latest-wins) plus `dom` or `a11y_tree` (`text/event+json`, keyframe/delta). The accessibility tree is usually the best LLM-facing channel.
+- Actions: `pointer_move`, `pointer_click`, `key_input`, `scroll`, `navigate` — viewport-relative coordinates per the profile schemas.
+- Safety: `navigate` outside an allowlist and any credential-entry class are `requires_approval` — this is where the [approval flow](/spec/safety/approval) earns its keep.
+- Time model: streaming by default; lockstep against a deterministic page harness is excellent for regression-testing agents.
+
+Reference implementation: [browser-adapter](/adapters/browser-adapter).

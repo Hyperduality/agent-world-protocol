@@ -1,0 +1,23 @@
+---
+title: "Events and errors"
+description: "World events, the error taxonomy, and recovery expectations."
+---
+
+## World events
+
+Worlds emit `world.event` notifications for state changes not tied to a specific action: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `world_resetting`, `world_shutdown`. Events carry `ts_mono_ns` and structured detail. Custom events use `x-<vendor>.` names. `[AWP-EVT-001]`
+
+`e_stop_engaged` MUST preempt all executing actions (terminal state `failed`, reason `e_stop`) and suspend action admission until `e_stop_released`. `[AWP-EVT-002]`
+
+## Error taxonomy
+
+Errors surface as JSON-RPC error objects with AWP codes (see [error codes](/api-reference/error-codes)):
+
+| Range | Area | Examples |
+|---|---|---|
+| 1xxx | Protocol | `AWP_VERSION_UNSUPPORTED` (1001), `AWP_MALFORMED` (1002) |
+| 2xxx | Session | `AWP_EMBODIMENT_UNAVAILABLE` (2001), `AWP_TIME_MODEL_UNSUPPORTED` (2002), `AWP_SESSION_EXPIRED` (2003) |
+| 3xxx | Action | `AWP_PARAMS_INVALID` (3001), `AWP_BUSY` (3002), `AWP_QUEUE_FULL` (3003) |
+| 4xxx | Safety | `AWP_FORBIDDEN` (4001), `AWP_ENVELOPE_EXCEEDED` (4002), `AWP_APPROVAL_DENIED` (4003), `AWP_APPROVAL_TIMEOUT` (4004) |
+
+Every error object marks `retryable: true|false` in `data`. Agents MUST NOT retry non-retryable errors with identical parameters. `[AWP-ERR-001]`

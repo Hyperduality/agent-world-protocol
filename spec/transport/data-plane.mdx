@@ -1,0 +1,22 @@
+---
+title: "Data plane"
+description: "Binary frame envelope, backpressure, and per-channel loss tolerance."
+---
+
+Every data-plane frame is a binary envelope with a fixed 28-byte header (little-endian):
+
+| Offset | Size | Field | Notes |
+|---|---|---|---|
+| 0 | 4 | magic | ASCII `AWPF` |
+| 4 | 1 | version | `1` |
+| 5 | 1 | flags | bit 0: keyframe; bit 1: end-of-burst |
+| 6 | 2 | channel_id | u16 assigned in `session.ready` |
+| 8 | 8 | seq | u64, per-channel, monotonically increasing |
+| 16 | 8 | ts_mono_ns | u64, session monotonic clock |
+| 24 | 4 | payload_len | u32 |
+| 28 | … | payload | encoded per the channel's declared modality |
+
+- Frames MUST carry per-channel monotonically increasing `seq`; receivers detect loss by gaps. `[AWP-DAT-001]`
+- Channels declare a **loss class** in the manifest: `reliable` (no loss permitted; use a reliable binding) or `latest-wins` (droppable; senders SHOULD drop stale frames under backpressure rather than queue). `[AWP-DAT-002]`
+- Senders MUST NOT exceed the negotiated per-channel rate; receivers MAY request a rate change via `obs.subscribe`. `[AWP-DAT-003]`
+- In the `inline` binding, the same envelope is base64-encoded inside `obs.frame` notifications. `[AWP-DAT-004]`

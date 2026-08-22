@@ -1,0 +1,12 @@
+---
+title: "API Reference"
+description: "How to read this section: the JSON-RPC control plane, the binary data plane, and canonical schemas."
+---
+
+The **control plane** is JSON-RPC 2.0; each method has a page listing params, result, errors, and examples. The **data plane** is a binary frame format documented in hand-written pages (it is not HTTP, so there is no playground for it). **Schemas** render the canonical JSON Schemas from the spec repo (`schemas/*.schema.json`).
+
+<Note>
+Examples target the local demo world: `awp-sim serve gridworld --port 8710`.
+</Note>
+
+Conventions: requests may originate from either side; notifications have no `id`; all timestamps are `ts_mono_ns` on the session clock; all errors carry AWP codes from the [error registry](/api-reference/error-codes).

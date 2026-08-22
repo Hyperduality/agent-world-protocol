@@ -1,0 +1,41 @@
+---
+title: "What is the Agent World Protocol?"
+sidebarTitle: "Introduction"
+description: "AWP is an open protocol defining how an autonomous agent discovers, perceives, and acts within a world — virtual or physical."
+icon: "globe"
+---
+
+<Note>
+AWP is currently a **v0.1 draft**. Everything on this site is open for feedback via the [RFD process](/community/rfd-process).
+</Note>
+
+The Agent World Protocol (AWP) standardizes the boundary between a **mind** and a **world**. A mind is any policy that maps observations to actions — a multi-modal LLM, a diffusion policy, a classical planner. A world is anything that produces observations and accepts actions — a game engine, a robot body, a browser, physical reality reached through sensors and actuators.
+
+MCP standardizes agent↔tools. A2A-style protocols standardize agent↔agent. Gym standardized the training loop, and ROS standardized robot middleware. AWP fills the missing seam: a **network protocol for embodied interaction at inference time**, where worlds are self-describing, time is real, actions have duration, and safety is enforced at the boundary.
+
+## The five primitives
+
+| Primitive | What it is |
+|---|---|
+| **World** | An environment endpoint that advertises what can be perceived and done |
+| **Embodiment** | The agent's presence in the world — a robot body, avatar, cursor, camera rig |
+| **Observation** | Typed, timestamped, multi-channel percepts |
+| **Action** | A typed intent with a full lifecycle, not a fire-and-forget RPC |
+| **Session** | The negotiated contract binding an agent to an embodiment, including safety grants |
+
+## Where to start
+
+<CardGroup cols={2}>
+  <Card title="Connect an agent" icon="plug" href="/quickstart-agent">
+    Ten minutes to your first perception–action loop against the demo world.
+  </Card>
+  <Card title="Expose a world" icon="cube" href="/quickstart-world">
+    Wrap an environment in an AWP adapter and pass the conformance suite.
+  </Card>
+  <Card title="Read the specification" icon="book" href="/spec">
+    The normative v0.1 draft: transports, sessions, the loop, and safety.
+  </Card>
+  <Card title="Why AWP?" icon="lightbulb" href="/why-awp">
+    The gap it fills next to MCP, A2A, Gym, and ROS.
+  </Card>
+</CardGroup>

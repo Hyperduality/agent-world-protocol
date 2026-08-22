@@ -1,0 +1,9 @@
+---
+title: "Timestamps and clocks"
+description: "Monotonic session clock, wall anchor, and sim time."
+---
+
+- All timestamps are `ts_mono_ns`: nanoseconds on the **session monotonic clock**, which starts ≥0 at session open and never goes backward. `[AWP-CLK-001]`
+- `session.ready` carries a `clock_anchor`: the wall-clock time (RFC 3339, UTC) corresponding to monotonic 0, letting logs correlate across systems. `[AWP-CLK-002]`
+- Simulated worlds additionally carry `ts_sim_ns` on frames when sim time diverges from the monotonic clock (fast-forward, slow-mo); lockstep frames also carry `tick`. `[AWP-CLK-003]`
+- Timestamps mark **capture time** (observations) and **event time** (statuses), not send time. `[AWP-CLK-004]`

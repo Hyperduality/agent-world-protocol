@@ -1,0 +1,22 @@
+---
+title: "Terminology"
+description: "Normative definitions used throughout the specification."
+---
+
+| Term | Definition |
+|---|---|
+| **Agent** | A system that consumes observations and produces actions through the protocol. |
+| **World** | An endpoint implementing the world side of the protocol; source of observations, sink of actions. |
+| **Embodiment** | A controllable presence a world offers to agents (arm, avatar, cursor). Bound to at most one session at a time unless the world declares shared control. |
+| **Entity** | Anything a world reports in observations, including other agents' embodiments. |
+| **Session** | The negotiated contract binding an agent to zero or more embodiments, with granted channels, action types, and safety limits. |
+| **Observation channel** | A named, typed stream of percepts declared in the world manifest. |
+| **Frame** | One timestamped unit of a channel (an image, an event, a proprioception sample). |
+| **Action** | A typed intent submitted by an agent, with a defined lifecycle. |
+| **Intent** | The submitted form of an action, prior to acceptance. |
+| **Tick** | One discrete world step in lockstep mode. |
+| **Time model** | Either `lockstep` or `streaming`; governs how the world advances relative to agent I/O. |
+| **Envelope** | A quantitative safety limit (spatial, velocity, force, rate) enforced by the world. |
+| **Grant** | An explicit permission attached to a session (action types, channels, embodiments). |
+| **Profile** | A named conformance bundle adding requirements to Core (e.g. `robotics`). |
+| **Manifest** | The self-description document exchanged at initialization (world manifest, agent manifest). |

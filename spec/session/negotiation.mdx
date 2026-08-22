@@ -1,0 +1,10 @@
+---
+title: "Negotiation"
+description: "Subset selection rules, rejection codes, and mid-session renegotiation."
+---
+
+- `session.open` names an embodiment (or none, for observer sessions), one time model, requested channel subscriptions with rates, and requested action-type grants.
+- The world resolves each request to a granted subset and MUST enumerate the outcome exactly in `session.ready` (granted channels with actual rates, granted action types, active envelopes). Silence is not a grant. `[AWP-NEG-001]`
+- The world MUST reject `session.open` (not silently downgrade) when the requested time model is unsupported or the embodiment is unavailable: `AWP_TIME_MODEL_UNSUPPORTED`, `AWP_EMBODIMENT_UNAVAILABLE`. `[AWP-NEG-002]`
+- Channel rates MAY be granted lower than requested; action types are granted whole or not at all. `[AWP-NEG-003]`
+- Renegotiation: `obs.subscribe` / `obs.unsubscribe` adjust channels mid-session; grants for action types are fixed for the session. `[AWP-NEG-004]`

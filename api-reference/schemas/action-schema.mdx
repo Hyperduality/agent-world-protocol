@@ -1,0 +1,12 @@
+---
+title: "action-schema.schema.json"
+description: "Canonical schema for action type declarations."
+---
+
+<ResponseField name="type" type="string" required>Action type name, unique per world.</ResponseField>
+<ResponseField name="params_schema" type="object" required>JSON Schema 2020-12 for params.</ResponseField>
+<ResponseField name="duration" type="string" required>`instant` or `extended`.</ResponseField>
+<ResponseField name="preemption" type="string | string[]" required>Declared policies: `queue`, `replace`, `blend`, `reject`.</ResponseField>
+<ResponseField name="concurrency_group" type="string">See [preemption](/spec/loop/preemption).</ResponseField>
+<ResponseField name="max_queue" type="integer">Queue depth when `queue` is offered.</ResponseField>
+<ResponseField name="requires_approval" type="boolean">Gates the action behind [approval](/spec/safety/approval).</ResponseField>

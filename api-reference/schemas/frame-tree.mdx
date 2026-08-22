@@ -1,0 +1,8 @@
+---
+title: "frame-tree.schema.json"
+description: "Canonical schema for named coordinate frames."
+---
+
+<ResponseField name="frames" type="object[]" required>
+Each: `{ id, parent (string | null), dynamic?: boolean, transform?: { p_m: number[3], q: number[4] } }`. Static frames carry `transform`; dynamic frames publish on `awp.tf`. Exactly one root (`parent: null`).
+</ResponseField>

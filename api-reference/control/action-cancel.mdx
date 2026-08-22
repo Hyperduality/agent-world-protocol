@@ -1,0 +1,8 @@
+---
+title: "action.cancel"
+description: "Request cancellation of a submitted or executing action. Agent → World."
+---
+
+<ParamField body="action_id" type="string" required />
+
+Result: `{ "state": "cancelling" }`; the terminal `cancelled` status arrives as a notification, carrying `aborted_at_progress` when the world had to complete a safe abort first (AWP-LIF-005). Cancelling an already-terminal action returns its terminal status (idempotent).

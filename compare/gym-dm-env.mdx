@@ -1,0 +1,10 @@
+---
+title: "AWP vs Gym / dm_env"
+description: "Training APIs vs an inference-time protocol."
+---
+
+Gym and dm_env standardized the **training loop**: in-process, lockstep `step(action) → (obs, reward, done)`, reward-centric. AWP standardizes **inference-time interaction over a network**: self-describing worlds, two time models, action lifecycles, safety, sessions.
+
+Differences that matter: Gym has no manifest (spaces are known at coding time), no streaming mode, no action duration, no permissions, no audit format. AWP has no reward in the core — worlds MAY expose reward as an ordinary channel, keeping the protocol reward-agnostic.
+
+They compose: the [gymnasium-bridge](/adapters/gymnasium-bridge) exposes any Gymnasium env as a sim-profile AWP world, so training environments become evaluation and deployment targets without rewrites.

@@ -1,0 +1,18 @@
+---
+title: "RFD-004: follow_trajectory standard action"
+description: "A normative schema for trajectory chunks in the robotics profile."
+---
+
+**Status: draft · Target: v0.2 · Area: robotics profile**
+
+## Problem
+
+Every arm adapter reinvents "execute this timed sequence of joint or Cartesian setpoints", fragmenting agent portability across the hardware where portability matters most.
+
+## Proposal
+
+Standardize `follow_trajectory` in the robotics profile: params are `{ space: "joint" | "cartesian", points: [ { t_s, positions_rad[] | pose } ], interpolation: "linear" | "cubic" }`; `duration: extended`; `preemption` MUST include `replace` and SHOULD include `blend`. Chunk-replacement semantics per the idiom in [Actions](/spec/loop/actions): a newly accepted chunk replaces the unexecuted tail of the running one at the world's blend boundary.
+
+## Compatibility
+
+Additive profile requirement; existing custom trajectory actions remain valid alongside it.

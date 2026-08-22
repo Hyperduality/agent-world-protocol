@@ -1,0 +1,13 @@
+---
+title: "Multi-agent worlds"
+description: "Many sessions in one world, and where A2A takes over."
+---
+
+Each agent opens its own session with independent grants and envelopes (AWP-MA-001). Agents perceive each other as entities tagged `controlled_by: "session"` (AWP-MA-002).
+
+Design choices that work well:
+
+- **Communication as world actions.** A `say` action and `heard` events keep inter-agent talk inside the audit log and the world's physics (range, interception) — usually better than out-of-band channels for games and sims.
+- **A2A out of band** when agents must coordinate privately or across worlds; AWP deliberately does not define this ([multi-agent](/spec/multi-agent)).
+- **Spectator sessions** (AWP-EMB-004) for referees, evaluators, and dashboards.
+- **Shared control** with declared arbitration for human-takeover setups (AWP-MA-003) — see [Human in the loop](/guides/human-in-the-loop).

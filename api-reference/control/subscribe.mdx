@@ -1,0 +1,8 @@
+---
+title: "obs.subscribe / obs.unsubscribe"
+description: "Adjust channel subscriptions mid-session. Agent → World."
+---
+
+<ParamField body="channels" type="object[]" required>`{ channel, rate_hz? }` entries to add or modify.</ParamField>
+
+Result enumerates the granted outcome exactly (AWP-NEG-001): `{ granted: [ { channel, rate_hz, channel_id } ] }`. First frame after subscribe is a current snapshot/keyframe (AWP-OBS-005). `obs.unsubscribe` takes `{ channels: string[] }`.

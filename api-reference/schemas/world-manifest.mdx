@@ -1,0 +1,16 @@
+---
+title: "world-manifest.schema.json"
+description: "Canonical schema for the world manifest."
+---
+
+Canonical source: `schemas/world-manifest.schema.json` in the spec repo. Field-by-field documentation lives in [spec/session/world-manifest](/spec/session/world-manifest).
+
+<ResponseField name="protocol_version" type="string" required>Selected version, e.g. "0.1".</ResponseField>
+<ResponseField name="world" type="object" required>`{ name, version, vendor }`.</ResponseField>
+<ResponseField name="time_models" type="string[]" required>Subset of `["lockstep","streaming"]`.</ResponseField>
+<ResponseField name="capabilities" type="object">`{ seed?, snapshot?, replay? }` booleans.</ResponseField>
+<ResponseField name="embodiments" type="object[]" required>See [embodiments](/spec/session/embodiments).</ResponseField>
+<ResponseField name="observation_channels" type="object[]" required>See [observation-channel schema](/api-reference/schemas/observation-channel).</ResponseField>
+<ResponseField name="action_schemas" type="object[]" required>See [action schema](/api-reference/schemas/action-schema).</ResponseField>
+<ResponseField name="safety_policy" type="object" required>See [safety-policy schema](/api-reference/schemas/safety-policy).</ResponseField>
+<ResponseField name="extensions" type="object">Vendor extensions, `x-<vendor>.` keys.</ResponseField>

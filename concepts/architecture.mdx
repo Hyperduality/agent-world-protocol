@@ -1,0 +1,34 @@
+---
+title: "Architecture"
+description: "The four layers and two planes of AWP."
+icon: "layer-group"
+---
+
+AWP is defined in four independently versioned layers over two planes.
+
+```mermaid
+flowchart TB
+    A[Agent runtime<br/>LLM, planner, or policy] --> P
+    subgraph P[Agent World Protocol]
+        C[Control plane<br/>sessions, actions, safety]
+        D[Data plane<br/>sensor and event streams]
+    end
+    P --> S[Simulator adapter]
+    P --> R[Robot adapter]
+    P --> G[Browser / GUI adapter]
+```
+
+## Layers
+
+| Layer | Name | Defines |
+|---|---|---|
+| 0 | [Transport](/spec/transport/overview) | Control-plane framing (JSON-RPC 2.0) and data-plane binary streams |
+| 1 | [Session & capabilities](/spec/session/lifecycle) | Manifest exchange, negotiation, embodiment binding |
+| 2 | [Perception & action](/spec/loop/time-models) | Time models, observation frames, the action lifecycle |
+| 3 | [Semantics & grounding](/spec/semantics/units-and-frames) | Units, frames, clocks, modality encodings, scene graphs |
+
+## The two planes
+
+The **control plane** carries low-bandwidth, reliability-critical messages: handshakes, action submissions, lifecycle events, safety approvals. The **data plane** carries high-bandwidth, loss-tolerant sensor streams: camera frames, audio, lidar. The control plane negotiates data-plane endpoints; the spec defines the framing, not the pipe.
+
+Cross-cutting the layers are the [safety model](/concepts/safety-model), [reproducibility](/spec/reproducibility), and [conformance profiles](/spec/profiles/core).

@@ -1,0 +1,316 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Agent World Protocol",
+  "description": "An open protocol for how AI agents perceive and act in worlds \u2014 virtual or physical.",
+  "colors": {
+    "primary": "#4F46E5",
+    "light": "#818CF8",
+    "dark": "#3730A3"
+  },
+  "logo": {
+    "light": "/logo/awp-light.svg",
+    "dark": "/logo/awp-dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart-agent",
+              "quickstart-world",
+              "why-awp"
+            ]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "concepts/architecture",
+              "concepts/worlds-and-embodiments",
+              "concepts/observations",
+              "concepts/actions",
+              "concepts/time-models",
+              "concepts/sessions-and-capabilities",
+              "concepts/safety-model",
+              "concepts/grounding"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/build-an-agent",
+              "guides/wrap-a-simulator",
+              "guides/wrap-a-robot",
+              "guides/wrap-a-gui",
+              "guides/multi-agent-worlds",
+              "guides/record-and-replay",
+              "guides/sim-to-real",
+              "guides/human-in-the-loop"
+            ]
+          },
+          {
+            "group": "Compare",
+            "pages": [
+              "compare/mcp",
+              "compare/acp",
+              "compare/a2a",
+              "compare/gym-dm-env",
+              "compare/ros"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Specification",
+        "versions": [
+          {
+            "version": "v0.1 (draft)",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "spec/index",
+                  "spec/terminology",
+                  "spec/conformance",
+                  "spec/versioning-policy"
+                ]
+              },
+              {
+                "group": "Layer 0 \u2014 Transport",
+                "pages": [
+                  "spec/transport/overview",
+                  "spec/transport/control-plane",
+                  "spec/transport/data-plane",
+                  "spec/transport/security"
+                ]
+              },
+              {
+                "group": "Layer 1 \u2014 Session & capabilities",
+                "pages": [
+                  "spec/session/lifecycle",
+                  "spec/session/world-manifest",
+                  "spec/session/agent-manifest",
+                  "spec/session/negotiation",
+                  "spec/session/embodiments"
+                ]
+              },
+              {
+                "group": "Layer 2 \u2014 Perception & action",
+                "pages": [
+                  "spec/loop/time-models",
+                  "spec/loop/observations",
+                  "spec/loop/actions",
+                  "spec/loop/action-lifecycle",
+                  "spec/loop/preemption",
+                  "spec/loop/events-and-errors"
+                ]
+              },
+              {
+                "group": "Layer 3 \u2014 Semantics & grounding",
+                "pages": [
+                  "spec/semantics/units-and-frames",
+                  "spec/semantics/timestamps-and-clocks",
+                  "spec/semantics/modalities",
+                  "spec/semantics/scene-graphs"
+                ]
+              },
+              {
+                "group": "Cross-cutting",
+                "pages": [
+                  "spec/safety/permissions",
+                  "spec/safety/envelopes",
+                  "spec/safety/approval",
+                  "spec/safety/audit-log",
+                  "spec/reproducibility",
+                  "spec/multi-agent"
+                ]
+              },
+              {
+                "group": "Profiles",
+                "pages": [
+                  "spec/profiles/core",
+                  "spec/profiles/sim",
+                  "spec/profiles/robotics",
+                  "spec/profiles/gui",
+                  "spec/profiles/game",
+                  "spec/profiles/realtime-av"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/index",
+              "api-reference/message-envelope",
+              "api-reference/error-codes"
+            ]
+          },
+          {
+            "group": "Control plane (JSON-RPC)",
+            "pages": [
+              "api-reference/control/initialize",
+              "api-reference/control/manifest",
+              "api-reference/control/session-open",
+              "api-reference/control/session-close",
+              "api-reference/control/subscribe",
+              "api-reference/control/action-submit",
+              "api-reference/control/action-cancel",
+              "api-reference/control/action-status",
+              "api-reference/control/tick",
+              "api-reference/control/snapshot",
+              "api-reference/control/approval"
+            ]
+          },
+          {
+            "group": "Data plane",
+            "pages": [
+              "api-reference/data/frame-format",
+              "api-reference/data/observation-frames",
+              "api-reference/data/event-frames",
+              "api-reference/data/stream-negotiation"
+            ]
+          },
+          {
+            "group": "Schemas",
+            "pages": [
+              "api-reference/schemas/world-manifest",
+              "api-reference/schemas/action-schema",
+              "api-reference/schemas/observation-channel",
+              "api-reference/schemas/safety-policy",
+              "api-reference/schemas/frame-tree"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs & Adapters",
+        "groups": [
+          {
+            "group": "SDKs",
+            "pages": [
+              "sdks/index",
+              "sdks/python",
+              "sdks/typescript"
+            ]
+          },
+          {
+            "group": "Reference adapters",
+            "pages": [
+              "adapters/awp-sim",
+              "adapters/gymnasium-bridge",
+              "adapters/lerobot-bridge",
+              "adapters/ros2-bridge",
+              "adapters/browser-adapter"
+            ]
+          },
+          {
+            "group": "Conformance",
+            "pages": [
+              "conformance/test-suite",
+              "conformance/badges",
+              "conformance/registry"
+            ]
+          },
+          {
+            "group": "Ecosystem",
+            "pages": [
+              "ecosystem/worlds",
+              "ecosystem/agents"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Community",
+        "groups": [
+          {
+            "group": "Project",
+            "pages": [
+              "community/governance",
+              "community/rfd-process",
+              "community/roadmap",
+              "community/changelog",
+              "community/faq",
+              "community/brand"
+            ]
+          },
+          {
+            "group": "RFDs",
+            "pages": [
+              "community/rfds",
+              "community/rfds/rfd-001-relay-transport",
+              "community/rfds/rfd-002-command-channels",
+              "community/rfds/rfd-003-task",
+              "community/rfds/rfd-004-follow-trajectory",
+              "community/rfds/rfd-005-elicitation",
+              "community/rfds/rfd-006-capabilities"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/Hyperduality/agent-world-protocol",
+          "icon": "github"
+        },
+        {
+          "anchor": "Website",
+          "href": "https://agentworldprotocol.com",
+          "icon": "globe"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/Hyperduality/agent-world-protocol"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Quickstart",
+      "href": "/quickstart-agent"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Hyperduality/agent-world-protocol",
+      "x": "https://x.com/awprotocol"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "seo": {
+    "metatags": {
+      "og:site_name": "Agent World Protocol"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/community/rfc-process",
+      "destination": "/community/rfd-process"
+    }
+  ]
+}

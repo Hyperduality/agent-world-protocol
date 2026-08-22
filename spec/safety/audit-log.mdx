@@ -1,0 +1,13 @@
+---
+title: "Audit log"
+description: "The normative session record: format, hashing, and replayability."
+---
+
+Worlds MUST record, per session, an append-only log of: manifests, granted subset, every control-plane message (both directions), every action status transition, every safety event and approval, and for each observation frame either the payload or its SHA-256 hash plus header. `[AWP-AUD-001]`
+
+- Records are JSON Lines; each record carries `ts_mono_ns`, `direction`, `kind`, and `body`. `[AWP-AUD-002]`
+- Worlds SHOULD hash-chain records (`prev_hash`) for tamper evidence. `[AWP-AUD-003]`
+- Retention policy is deployment-defined; the format is normative so logs are portable across tools. `[AWP-AUD-004]`
+- Logs with full payloads plus a starting snapshot are sufficient for [deterministic replay](/spec/reproducibility) on worlds that advertise it. `[AWP-AUD-005]`
+
+The log is deliberately triple-purpose: safety audit trail, debugging record, and dataset — see [Record and replay](/guides/record-and-replay).

@@ -1,0 +1,9 @@
+---
+title: "Permissions"
+description: "The grant model: scopes, expiry, and default-deny."
+---
+
+- Sessions operate **default-deny**: only explicitly granted action types, channels, and embodiments are usable; everything else returns `AWP_FORBIDDEN`. `[AWP-PRM-001]`
+- Grants are enumerated exactly in `session.ready` and are immutable for the session except channel subscriptions ([negotiation](/spec/session/negotiation)). `[AWP-PRM-002]`
+- Grants MAY carry `expires_at` (monotonic ns); expired grants behave as never granted, and the world emits `world.event: grant_expired`. `[AWP-PRM-003]`
+- Worlds MAY scope grants further per action type (e.g. `move_to_pose` limited to a named spatial region); such scopes appear in the granted schema. `[AWP-PRM-004]`

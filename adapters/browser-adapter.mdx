@@ -1,0 +1,10 @@
+---
+title: "Browser adapter"
+description: "Chromium as a GUI-profile AWP world."
+---
+
+Runs headless or headed Chromium, exposing `screenshot` and `a11y_tree` channels and the GUI-profile action set. `navigate` outside the configured allowlist is `requires_approval`, demonstrating the approval flow end to end. Lockstep mode drives a deterministic page harness for agent regression tests; streaming mode is live browsing.
+
+```bash
+npx @awp/browser-adapter --port 8710 --allowlist "*.wikipedia.org"
+```

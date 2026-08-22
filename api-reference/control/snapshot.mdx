@@ -1,0 +1,8 @@
+---
+title: "world.snapshot / world.restore / world.reset"
+description: "State capture for worlds advertising snapshot capability."
+---
+
+**world.snapshot** — no params → `{ "snapshot_token": "snap_…" }` (opaque; AWP-REP-002).
+**world.restore** — `{ snapshot_token }` → world returns to captured state; all sessions receive `world.event: world_resetting`.
+**world.reset** — `{ initial_state?: string, seed?: integer }` → return to a named initial state (sim profile).

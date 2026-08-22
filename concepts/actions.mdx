@@ -1,0 +1,40 @@
+---
+title: "Actions"
+description: "Actions are typed intents with duration and a lifecycle — not fire-and-forget RPCs."
+icon: "bolt"
+---
+
+The single biggest departure from tool-calling protocols: an AWP action is an **intent that unfolds over time**. "Move arm to pose X" takes two seconds and might fail halfway. The protocol therefore gives every action a lifecycle:
+
+```
+submit → accepted | rejected → executing (progress…) → completed | failed | preempted | cancelled
+```
+
+Actions are **typed**. The world's manifest declares each action type as a JSON Schema with units and ranges:
+
+```json
+{
+  "type": "move_to_pose",
+  "params_schema": {
+    "type": "object",
+    "properties": {
+      "pose": { "$ref": "awp:pose" },
+      "frame": { "type": "string" },
+      "max_velocity_mps": { "type": "number", "maximum": 1.5 }
+    },
+    "required": ["pose", "frame"]
+  },
+  "duration": "extended",
+  "preemption": "replace",
+  "requires_approval": false
+}
+```
+
+Key properties:
+
+- **Idempotency** — every submission carries a client-generated `action_id`; resubmission after reconnect is safe.
+- **Validation** — worlds MUST validate params against the schema and reject out-of-range values before execution.
+- **Preemption policy** — each type declares what a new action does to a running one: `queue`, `replace`, `blend`, or `reject`. See [preemption](/spec/loop/preemption).
+- **Approval** — types marked `requires_approval` pause at the boundary for a human or supervisor. See [approval](/spec/safety/approval).
+
+Full normative rules: [action lifecycle](/spec/loop/action-lifecycle).

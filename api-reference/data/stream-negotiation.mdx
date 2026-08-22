@@ -1,0 +1,15 @@
+---
+title: "Stream negotiation"
+description: "How data-plane endpoints are established."
+---
+
+`session.ready` lists `stream_endpoints`, ordered by world preference:
+
+```json
+{ "stream_endpoints": [
+  { "binding": "webrtc", "signaling": "wss://…/rtc", "channels": [1, 2] },
+  { "binding": "ws", "url": "wss://…/stream?token=…", "channels": [1, 2, 3] },
+  { "binding": "inline" } ] }
+```
+
+The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Data connections authenticate with the session token (AWP-SEC-004).

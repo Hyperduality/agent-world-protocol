@@ -1,0 +1,17 @@
+---
+title: "AWP vs MCP"
+description: "Tools vs worlds — and how they compose."
+---
+
+| | MCP | AWP |
+|---|---|---|
+| Boundary | agent ↔ tools/context | agent ↔ world |
+| Call model | request/response, effectively instant | intents with duration and lifecycle |
+| Discovery | tool listing | world manifest (channels, actions, embodiments) |
+| Time | none | lockstep and streaming models |
+| Data | text/JSON-centric | multi-modal binary streams |
+| Safety | host-mediated consent | server-enforced grants, envelopes, approval, audit |
+
+Rule of thumb: if the thing you're calling completes before you need another observation, it's a tool (MCP). If you act *within* it over time while it changes around you, it's a world (AWP).
+
+They compose both ways: an AWP world can expose MCP tools for its non-embodied surfaces (querying a warehouse database while controlling the arm), and an agent can appear as an MCP server whose tools open AWP sessions.

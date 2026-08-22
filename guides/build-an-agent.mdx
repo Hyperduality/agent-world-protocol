@@ -1,0 +1,38 @@
+---
+title: "Build an LLM agent"
+description: "Render the world manifest into an LLM context and drive the perception–action loop."
+---
+
+The pattern: **manifest → context → loop**.
+
+<Steps>
+  <Step title="Render the manifest as capabilities">
+    Turn each granted action schema into a tool-like description the model can select from, and each channel into a described percept source. This mirrors how MCP clients render tools.
+    ```python
+    def render_capabilities(session):
+        lines = ["You control embodiment '%s'. Available actions:" % session.embodiment]
+        for a in session.granted_actions:
+            lines.append(f"- {a.type}: params {a.params_schema}")
+        return "\n".join(lines)
+    ```
+  </Step>
+  <Step title="Loop: observe, decide, act, await">
+    ```python
+    while not done:
+        obs = await session.observe()                     # lockstep pull
+        decision = llm.decide(render_capabilities(session), summarize(obs))
+        action = await session.submit(type=decision.type, params=decision.params)
+        status = await action.terminal()                  # completed/failed/preempted
+        feed_back(llm, status)                            # failures are information
+    ```
+  </Step>
+  <Step title="Handle the lifecycle honestly">
+    Feed `failed`, `preempted`, and `clamped` statuses back into context — they are the world teaching the model its limits. Never retry non-retryable errors with identical params (AWP-ERR-001).
+  </Step>
+</Steps>
+
+<Tip>
+Prefer subscribing to a [scene-graph channel](/spec/semantics/scene-graphs) when the world offers one — structured entities and affordances beat raw pixels for LLM planning, and you can add pixels later for grounding checks.
+</Tip>
+
+For streaming worlds, run observation ingestion and decision-making concurrently, always stamping decisions with the `seq`/`ts_mono_ns` they were based on.

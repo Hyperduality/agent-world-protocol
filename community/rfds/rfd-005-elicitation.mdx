@@ -1,0 +1,18 @@
+---
+title: "RFD-005: Generalized elicitation"
+description: "Structured human-input requests, with approval as the mandatory specialization."
+---
+
+**Status: draft · Target: v0.2+ · Area: safety, control plane**
+
+## Problem
+
+The approval flow ([spec](/spec/safety/approval)) is a fixed-shape human-input request. Worlds and agents also need arbitrary structured input from a human (choose a bin, confirm a detected label, enter a one-time code). ACP stabilized this pattern as *elicitation*; the shape transfers.
+
+## Proposal
+
+`safety.elicit`: a JSON-Schema-described form sent to the configured human channel; the response validates against the schema. `safety.approval_requested` becomes the mandatory, safety-critical specialization with its fixed states and timeout semantics unchanged.
+
+## Compatibility
+
+Additive method behind capability flag `elicitation`; approval semantics untouched.

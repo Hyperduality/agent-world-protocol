@@ -1,0 +1,23 @@
+---
+title: "Core profile"
+description: "The minimal conformance bar every AWP implementation meets."
+---
+
+Core is deliberately small — implementable over a weekend against the SDK.
+
+**A Core World MUST provide:**
+
+| Requirement | Refs |
+|---|---|
+| WebSocket control-plane binding, JSON-RPC framing, heartbeats | AWP-TRN-001, AWP-CTL-001..004 |
+| `initialize` with a valid world manifest | AWP-MAN-001..003 |
+| At least one embodiment, one observation channel, one action type | AWP-MAN-001 |
+| One time model (either) with its full semantics | AWP-TIM-001..008 |
+| Complete action lifecycle with status notifications | AWP-LIF-001..006 |
+| Default-deny grants and exact `session.ready` enumeration | AWP-PRM-001..002, AWP-NEG-001 |
+| Error taxonomy and `retryable` marking | AWP-ERR-001 |
+| Audit log | AWP-AUD-001..002 |
+
+**A Core Agent MUST:** negotiate versions, parse manifests, honor granted subsets, generate idempotent action ids, handle every lifecycle state including `preempted`, and tolerate unknown fields. (AWP-VER-002..003, AWP-ACT-001, AWP-LIF-001)
+
+Data-plane bindings beyond `inline`, snapshots, approval, and envelopes are **not** required by Core — they arrive with profiles.

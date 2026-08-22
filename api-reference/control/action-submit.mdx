@@ -1,0 +1,21 @@
+---
+title: "action.submit"
+description: "Submit a typed intent. Agent → World."
+---
+
+<ParamField body="action_id" type="string" required>Client-generated, unique per session; idempotent on resubmit.</ParamField>
+<ParamField body="type" type="string" required>A granted action type.</ParamField>
+<ParamField body="params" type="object" required>Valid against the type's `params_schema`.</ParamField>
+<ParamField body="embodiment_id" type="string">Required only in multi-bind sessions.</ParamField>
+<ParamField body="preempt" type="string">One of the type's declared policies.</ParamField>
+<ParamField body="deadline_ms" type="integer">Binding in streaming mode (AWP-ACT-004).</ParamField>
+
+**Result:** `{ "action_id": "…", "state": "accepted" }` or an error. Subsequent transitions arrive as [`action.status` notifications](/api-reference/control/action-status).
+
+**Errors:** 3001, 3002, 3003, 4001, 4002, 4003, 4004.
+
+```json Request
+{ "jsonrpc": "2.0", "id": 7, "method": "action.submit",
+  "params": { "action_id": "a-01J8ZK3E9WPT", "type": "move",
+              "params": { "direction": "north" } } }
+```

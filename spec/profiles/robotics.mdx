@@ -1,0 +1,16 @@
+---
+title: "Robotics profile"
+description: "Requirements added for physical actuation."
+---
+
+Adds to Core:
+
+- Streaming time model with latency telemetry — AWP-TIM-005..007
+- Full envelope enforcement (spatial, velocity, force, rate) — AWP-ENV-001..004
+- E-stop events with mandatory preemption — AWP-EVT-002
+- Approval flow available for at least one action class — AWP-APR-001..003
+- Frame tree with dynamic transforms on `awp.tf` — AWP-UNI-003..004
+- Reconnect safe-state behavior declared and enforced — AWP-CTL-005, AWP-EMB-002
+- TLS + authentication mandatory even on LAN — AWP-SEC-001..004
+
+The [ros2-bridge](/adapters/ros2-bridge) and [lerobot-bridge](/adapters/lerobot-bridge) target this profile. A standard `follow_trajectory` action for chunk-based policies is proposed in [RFD-004](/community/rfds/rfd-004-follow-trajectory); the chunk-replacement idiom it standardizes already works on v0.1 (see [Actions](/spec/loop/actions)).

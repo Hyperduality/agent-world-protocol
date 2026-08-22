@@ -1,0 +1,21 @@
+---
+title: "Scene graphs"
+description: "The optional semantic channel: entities, affordances, relations."
+---
+
+Worlds SHOULD expose a semantic channel (`modality: text/event+json`, conventionally `scene`) publishing a structured world model — the highest-leverage feature for LLM agents.
+
+```json
+{
+  "entities": [
+    { "id": "box_12", "class": "container", "pose": { "frame": "world", "p_m": [1.2, 0.4, 0.0], "q": [0,0,0,1] },
+      "affordances": ["graspable", "openable"],
+      "state": { "open": false }, "controlled_by": null }
+  ],
+  "relations": [ { "type": "on_top_of", "subject": "box_12", "object": "table_1" } ]
+}
+```
+
+- Entity `id`s MUST be stable for the life of an entity and never reused within a session. `[AWP-SCN-001]`
+- `affordances` values SHOULD correspond to granted action types where the mapping exists (e.g. `graspable` ↔ `grasp`). `[AWP-SCN-002]`
+- Scene frames are full snapshots (keyframes) or deltas per [observation rules](/spec/loop/observations). `[AWP-SCN-003]`

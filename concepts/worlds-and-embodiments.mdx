@@ -1,0 +1,22 @@
+---
+title: "Worlds and embodiments"
+description: "Why the agent's presence in a world is a first-class object, separate from the agent itself."
+icon: "cube"
+---
+
+A **world** is an endpoint implementing the world side of AWP. An **embodiment** is a controllable presence the world offers: a robot arm, a game avatar, a cursor, a pan-tilt camera.
+
+Embodiment is deliberately separate from agent identity:
+
+- One agent can hold **multiple embodiments** (a fleet of drones, both hands of a bimanual robot).
+- Embodiments can be **transferred** between agents mid-session (human teleop takeover, agent handoff).
+- A session can bind **zero embodiments** — an observer session with observation grants only.
+
+| World | Example embodiments |
+|---|---|
+| Warehouse robot stack | `arm_left`, `arm_right`, `base` |
+| Open-world game | `avatar_player2`, `spectator_cam` |
+| Browser environment | `cursor_main` |
+| Smart building | `hvac_zone_3`, `camera_lobby` (observe-only) |
+
+**Entities** are things the world reports in observations — other agents, objects, obstacles. Other agents' embodiments appear to you as entities; AWP defines how you perceive them, and leaves agent-to-agent messaging to protocols like A2A ([multi-agent](/spec/multi-agent)).

@@ -1,0 +1,6 @@
+---
+title: "Observation frames"
+description: "Per-modality payload examples."
+---
+
+Payload encoding is fixed by the channel's declared [modality](/spec/semantics/modalities). JSON modalities (`text/event+json`, `proprio/json`) are UTF-8; binary modalities (`image/jpeg`, `audio/pcm`, `pointcloud/xyz32`, `tensor/raw`) are raw bytes per their schema. Frames on per-tick lockstep channels additionally include `tick` in a 8-byte extension when flag bit 2 is set (v0.1 reserves this; SDKs surface `tick` uniformly).

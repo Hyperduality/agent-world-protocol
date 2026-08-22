@@ -1,0 +1,11 @@
+---
+title: "observation-channel.schema.json"
+description: "Canonical schema for channel declarations."
+---
+
+<ResponseField name="id" type="string" required>Channel name, unique per world. `awp.*` names are reserved (`awp.tf`, `awp.telemetry`).</ResponseField>
+<ResponseField name="modality" type="string" required>From the [modality registry](/spec/semantics/modalities) or `x-<vendor>.*`.</ResponseField>
+<ResponseField name="rate_hz" type="number | null" required>Nominal push rate; `null` for per-tick channels.</ResponseField>
+<ResponseField name="loss_class" type="string" required>`reliable` or `latest-wins`.</ResponseField>
+<ResponseField name="keyframe_interval" type="integer">Frames between keyframes when deltas are used.</ResponseField>
+<ResponseField name="schema" type="object" required>Modality-specific parameters (dimensions, sample rates, event schema).</ResponseField>

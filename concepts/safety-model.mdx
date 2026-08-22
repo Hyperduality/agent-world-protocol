@@ -1,0 +1,19 @@
+---
+title: "Safety model"
+description: "Scoped grants, server-side envelopes, approval hooks, and a normative audit log — built into the protocol, not bolted on."
+icon: "shield"
+---
+
+<Warning>
+AWP spans physical actuation. Safety is a core-layer requirement of the protocol, not an extension. Worlds enforce; agents request.
+</Warning>
+
+Four mechanisms compose:
+
+**1. Scoped grants.** A session carries explicit grants: which action types, which observation channels, which embodiments, with optional expiry. Anything not granted is rejected with `AWP_FORBIDDEN`. See [permissions](/spec/safety/permissions).
+
+**2. Envelopes.** Worlds declare and enforce quantitative limits — spatial bounds, maximum velocity, force, and action rate. Enforcement is **server-side**: a world MUST clamp or reject actions that exceed an envelope, per its declared clamp-vs-reject policy, regardless of what the agent sends. See [envelopes](/spec/safety/envelopes).
+
+**3. Human-in-the-loop approval.** Action types marked `requires_approval` pause at the boundary and emit an approval request on a dedicated channel; a human or supervising system approves, denies, or lets it time out. See [approval](/spec/safety/approval).
+
+**4. Audit log.** Every session is an append-only, replayable record of manifests, grants, observations (or their hashes), actions, and status transitions. This is simultaneously the safety audit trail, the debugging tool, and the dataset. See [audit log](/spec/safety/audit-log).

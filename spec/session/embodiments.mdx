@@ -1,0 +1,10 @@
+---
+title: "Embodiments"
+description: "Binding, releasing, transferring, and observer sessions."
+---
+
+- Binding occurs at `session.open`; a non-shared embodiment already bound elsewhere yields `AWP_EMBODIMENT_UNAVAILABLE`. `[AWP-EMB-001]`
+- On session close or reconnect-window expiry, the world MUST release the embodiment after applying its declared safe-state behavior (e.g. `hold`, `safe_stop`, `park`). `[AWP-EMB-002]`
+- **Transfer.** Worlds MAY support handoff: the receiving session calls `session.open` with `takeover: true` and a transfer token minted by the current holder via `session.transfer`. In-flight actions transition to `preempted`. `[AWP-EMB-003]`
+- **Observer sessions.** A session with no embodiment binds observation grants only; action submission returns `AWP_FORBIDDEN`. `[AWP-EMB-004]`
+- Multiple embodiments per session are permitted when the world lists them as compatible (`multi_bind` groups); action submissions then carry `embodiment_id`. `[AWP-EMB-005]`

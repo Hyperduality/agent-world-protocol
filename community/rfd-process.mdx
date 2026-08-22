@@ -1,0 +1,14 @@
+---
+title: "RFD process"
+description: "How to propose changes to the specification: Requests for Dialog."
+---
+
+Specification changes move through **Requests for Dialog** (RFDs) — individually published proposals with a lifecycle, modeled on the process that has served ACP well.
+
+1. **Discuss** — open a GitHub discussion to test the idea.
+2. **Draft** — submit an RFD PR using `rfds/0000-template.md`: problem, proposal, compatibility, affected or new `AWP-*` requirement IDs. Merged drafts get a docs page in the [RFD index](/community/rfds).
+3. **Review** — ≥ 14 days of public review; maintainers may convene a working group for cross-cutting areas.
+4. **Stabilize** — accepted RFDs are implemented against the draft spec, their requirement IDs land in normative text, conformance assertions ship the same release, and a stabilization announcement is posted to the [changelog](/community/changelog).
+5. **Merge or close** — stabilized RFDs merge into the next MINOR (additive) or MAJOR (breaking) release; declined RFDs close with rationale and remain published.
+
+Requirement IDs (`AWP-XXX-NNN`) are added or modified only through stabilized RFDs. Small editorial fixes skip the process — plain PRs welcome.

@@ -1,0 +1,53 @@
+---
+title: "Quickstart: expose a world"
+sidebarTitle: "Quickstart: world"
+description: "Wrap a simple environment in an AWP adapter, serve it over WebSocket, and pass the Core conformance suite."
+icon: "cube"
+---
+
+<Steps>
+  <Step title="Install the SDK">
+    ```bash
+    pip install awp-sdk
+    ```
+  </Step>
+  <Step title="Define channels, actions, and the tick">
+    ```python tictactoe_world.py
+    from awp.server import WorldServer, channel, action
+
+    world = WorldServer(
+        name="tictactoe",
+        time_models=["lockstep"],
+        embodiments=["player_x", "player_o"],
+    )
+
+    @channel(id="board", modality="text/event+json", rate="per-tick")
+    def board_view(state, embodiment):
+        return {"cells": state.cells, "to_move": state.to_move}
+
+    @action(type="place", params={"cell": {"type": "integer", "minimum": 0, "maximum": 8}})
+    def place(state, embodiment, params):
+        state.place(embodiment, params["cell"])   # raises -> action fails
+
+    if __name__ == "__main__":
+        world.serve(port=8710)
+    ```
+    In lockstep mode the world advances one tick per accepted action, then emits the next `board` frame.
+  </Step>
+  <Step title="Run it">
+    ```bash
+    python tictactoe_world.py
+    ```
+  </Step>
+  <Step title="Run the conformance suite">
+    ```bash
+    pip install awp-conformance
+    awp-conformance run ws://localhost:8710 --profile core
+    ```
+    <Check>
+    All Core assertions should pass. Each failure names the spec requirement ID it maps to (e.g. `AWP-SES-004`).
+    </Check>
+  </Step>
+</Steps>
+
+For a streaming-mode world (real time, no pausing), see [Wrap a robot](/guides/wrap-a-robot).

@@ -1,0 +1,20 @@
+---
+title: "AWP vs ACP"
+description: "Editors vs worlds — sibling protocols in the same genre."
+---
+
+The [Agent Client Protocol](https://agentclientprotocol.com) (ACP) standardizes communication between code editors and coding agents, the way LSP standardized language servers. AWP borrows deliberately from ACP's playbook — schema-first artifacts, capability-gated features, per-feature RFD stabilization — while covering a different boundary.
+
+| | ACP | AWP |
+|---|---|---|
+| Boundary | editor ↔ coding agent | agent ↔ world |
+| The "other side" is | a mind (the agent) serving a user in an editor | an environment enforcing physics and safety |
+| Core exchange | prompt turns, tool calls, diffs, plans | observations in, typed intents out |
+| Time | conversational turns | lockstep ticks or wall-clock streaming |
+| Data | text/JSON content blocks (Markdown default) | multi-modal binary streams + JSON control |
+| Human-in-the-loop | permission requests, elicitation | approval flow, takeover, shadow sessions |
+| Default transport | stdio subprocess (remote in progress) | network (WebSocket), stdio optional |
+
+The tell for which protocol you need: in ACP both parties are software minds cooperating on a codebase; in AWP one party is a world that the other inhabits.
+
+They compose. An ACP coding agent can hold an AWP session to test the software it writes inside a simulated environment, and an AWP GUI world can host an editor an ACP agent drives. Where AWP carries human-readable content (approval descriptions, event summaries), it reuses MCP/ACP-style content blocks with Markdown as the default text format, so clients can render both protocols with one component set.

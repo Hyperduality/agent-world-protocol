@@ -1,0 +1,34 @@
+---
+title: "Why AWP"
+description: "The gap between tool-calling protocols, RL environment APIs, and robot middleware — and why a standard agent–world boundary matters."
+icon: "lightbulb"
+---
+
+Modern agent stacks have standardized almost every interface except the one where an agent meets a world.
+
+| Standard | Boundary | What it assumes |
+|---|---|---|
+| MCP | agent ↔ tools | Instantaneous request/response calls |
+| A2A | agent ↔ agent | Peers exchanging messages and tasks |
+| ACP | editor ↔ coding agent | Conversational turns over a codebase |
+| Gym / dm_env | policy ↔ environment | In-process, lockstep, reward-centric training |
+| ROS | process ↔ process on a robot | Trusted middleware inside one machine/fleet |
+
+None of these gives you a **network protocol for embodied interaction at inference time**. The consequences show up everywhere:
+
+- Every simulator, game, and robot stack invents a bespoke agent integration.
+- Agent code trained in simulation must be rewritten to run on hardware.
+- Safety is enforced (or not) ad hoc inside each integration.
+- Sessions are not portable, replayable, or auditable in a common format.
+
+## What AWP changes
+
+**Self-describing worlds.** A world advertises its observation channels, action schemas, time models, and safety policy in a manifest. A generic agent can enter a world it has never seen and discover: *here I have two arms, a camera at 30 fps, and these 14 action types.*
+
+**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary trains against `awp-sim` and deploys against a ROS 2 bridge. See [Sim-to-real](/guides/sim-to-real).
+
+**Safety at the boundary.** Scoped grants, server-side envelopes, approval hooks, and a normative audit log live in the protocol itself, not in each integration. See the [safety model](/concepts/safety-model).
+
+**Sessions as data.** Every session is a timestamped log of observations and actions — replayable for debugging, reusable as evaluation benchmarks and training data. See [Record and replay](/guides/record-and-replay).
+
+AWP does not replace any of the standards above — it composes with them. An AWP world can expose MCP tools; an AWP robotics adapter sits on ROS topics; agents inside an AWP world can talk A2A to each other. See the [Compare](/compare/mcp) section.

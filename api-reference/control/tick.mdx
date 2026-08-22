@@ -1,0 +1,8 @@
+---
+title: "world.tick"
+description: "Advance a lockstep world. Agent → World."
+---
+
+<ParamField body="count" type="integer">Ticks to advance. Default 1.</ParamField>
+
+Only valid in lockstep sessions with `tick_policy` `on_tick` or `on_both`. Result: `{ "tick": 4212 }` after all per-tick frames for the new tick have been delivered (AWP-TIM-003).

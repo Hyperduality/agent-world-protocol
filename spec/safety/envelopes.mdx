@@ -1,0 +1,22 @@
+---
+title: "Envelopes"
+description: "Quantitative safety limits, enforced server-side."
+---
+
+The world's `safety_policy` declares envelopes per embodiment:
+
+```json
+{
+  "embodiment": "arm_01",
+  "spatial": { "frame": "base", "aabb_m": [[-0.8,-0.8,0.0],[0.8,0.8,1.2]] },
+  "max_velocity_mps": 1.0,
+  "max_force_n": 40,
+  "max_action_rate_hz": 10,
+  "on_violation": "clamp"
+}
+```
+
+- Enforcement is **world-side and unconditional**: no agent input may cause envelope violation. `[AWP-ENV-001]`
+- `on_violation` is `clamp` (execute at the limit, report `clamped: true` in status) or `reject` (`AWP_ENVELOPE_EXCEEDED`). Declared per envelope. `[AWP-ENV-002]`
+- Violations of physical envelopes during execution (external disturbance) MUST fail the action (reason `envelope`) and emit `world.event: envelope_violation`. `[AWP-ENV-003]`
+- Rate limiting applies to `action.submit` admission; excess returns `AWP_ENVELOPE_EXCEEDED` with `retryable: true` and `retry_after_ms`. `[AWP-ENV-004]`

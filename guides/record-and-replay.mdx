@@ -1,0 +1,17 @@
+---
+title: "Record and replay"
+description: "The audit log as debugger, benchmark, and dataset."
+---
+
+Every session already produces a normative [audit log](/spec/safety/audit-log). Three uses:
+
+**Debugging.** `awp-log view session.awpl` reconstructs the timeline: every frame, submission, and transition on the session clock. Because timestamps mark capture/event time (AWP-CLK-004), latency problems are visible directly.
+
+**Benchmarks.** On sim-profile worlds, a log plus its initial snapshot is a reproducible episode (AWP-REP-003). Publish the snapshot + a scoring script and any conformant agent can be evaluated on identical states.
+
+**Datasets.** Logs with full payloads are (observation, action, outcome) trajectories in one portable format — filter by terminal status, join on `action_id`, and export.
+
+```bash
+awp-log record ws://localhost:8710 --out episode.awpl     # proxy recorder
+awp-log replay episode.awpl --against ws://localhost:8710 # verify AWP-REP-003
+```

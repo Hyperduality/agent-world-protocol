@@ -1,0 +1,18 @@
+---
+title: "Sim to real"
+description: "One agent binary, two worlds."
+---
+
+The portability contract is AWP-TIM-008: a world offering both time models must keep manifests, schemas, and lifecycles identical across them — and a sim adapter and a robot adapter for the same platform should share one manifest by construction.
+
+What changes between sim and real:
+
+| Aspect | Sim (lockstep) | Real (streaming) |
+|---|---|---|
+| Session mode | `lockstep` | `streaming` |
+| Observation delivery | pulled per tick | pushed, stale by latency |
+| Deadlines | advisory | binding (AWP-ACT-004) |
+| Determinism | seeded, replayable | none |
+| Envelopes | often loose | enforced tight |
+
+What must not change: channel ids, action types, param schemas, frames, units. Practical recipe: develop in lockstep against `awp-sim`; graduate to *streaming against the simulator* (same worlds often offer both) to shake out staleness handling; only then point the same binary at the robotics adapter with conservative envelopes and approval on risky types.

@@ -1,0 +1,18 @@
+---
+title: "LeRobot bridge"
+description: "SO-100/SO-101-class arms as robotics-profile AWP worlds, LeRobot-native."
+---
+
+The bridge wraps LeRobot's robot interface directly (no ROS required — this is what the affordable-arm community actually runs). It targets position-commanded serial-bus servo arms with USB cameras: SO-100, SO-101, Koch-class hardware.
+
+Manifest highlights: `rgb_front` and `rgb_wrist` (`image/jpeg`, 30 Hz, latest-wins), `proprio` (`proprio/json`, 50 Hz); actions `follow_trajectory` (chunk-replacement idiom, `preemption: [replace, blend]`), `gripper_set`, `stop`; streaming-only; joint-space and Cartesian AABB envelopes with `clamp`; software e-stop wired to a physical button; `on_disconnect: hold`; full audit log.
+
+```bash
+pip install awp-lerobot
+awp-lerobot serve --robot so101 --port 8710 --config safety.yaml
+```
+
+Two workflows the bridge unlocks beyond agent control:
+
+- **Teleoperation as data collection.** Wrap the leader arm as an AWP *agent*; demonstrations land as ordinary audit logs, exportable with `awp-log export --format lerobot` straight into training pipelines.
+- **Sim-to-real.** `awp-sim so101-mujoco` ships the identical manifest; the same agent binary runs against browser physics and the physical arm, changing only the URL and session mode ([Sim to real](/guides/sim-to-real)).

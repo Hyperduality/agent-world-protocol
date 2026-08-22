@@ -1,0 +1,13 @@
+---
+title: "Control plane"
+description: "JSON-RPC 2.0 framing, ordering, heartbeats, and reconnection."
+---
+
+- Control messages are JSON-RPC 2.0 objects. Requests originate from either side; notifications (no `id`) are used for status and event pushes. `[AWP-CTL-001]`
+- Method names are namespaced: `initialize`, `world.*`, `session.*`, `obs.*`, `action.*`, `safety.*`. Unknown methods MUST return JSON-RPC `-32601`. `[AWP-CTL-002]`
+- Per-direction ordering MUST be preserved by the binding; recipients MUST NOT assume cross-direction ordering. `[AWP-CTL-003]`
+- **Heartbeats.** Each side MUST respond to `ping` with `pong` within 5 s; either side MAY treat 3 missed heartbeats as connection loss. `[AWP-CTL-004]`
+- **Reconnection.** A dropped control connection does not terminate the session for `session.reconnect_window_ms` (declared in `session.ready`, default 30000). The agent reconnects and calls `session.resume` with its session token; the world MUST replay undelivered `action.status` notifications. In streaming mode the world's safety policy governs embodiment behavior during the gap (e.g. hold, safe-stop). `[AWP-CTL-005]`
+- Batch requests MUST NOT be used. `[AWP-CTL-006]`
+
+See the [API Reference](/api-reference/message-envelope) for the envelope and every method.

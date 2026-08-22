@@ -1,0 +1,10 @@
+---
+title: "session.close / session.resume / session.transfer"
+description: "Ending, resuming, and handing off sessions."
+---
+
+**session.close** — no params. Running actions transition per AWP-LIF; embodiment released after safe-state behavior.
+
+**session.resume** — `{ session_token }` after reconnect within the window. World replays undelivered `action.status` notifications (AWP-CTL-005). Errors: `AWP_SESSION_EXPIRED` (2003).
+
+**session.transfer** — current holder mints `{ transfer_token, expires_in_ms }` for handoff; the receiver passes it to `session.open` with `takeover: true` (AWP-EMB-003).

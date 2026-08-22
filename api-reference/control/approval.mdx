@@ -1,0 +1,15 @@
+---
+title: "safety.approval"
+description: "Approval requests and responses for gated actions."
+---
+
+**safety.approval_requested (notification, World → approver):**
+
+```json
+{ "jsonrpc": "2.0", "method": "safety.approval_requested",
+  "params": { "approval_id": "ap_31", "action_id": "a-01J8…", "type": "navigate",
+              "params": { "url": "https://example.com/checkout" },
+              "expires_at_ns": 913065200000 } }
+```
+
+**safety.approval.respond (approver → World):** `{ approval_id, decision: "approve" | "deny", note? }`. Deny → action `rejected` (4003); timeout → 4004. Standing approvals, where supported, carry `{ scope: { type, predicate }, expires_at }` and are audit-logged (AWP-APR-004).

@@ -1,0 +1,11 @@
+---
+title: "Event frames"
+description: "world.event payloads on the events channel and control plane."
+---
+
+Standard events (AWP-EVT-001): `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `world_resetting`, `world_shutdown`.
+
+```json
+{ "event": "collision", "ts_mono_ns": 913071000000,
+  "detail": { "entities": ["arm_01_ee", "box_12"], "force_n": 12.4, "frame": "world" } }
+```

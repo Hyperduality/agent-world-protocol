@@ -1,0 +1,10 @@
+---
+title: "AWP vs ROS"
+description: "Robot middleware vs the agent boundary."
+---
+
+ROS is **intra-robot middleware**: trusted processes on one machine or fleet exchanging topics and services, with rich device drivers and tooling. AWP is the **agent boundary**: an untrusted-by-default mind connecting to a robot (or any world) over a network with negotiated grants and enforced envelopes.
+
+ROS has no notion of sessions, permissions, manifest discovery for an external agent, or a normative audit format; AWP has no device drivers, no DDS, no intra-robot plumbing — and doesn't want them.
+
+The composition is an adapter, not a rivalry: the [ros2-bridge](/adapters/ros2-bridge) runs as a ROS node, translating topics/tf/actions into AWP channels/frames/actions and enforcing the safety policy at the boundary.

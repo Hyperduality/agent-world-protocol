@@ -1,0 +1,18 @@
+---
+title: "Worlds"
+description: "Environments you can connect an AWP agent to today."
+---
+
+<Note>
+Listings require passing the [conformance suite](/conformance/test-suite) for the claimed classes. To add yours, PR `registry.json` in the spec repo with your signed report — see [registry](/conformance/registry).
+</Note>
+
+| World | Kind | Profiles | Time models | By |
+|---|---|---|---|---|
+| [awp-sim](/adapters/awp-sim) `gridworld` / `tictactoe` / `arm2d` / `so101-mujoco` | Simulation | core, sim, game | lockstep + streaming | AWP project |
+| [gymnasium-bridge](/adapters/gymnasium-bridge) | Any Gymnasium env | core, sim | lockstep | AWP project |
+| [lerobot-bridge](/adapters/lerobot-bridge) | SO-100/SO-101-class arms | core, robotics | streaming | AWP project |
+| [ros2-bridge](/adapters/ros2-bridge) | ROS 2 robots | core, robotics | streaming | AWP project |
+| [browser-adapter](/adapters/browser-adapter) | Chromium | core, gui | streaming (+ lockstep harness) | AWP project |
+
+Building a world? Start with [Quickstart: expose a world](/quickstart-world), then the wrap guides for [simulators](/guides/wrap-a-simulator), [robots](/guides/wrap-a-robot), and [GUIs](/guides/wrap-a-gui).

@@ -1,0 +1,18 @@
+---
+title: "Modalities"
+description: "The registry of standard payload encodings."
+---
+
+| Modality | Payload | Notes |
+|---|---|---|
+| `image/jpeg` | JPEG bytes | schema declares width, height, color_space |
+| `image/raw` | packed pixels | schema declares format (`rgb8`, `bgr8`, `mono16`, `depth32f`) and stride |
+| `audio/pcm` | PCM samples | schema declares rate_hz, channels, sample_format |
+| `text/event+json` | UTF-8 JSON | structured events; schema per channel |
+| `proprio/json` | UTF-8 JSON | joints, poses, twists (unit-suffixed fields) |
+| `pointcloud/xyz32` | packed float32 triples | frame named in schema |
+| `tensor/raw` | dtype+shape header, row-major data | for learned features |
+
+- Payloads MUST validate against the channel's declared modality and schema. `[AWP-MOD-001]`
+- Vendor modalities use `x-<vendor>.<name>`; agents ignore channels whose modality they did not declare. `[AWP-MOD-002]`
+- New standard modalities are added by RFD (MINOR version bump). `[AWP-MOD-003]`

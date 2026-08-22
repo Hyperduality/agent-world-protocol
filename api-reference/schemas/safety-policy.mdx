@@ -1,0 +1,9 @@
+---
+title: "safety-policy.schema.json"
+description: "Canonical schema for the world safety policy."
+---
+
+<ResponseField name="envelopes" type="object[]" required>Per-embodiment limits; see [envelopes](/spec/safety/envelopes).</ResponseField>
+<ResponseField name="on_disconnect" type="string" required>Safe-state behavior: `hold`, `safe_stop`, `park`, or a vendor value.</ResponseField>
+<ResponseField name="approval_timeout_ms" type="integer">Default 60000.</ResponseField>
+<ResponseField name="approval_channel" type="string">Where approval requests are routed (deployment-defined).</ResponseField>

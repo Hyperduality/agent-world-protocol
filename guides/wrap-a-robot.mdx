@@ -1,0 +1,28 @@
+---
+title: "Wrap a robot"
+description: "A streaming adapter over ROS 2 with envelopes, e-stop, and latency reporting."
+---
+
+<Warning>
+Physical actuation. Implement the [robotics profile](/spec/profiles/robotics) completely before connecting untrusted agents; envelopes and e-stop are not optional.
+</Warning>
+
+<Steps>
+  <Step title="Topics to channels, actions to actions">
+    Camera/joint-state topics → observation channels (`image/jpeg`, `proprio/json`); ROS 2 actions/services → AWP action types. Map tf → the AWP frame tree, publishing dynamic transforms on `awp.tf`.
+  </Step>
+  <Step title="Enforce envelopes in the adapter">
+    Clamp or reject before commands reach the controller (AWP-ENV-001). Do this in the adapter even if the controller has its own limits — the audit log must show protocol-level enforcement.
+  </Step>
+  <Step title="Wire the e-stop both ways">
+    Hardware e-stop → `world.event: e_stop_engaged` + preempt all actions (AWP-EVT-002). Expose a `stop` action type with `preemption: replace` as the software path.
+  </Step>
+  <Step title="Report latency">
+    Publish pipeline latencies on `awp.telemetry` (AWP-TIM-006); measure capture→send for observations and submit→admit for actions.
+  </Step>
+  <Step title="Declare disconnect behavior">
+    Choose and test `on_disconnect` (`safe_stop` for arms, `hold` for grippers) — it runs when the reconnect window expires (AWP-EMB-002).
+  </Step>
+</Steps>
+
+Reference implementations: [ros2-bridge](/adapters/ros2-bridge) for ROS 2 stacks, [lerobot-bridge](/adapters/lerobot-bridge) for LeRobot-class affordable arms (no ROS required).

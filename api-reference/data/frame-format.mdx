@@ -1,0 +1,15 @@
+---
+title: "Frame format"
+description: "The 28-byte binary header carried by every data-plane frame."
+---
+
+See the normative layout in [spec/transport/data-plane](/spec/transport/data-plane). Quick reference:
+
+```
+0        4   5   6      8            16           24        28
++--------+---+---+------+------------+------------+---------+---------
+| "AWPF" |ver|flg|chan  | seq (u64)  | ts_mono_ns | len(u32)| payload…
++--------+---+---+------+------------+------------+---------+---------
+```
+
+Little-endian. Flags: bit 0 keyframe, bit 1 end-of-burst. `channel_id` values are assigned in `session.ready`. In the `inline` binding this exact envelope is base64-encoded inside `obs.frame` control-plane notifications.

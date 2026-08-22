@@ -1,0 +1,24 @@
+---
+title: "Message envelope"
+description: "The JSON-RPC 2.0 wrapper used by every control-plane message."
+---
+
+<CodeGroup>
+```json Request
+{ "jsonrpc": "2.0", "id": 42, "method": "action.submit", "params": { } }
+```
+```json Response
+{ "jsonrpc": "2.0", "id": 42, "result": { } }
+```
+```json Notification
+{ "jsonrpc": "2.0", "method": "action.status", "params": { } }
+```
+```json Error
+{ "jsonrpc": "2.0", "id": 42,
+  "error": { "code": 3001, "message": "AWP_PARAMS_INVALID",
+             "data": { "retryable": false, "detail": "pose.p_m[2] exceeds maximum" } } }
+```
+
+</CodeGroup>
+
+Rules: ids are unique per sender per connection; batching is prohibited (AWP-CTL-006); unknown fields are ignored (AWP-VER-003); unknown methods return JSON-RPC `-32601`.

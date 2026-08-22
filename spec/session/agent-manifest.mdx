@@ -1,0 +1,18 @@
+---
+title: "Agent manifest"
+description: "What the agent declares in initialize."
+---
+
+```json
+{
+  "protocol_versions": ["0.1"],
+  "agent": { "name": "picker-agent", "version": "1.4.2", "vendor": "acme" },
+  "consumes_modalities": ["image/jpeg", "proprio/json", "text/event+json"],
+  "time_models": ["lockstep", "streaming"],
+  "max_obs_rate_hz": 30,
+  "extensions": {}
+}
+```
+
+- Worlds MUST NOT push modalities the agent did not declare in `consumes_modalities`. `[AWP-AGM-001]`
+- Agents SHOULD declare a realistic `max_obs_rate_hz`; worlds MAY downsample to honor it. `[AWP-AGM-002]`

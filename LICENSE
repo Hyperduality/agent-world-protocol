@@ -1,0 +1,14 @@
+This repository uses a dual license.
+
+Specification and documentation text (including `*.mdx` and `*.md` pages)
+is licensed under the Creative Commons Attribution 4.0 International License.
+See LICENSE-CC-BY-4.0.
+
+Canonical JSON Schemas, reference code, and other software in this repository
+are licensed under the Apache License, Version 2.0.
+See LICENSE-APACHE.
+
+Contributions are accepted without a CLA. By contributing you agree that
+specification and documentation text is licensed under CC-BY 4.0, that
+schemas and software are licensed under Apache-2.0, and that you have the
+right to submit the work.

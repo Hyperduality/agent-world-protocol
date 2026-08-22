@@ -1,0 +1,51 @@
+---
+title: "World manifest"
+description: "The self-description a world returns from initialize — the heart of AWP discoverability."
+---
+
+Returned by `initialize`. Normative fields:
+
+```json
+{
+  "protocol_version": "0.1",
+  "world": { "name": "warehouse-sim", "version": "2.3.0", "vendor": "acme" },
+  "time_models": ["lockstep", "streaming"],
+  "capabilities": { "seed": true, "snapshot": true, "replay": true },
+  "embodiments": [
+    {
+      "id": "arm_01",
+      "kind": "manipulator",
+      "shared_control": false,
+      "action_types": ["move_to_pose", "gripper_set", "stop"],
+      "channels": ["rgb_wrist", "proprio", "events"]
+    }
+  ],
+  "observation_channels": [
+    {
+      "id": "rgb_wrist",
+      "modality": "image/jpeg",
+      "rate_hz": 30,
+      "loss_class": "latest-wins",
+      "schema": { "width": 1280, "height": 720, "color_space": "srgb" }
+    }
+  ],
+  "action_schemas": [
+    {
+      "type": "move_to_pose",
+      "params_schema": { "$ref": "#/defs/move_to_pose_params" },
+      "duration": "extended",
+      "preemption": "replace",
+      "requires_approval": false
+    }
+  ],
+  "safety_policy": { "$ref": "/api-reference/schemas/safety-policy" },
+  "extensions": {}
+}
+```
+
+- Every `channel` and `action_type` referenced by an embodiment MUST be defined in the top-level lists. `[AWP-MAN-001]`
+- `params_schema` values MUST be valid JSON Schema (2020-12). `[AWP-MAN-002]`
+- Manifests MUST be stable for the life of the connection; changes require re-`initialize`. `[AWP-MAN-003]`
+- `capabilities` is an open map. v0.1 standard keys: `seed`, `snapshot`, `replay`. Unknown keys MUST be ignored; vendor keys use `x-<vendor>.` naming. New standard keys arrive by RFD ([RFD-006](/community/rfds/rfd-006-capabilities)). `[AWP-MAN-004]`
+
+Canonical schema: [world-manifest](/api-reference/schemas/world-manifest).

@@ -1,0 +1,45 @@
+---
+title: "Time models"
+description: "Lockstep and streaming — the make-or-break design axis that lets one agent run in simulation and on hardware."
+icon: "clock"
+---
+
+A simulator can pause and wait for the agent. Reality cannot. AWP therefore defines two time models; a world declares which it supports, and a session runs in exactly one.
+
+## Lockstep
+
+The world advances only when the agent acts. Observations are pulled per tick. Perfect for turn-based games, deterministic simulation, and evaluation harnesses.
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant W as World
+    A->>W: world.tick()
+    W-->>A: obs frame (t=n)
+    A->>W: action.submit(move)
+    W-->>A: action completed, obs frame (t=n+1)
+```
+
+## Streaming
+
+The world runs in wall-clock time. Observations are pushed with timestamps; actions are asynchronous intents that report progress while the world keeps moving. Robots only offer streaming; most simulators offer both.
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant W as World
+    W--)A: obs frames (30 fps, continuous)
+    A->>W: action.submit(move_to_pose)
+    W-->>A: accepted
+    W--)A: obs frames keep flowing
+    W-->>A: status: executing (0.4)
+    W-->>A: status: completed
+```
+
+## Why this is the crux
+
+<Warning>
+An agent written only for lockstep will silently misbehave in streaming mode: its observations are stale by the time it acts. Streaming worlds MUST report observation→action latency so agents can compensate, and agents SHOULD treat every observation as a snapshot of the past.
+</Warning>
+
+Because both modes share identical manifests, schemas, and action lifecycles, the same agent code can train in lockstep against `awp-sim` and deploy in streaming against hardware — swapping only the session mode. That is the [sim-to-real](/guides/sim-to-real) story. Normative details: [spec/loop/time-models](/spec/loop/time-models).

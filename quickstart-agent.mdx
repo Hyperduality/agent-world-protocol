@@ -1,0 +1,94 @@
+---
+title: "Quickstart: connect an agent"
+sidebarTitle: "Quickstart: agent"
+description: "Connect to the demo world, read its manifest, and complete your first perception–action loop in ten minutes."
+icon: "plug"
+---
+
+<Info>
+Requires Python 3.10+ or Node 20+. The demo world `awp-sim` runs locally — no account needed.
+</Info>
+
+<Steps>
+  <Step title="Install the SDK and demo world">
+    <CodeGroup>
+    ```bash Python
+    pip install awp-sdk awp-sim
+    ```
+    ```bash TypeScript
+    npm install @awp/sdk
+    pip install awp-sim
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Start the demo world">
+    ```bash
+    awp-sim serve gridworld --port 8710
+    ```
+    This exposes a lockstep grid world at `ws://localhost:8710`.
+  </Step>
+  <Step title="Connect and read the manifest">
+    <CodeGroup>
+    ```python Python
+    import asyncio
+    from awp import AgentClient
+
+    async def main():
+        async with AgentClient("ws://localhost:8710") as client:
+            manifest = await client.initialize(agent_name="quickstart")
+            print([c.id for c in manifest.observation_channels])
+            print([a.type for a in manifest.action_schemas])
+
+    asyncio.run(main())
+    ```
+    ```typescript TypeScript
+    import { AgentClient } from "@awp/sdk";
+
+    const client = await AgentClient.connect("ws://localhost:8710");
+    const manifest = await client.initialize({ agentName: "quickstart" });
+    console.log(manifest.observationChannels.map(c => c.id));
+    console.log(manifest.actionSchemas.map(a => a.type));
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Open a session and act">
+    <CodeGroup>
+    ```python Python
+    session = await client.open_session(
+        embodiment="avatar_0",
+        mode="lockstep",
+        subscribe=["grid_view", "events"],
+    )
+    obs = await session.observe()          # pull the tick's observation
+    action = await session.submit(type="move", params={"direction": "north"})
+    await action.completed()               # resolves when the world confirms
+    ```
+    ```typescript TypeScript
+    const session = await client.openSession({
+      embodiment: "avatar_0",
+      mode: "lockstep",
+      subscribe: ["grid_view", "events"],
+    });
+    const obs = await session.observe();
+    const action = await session.submit({ type: "move", params: { direction: "north" } });
+    await action.completed();
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Verify">
+    <Check>
+    You should see the avatar position change in the next observation frame. Run `awp-sim serve gridworld --render` to watch it live.
+    </Check>
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build an LLM agent" href="/guides/build-an-agent" icon="brain">
+    Render the manifest into an LLM context and let it drive the loop.
+  </Card>
+  <Card title="Time models" href="/concepts/time-models" icon="clock">
+    Lockstep vs streaming — the concept that makes sim-to-real work.
+  </Card>
+</CardGroup>

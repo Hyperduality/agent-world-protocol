@@ -1,0 +1,18 @@
+---
+title: "Conformance"
+description: "Conformance classes and how normative requirements map to test-suite assertions."
+---
+
+## Conformance classes
+
+- **Core World** — implements every MUST in the Core profile on the world side. `[AWP-CNF-001]`
+- **Core Agent** — implements every MUST in the Core profile on the agent side. `[AWP-CNF-002]`
+- **Profile conformance** — a Core-conformant implementation additionally satisfying all MUSTs of a named [profile](/spec/profiles/core). Claims are per-profile (e.g. "Core World + sim + robotics"). `[AWP-CNF-003]`
+
+## Requirement mapping
+
+Each MUST/MUST NOT maps to at least one assertion in the [conformance suite](/conformance/test-suite); assertions are named after requirement IDs. SHOULD items generate warnings, not failures. `[AWP-CNF-004]`
+
+## Claiming conformance
+
+Implementations MUST NOT claim "AWP-conformant" without passing the current suite for the claimed classes; "AWP-compatible" carries no normative meaning. `[AWP-CNF-005]` See [badges](/conformance/badges).

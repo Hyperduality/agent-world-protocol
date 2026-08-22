@@ -1,0 +1,11 @@
+---
+title: "Multi-agent worlds"
+description: "Many sessions, one world: visibility rules and the boundary with agent-to-agent protocols."
+---
+
+- A world MAY host any number of concurrent sessions. Each session's grants and envelopes are independent. `[AWP-MA-001]`
+- Other agents' embodiments appear as ordinary **entities** in observations; worlds SHOULD tag such entities `"controlled_by": "session"` (without revealing agent identity unless policy allows). `[AWP-MA-002]`
+- An embodiment is bound to at most one session unless the world declares `shared_control` for it, in which case the world MUST document its arbitration rule (e.g. priority, blend). `[AWP-MA-003]`
+- Worlds MUST isolate sessions: one session's subscriptions or errors MUST NOT alter another session's granted behavior. `[AWP-MA-004]`
+
+**Non-goal.** AWP defines no agent-to-agent messaging. If agents in a shared world need to talk, use an A2A-class protocol out of band, or let the world model communication as ordinary actions/observations (a "say" action, a "heard" event) — which keeps it inside the audit log.

@@ -1,0 +1,35 @@
+---
+title: "AWP Specification v0.1 (draft)"
+sidebarTitle: "Overview"
+description: "Status, scope, non-goals, and reading order for the normative Agent World Protocol specification."
+---
+
+<Note>
+**Status: draft.** Version 0.1 is published for public review. Requirements may change before v1.0. Propose changes through the [RFD process](/community/rfd-process).
+</Note>
+
+## Scope
+
+This specification defines the protocol boundary between an **agent** (any observation→action policy) and a **world** (any environment that produces observations and accepts actions), covering: transports and message framing, session establishment and capability negotiation, the perception–action loop under two time models, semantic grounding conventions, safety enforcement, and reproducibility.
+
+## Non-goals
+
+- Agent-to-agent messaging (see [multi-agent](/spec/multi-agent); defer to A2A-class protocols)
+- Model formats, weights, or inference APIs
+- Reward functions or training objectives (AWP is reward-agnostic; rewards MAY be exposed as an ordinary observation channel)
+- World content formats (meshes, maps, game assets)
+- Massively vectorized training environments (thousands of parallel env instances inside one trainer process). That is an in-process, training-time pattern; a network protocol per instance would defeat its purpose. Train vectorized in-process, then evaluate and deploy over AWP — a trainer MAY expose a single instance over AWP for inspection.
+
+## Normative language
+
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHOULD**, **SHOULD NOT**, **MAY**, and **OPTIONAL** are to be interpreted as described in RFC 2119 and RFC 8174 when, and only when, they appear in all capitals.
+
+Every normative requirement carries a stable ID of the form `AWP-<AREA>-<NNN>` (e.g. `AWP-SES-004`). Conformance-suite assertions and RFDs reference these IDs. IDs are never reused after removal.
+
+## Reading order
+
+Implementers of worlds: [Transport](/spec/transport/overview) → [Session](/spec/session/lifecycle) → [Loop](/spec/loop/time-models) → [Safety](/spec/safety/permissions) → your [profile](/spec/profiles/core). Implementers of agents can skim transport and start at [Session](/spec/session/lifecycle).
+
+## Licensing
+
+The specification text is licensed CC-BY 4.0. Canonical JSON Schemas and all reference code are licensed Apache-2.0 (its explicit patent grant matters for a protocol that spans physical actuation). Contributions are accepted without a CLA: by contributing you agree your contributions are licensed under Apache-2.0 and affirm you have the right to submit them.

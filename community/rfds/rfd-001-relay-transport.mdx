@@ -1,0 +1,20 @@
+---
+title: "RFD-001: Brokered relay transport"
+description: "Let worlds that cannot accept inbound connections dial out to a rendezvous relay."
+---
+
+**Status: draft · Target: v0.2 · Area: transport**
+
+## Problem
+
+The v0.1 transport model assumes the agent dials the world. Two important classes of world cannot accept inbound connections: browser tabs (a MuJoCo-WASM world running client-side) and NAT'd home robots. Today they have no conformant path to being reached.
+
+## Proposal
+
+A minimal rendezvous relay. The world dials out (`wss://relay.example.com/r/new`), receives a room token, and displays or registers it. The agent connects to `wss://relay.example.com/r/{token}`. The relay pipes bytes bidirectionally, terminating TLS but never parsing AWP. Control and data planes share the relay connection using the `inline` binding; a future revision may add WebRTC upgrade with the relay as signaling.
+
+Security: room tokens are single-use and unguessable; the session token (AWP-SEC-003) still authenticates the pairing end-to-end; relays are untrusted for confidentiality beyond TLS — deployments needing more SHOULD layer application encryption.
+
+## Compatibility
+
+Purely additive: a new optional transport binding. No wire changes to any existing message.

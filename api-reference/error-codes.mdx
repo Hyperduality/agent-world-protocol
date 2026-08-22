@@ -1,0 +1,21 @@
+---
+title: "Error codes"
+description: "The complete AWP error registry."
+---
+
+| Code | Name | Area | Retryable | Meaning |
+|---|---|---|---|---|
+| 1001 | AWP_VERSION_UNSUPPORTED | protocol | no | No mutually supported protocol version |
+| 1002 | AWP_MALFORMED | protocol | no | Message violates envelope or schema |
+| 2001 | AWP_EMBODIMENT_UNAVAILABLE | session | yes | Embodiment bound elsewhere or offline |
+| 2002 | AWP_TIME_MODEL_UNSUPPORTED | session | no | Requested mode not offered |
+| 2003 | AWP_SESSION_EXPIRED | session | no | Token invalid or reconnect window passed |
+| 3001 | AWP_PARAMS_INVALID | action | no | Params fail the type's schema |
+| 3002 | AWP_BUSY | action | yes | `reject` preemption policy and an action is running |
+| 3003 | AWP_QUEUE_FULL | action | yes | `queue` policy depth exceeded |
+| 4001 | AWP_FORBIDDEN | safety | no | Not granted for this session |
+| 4002 | AWP_ENVELOPE_EXCEEDED | safety | varies | Limit exceeded; `retry_after_ms` present for rate limits |
+| 4003 | AWP_APPROVAL_DENIED | safety | no | Approver denied the action |
+| 4004 | AWP_APPROVAL_TIMEOUT | safety | yes | No approver response in time |
+
+Reserved JSON-RPC codes (−32700…−32600) retain their standard meanings.

@@ -1,0 +1,20 @@
+---
+title: "RFD-002: Command channels"
+description: "Agent-to-world data-plane streams for high-rate setpoints, bound to a long-lived streaming action."
+---
+
+**Status: draft · Target: v0.2 · Area: data plane, actions**
+
+## Problem
+
+Torque- and servo-level control runs at 100–1000 Hz. Submitting each setpoint as a JSON-RPC `action.submit` with a full lifecycle is wrong at those rates. (Action *chunking* at 10–50 Hz does not need this — see the chunk-replacement idiom in [Actions](/spec/loop/actions).)
+
+## Proposal
+
+Make the data plane symmetric. A world MAY declare writable channels (`direction: "agent_to_world"`, e.g. `modality: "servo/json"`, declared rate and schema). The agent opens one by submitting a granted **streaming action** (e.g. `type: "servo"`); the result binds a channel id, the action remains `executing` while the stream is live, and `action.cancel` closes it. Every inbound frame is envelope-checked (clamp/reject per policy) and sequence-numbered; the audit log records frames or hashes exactly as for observations.
+
+This preserves the v0.1 invariants — grants, envelopes, lifecycle, audit — while moving bytes off JSON-RPC.
+
+## Compatibility
+
+Additive: new optional channel direction, new capability flag `command_channels`. Worlds not declaring it are unaffected.

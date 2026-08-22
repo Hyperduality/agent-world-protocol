@@ -1,0 +1,10 @@
+---
+title: "Approval"
+description: "Human-in-the-loop gating for sensitive action types."
+---
+
+- Action types marked `requires_approval: true` enter a `pending_approval` sub-state after validation and before `accepted`. The world emits `safety.approval_requested` (action id, type, params, requester) on the approval channel to its configured approver(s). `[AWP-APR-001]`
+- The approver responds via `safety.approval.respond` (`approve` | `deny`). Deny → `rejected` with `AWP_APPROVAL_DENIED`. `[AWP-APR-002]`
+- Approvals time out after `approval_timeout_ms` (safety policy; default 60000) → `rejected` with `AWP_APPROVAL_TIMEOUT`. `[AWP-APR-003]`
+- Approvals are per-action; worlds MAY support scoped standing approvals (type + parameter predicate + expiry), which MUST appear in the audit log. `[AWP-APR-004]`
+- Who may approve is deployment configuration, out of protocol scope; the protocol only defines the messages and states. `[AWP-APR-005]`
