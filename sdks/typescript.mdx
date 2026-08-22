@@ -1,22 +1,6 @@
 ---
 title: "TypeScript SDK"
-description: "@awp/sdk for Node and browser agents/worlds."
+description: "Not published yet."
 ---
 
-```bash
-npm install @awp/sdk
-```
-
-```typescript
-import { AgentClient } from "@awp/sdk";
-
-const client = await AgentClient.connect("wss://world.example.com", { token });
-const manifest = await client.initialize({ agentName: "my-agent" });
-const session = await client.openSession({ embodiment: "cursor_main", mode: "streaming",
-                                           subscribe: ["a11y_tree", "screenshot"] });
-session.on("frame:a11y_tree", (f) => { /* … */ });
-const a = await session.submit({ type: "pointer_click", params: { x: 0.42, y: 0.13 } });
-await a.completed();
-```
-
-Runs in Node and modern browsers (WebSocket + WebRTC bindings). `WorldServer` is Node-only.
+Not published yet.

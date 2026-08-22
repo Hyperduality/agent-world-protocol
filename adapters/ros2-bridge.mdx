@@ -1,17 +1,6 @@
 ---
 title: "ROS 2 bridge"
-description: "A ROS node exposing a robot as a robotics-profile AWP world."
+description: "Not published yet."
 ---
 
-The bridge is configured with a YAML mapping: topics → channels, ROS actions/services → AWP action types, tf → frame tree, plus the safety policy (envelopes, `on_disconnect`, approval routing). It enforces envelopes before forwarding commands, wires hardware e-stop to `world.event`, publishes `awp.telemetry`, and writes the audit log.
-
-```yaml
-channels:
-  - id: rgb_wrist   { topic: /camera/image_raw, modality: image/jpeg, rate_hz: 30 }
-  - id: proprio     { topic: /joint_states,    modality: proprio/json, rate_hz: 100 }
-actions:
-  - type: move_to_pose { ros_action: /arm/move_group, preemption: [replace, reject] }
-safety:
-  envelopes: [ { embodiment: arm_01, max_velocity_mps: 0.5, on_violation: clamp } ]
-  on_disconnect: safe_stop
-```
+Not published yet.

@@ -4,15 +4,19 @@
   "name": "Agent World Protocol",
   "description": "An open protocol for how AI agents perceive and act in worlds \u2014 virtual or physical.",
   "colors": {
-    "primary": "#4F46E5",
-    "light": "#818CF8",
-    "dark": "#3730A3"
+    "primary": "#111111",
+    "light": "#F5F5F5",
+    "dark": "#111111"
   },
   "logo": {
     "light": "/logo/awp-light.svg",
     "dark": "/logo/awp-dark.svg"
   },
   "favicon": "/favicon.svg",
+  "banner": {
+    "content": "v0.1 draft — spec only. SDKs and adapters are not published.",
+    "dismissible": true
+  },
   "navigation": {
     "tabs": [
       {
