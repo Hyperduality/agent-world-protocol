@@ -15,3 +15,18 @@ jobs:
           node-version: 20
       - run: npm i -g mint
       - run: mint broken-links
+
+  schemas:
+    name: schemas, examples, tagged docs, frame vectors, generated files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Compiles every schema, validates examples/ and every ```json awp:<tag> block,
+      # decodes schemas/test-vectors/frames.json, then fails if any generated file
+      # (api-reference/schemas/*.mdx, generated/awp-v0.1.d.ts, spec/requirements.mdx) is stale.
+      - run: npm run check

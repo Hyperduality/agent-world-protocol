@@ -1,8 +1,18 @@
 ---
 title: "world.snapshot / world.restore / world.reset"
-description: "State capture for worlds advertising snapshot capability."
+description: "State capture and reset for worlds advertising the snapshot capability. Administrative — require the `admin` grant class."
 ---
 
-**world.snapshot** — no params → `{ "snapshot_token": "snap_…" }` (opaque; AWP-REP-002).
-**world.restore** — `{ snapshot_token }` → world returns to captured state; all sessions receive `world.event: world_resetting`.
-**world.reset** — `{ initial_state?: string, seed?: integer }` → return to a named initial state (sim profile).
+All three require the corresponding entry in `granted.admin` (AWP-PRM-005); otherwise `AWP_FORBIDDEN`. `world.snapshot` and `world.restore` additionally require `capabilities.snapshot`; `world.reset` is required by the sim profile (AWP-SIM-001).
+
+**world.snapshot** — no params → `{ "snapshot_token": "snap_…" }`. The token is opaque and valid at least for the life of the world process (AWP-REP-002). It is a credential: redacted in the audit log (AWP-AUD-006).
+
+**world.restore** — `{ snapshot_token }` → the world returns to the captured state. Effects on every session (AWP-PRM-006): `world.event: world_resetting` with `{ "initiator": "<session id>", "kind": "restore" }`; all non-terminal actions in all sessions → `cancelled` (`world_reset`); in lockstep, a fresh frame on every per-tick channel carrying the restored `tick`. Result `{ "tick": n }` in lockstep, `{}` in streaming.
+
+**world.reset** — `{ initial_state?: string, seed?: integer }` → return to a named initial state (default: the manifest's first `initial_states` entry); same cross-session effects as restore, with `"kind": "reset"`. `seed` requires `capabilities.seed`. Result as for restore.
+
+```json awp:world-resetting-event
+{ "jsonrpc": "2.0", "method": "world.event",
+  "params": { "event": "world_resetting", "status_seq": 88, "ts_mono_ns": 4200000000,
+              "detail": { "initiator": "sess_7f", "kind": "reset", "initial_state": "empty_board" } } }
+```

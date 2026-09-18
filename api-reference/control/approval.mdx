@@ -3,13 +3,24 @@ title: "safety.approval"
 description: "Approval requests and responses for gated actions."
 ---
 
+Approval happens while the action is in `pending_approval`; the agent already holds an admission acknowledgement with that state ([lifecycle](/spec/loop/action-lifecycle)).
+
 **safety.approval_requested (notification, World → approver):**
 
-```json
+```json awp:approval-requested
 { "jsonrpc": "2.0", "method": "safety.approval_requested",
-  "params": { "approval_id": "ap_31", "action_id": "a-01J8…", "type": "navigate",
+  "params": { "approval_id": "ap_31", "action_id": "a-01J8ZK3E9WPT", "type": "navigate",
               "params": { "url": "https://example.com/checkout" },
+              "requester": { "session": "sess_7f", "embodiment": "browser_0" },
+              "task": { "content": [ { "type": "text", "text": "Buy the cheapest USB-C cable." } ] },
               "expires_at_ns": 913065200000 } }
 ```
 
-**safety.approval.respond (approver → World):** `{ approval_id, decision: "approve" | "deny", note? }`. Deny → action `rejected` (4003); timeout → 4004. Standing approvals, where supported, carry `{ scope: { type, predicate }, expires_at }` and are audit-logged (AWP-APR-004).
+**safety.approval.respond (approver → World):**
+
+```json awp:approval-respond
+{ "jsonrpc": "2.0", "id": 44, "method": "safety.approval.respond",
+  "params": { "approval_id": "ap_31", "decision": "approve", "note": "Allowlisted domain." } }
+```
+
+Approve → the action becomes `accepted` (or `queued`). Deny → `rejected`, reason `approval_denied` (error 4003 on the pull path); timeout → `rejected`, reason `approval_timeout` (4004). Standing approvals, where supported, carry `{ scope: { type, predicate }, expires_at }` and are audit-logged (AWP-APR-004). `params`, `task`, and `note` are redacted in the audit log per `safety_policy.audit.redact_paths` (AWP-APR-006, AWP-AUD-006).

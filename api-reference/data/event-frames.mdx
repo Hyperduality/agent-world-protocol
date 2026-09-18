@@ -3,9 +3,14 @@ title: "Event frames"
 description: "world.event payloads on the events channel and control plane."
 ---
 
-Standard events (AWP-EVT-001): `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `world_resetting`, `world_shutdown`.
+Standard events (AWP-EVT-001): `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `data_plane_degraded`, `world_resetting`, `world_shutdown`.
 
-```json
-{ "event": "collision", "ts_mono_ns": 913071000000,
-  "detail": { "entities": ["arm_01_ee", "box_12"], "force_n": 12.4, "frame": "world" } }
+As a control-plane notification every event carries `status_seq` (shared with `action.status`, AWP-CTL-008):
+
+```json awp:world-event
+{ "jsonrpc": "2.0", "method": "world.event",
+  "params": { "event": "collision", "status_seq": 57, "ts_mono_ns": 913071000000,
+              "detail": { "entities": ["arm_01_ee", "box_12"], "force_n": 12.4, "frame": "world" } } }
 ```
+
+When a world also publishes events on a `text/event+json` observation channel, the payload is the `params` object without `status_seq` (frames have `seq` instead).

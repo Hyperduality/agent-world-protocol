@@ -7,22 +7,24 @@ description: "Bind an embodiment, choose a time model, request grants. Agent →
 <ParamField body="mode" type="string" required>`lockstep` or `streaming`.</ParamField>
 <ParamField body="subscribe" type="object[]">Channel requests: `{ channel, rate_hz? }`.</ParamField>
 <ParamField body="action_types" type="string[]">Requested grants. Default: all the embodiment offers.</ParamField>
+<ParamField body="admin" type="string[]">Requested [administrative operations](/spec/safety/permissions#administrative-mutations): any of `snapshot`, `restore`, `reset`, `tick`. Default: none.</ParamField>
 <ParamField body="seed" type="integer">Only if the world advertises `capabilities.seed`.</ParamField>
-<ParamField body="takeover" type="boolean">With `transfer_token`, take over a bound embodiment.</ParamField>
+<ParamField body="takeover" type="boolean">Take over a bound embodiment; requires `transfer_token`.</ParamField>
+<ParamField body="transfer_token" type="string">Minted by the current holder via [`session.transfer`](/api-reference/control/session-close) (AWP-EMB-003).</ParamField>
+<ParamField body="task" type="object">The language instruction conditioning the agent: `{ content: [ …content blocks… ] }`. Only if the world advertises `capabilities.task` — see [Task](/spec/session/task). Change it mid-session with [task.update](/api-reference/control/task-update).</ParamField>
 
 **Result — `session.ready`:**
 
-```json
-{ "session_token": "st_9f2…", "reconnect_window_ms": 30000,
+```json awp:session-ready
+{ "session_token": "st_9f2a7c1e4b8d6f03", "reconnect_window_ms": 30000, "heartbeat_interval_ms": 5000,
   "granted": { "channels": [ { "channel": "grid_view", "rate_hz": null, "channel_id": 1 } ],
-               "action_types": ["move"], "envelopes": [] },
+               "action_types": ["move"], "admin": ["tick"], "envelopes": [] },
   "stream_endpoints": [ { "binding": "inline" } ],
   "frame_tree": { "frames": [ { "id": "world", "parent": null } ] },
-  "clock_anchor": "2026-08-22T18:00:00Z" }
+  "clock_anchor": "2026-08-22T18:00:00Z",
+  "tick": 0 }
 ```
 
-**Errors:** 2001, 2002, 4001.
+`granted` enumerates exactly what was granted (AWP-NEG-001); `heartbeat_interval_ms` sets the liveness clock (AWP-SAF-001); `tick` is present in lockstep sessions and is followed immediately by one frame per subscribed per-tick channel (AWP-TIM-009). The `session_token` is a credential: never log it unredacted (AWP-AUD-006).
 
-<Note>
-A first-class `task` field (the language instruction conditioning the agent) is proposed in [RFD-003](/community/rfds/rfd-003-task); until stabilized, carry instructions in `extensions` with `x-<vendor>.` keys.
-</Note>
+**Errors:** 2001, 2002, 2004 (`AWP_SESSION_EXISTS`: this connection already carries a session), 4001.

@@ -15,4 +15,4 @@ What changes between sim and real:
 | Determinism | seeded, replayable | none |
 | Envelopes | often loose | enforced tight |
 
-What must not change: channel ids, action types, param schemas, frames, units. Practical recipe: develop in lockstep against `awp-sim`; graduate to *streaming against the simulator* (same worlds often offer both) to shake out staleness handling; only then point the same binary at the robotics adapter with conservative envelopes and approval on risky types.
+What must not change: channel ids, action types, param schemas, frames, units. Practical recipe: develop in lockstep against a simulator adapter (the planned `awp-sim` is the reference design); graduate to *streaming against the simulator* (same worlds often offer both) to shake out staleness handling; only then point the same binary at the robotics adapter with conservative envelopes and approval on risky types.

@@ -4,7 +4,7 @@ description: "Frame requirements: timestamps, sequencing, channel binding, stale
 ---
 
 - Every frame MUST carry: channel id, per-channel monotonically increasing `seq`, `ts_mono_ns` (session monotonic clock, time of capture), and a payload valid for the channel's declared modality schema. `[AWP-OBS-001]`
-- In lockstep, per-tick channels additionally carry `tick` (u64). `[AWP-OBS-002]`
+- In lockstep, per-tick channels additionally carry `tick` (u64) in the frame's [extension block](/spec/transport/data-plane#extension-block-present-only-when-flags-bit-2-is-set) (type `0x01`) or as the `tick` field in the inline JSON form — never inside the payload (AWP-DAT-007). `[AWP-OBS-002]`
 - Worlds MUST NOT reorder frames within a channel; agents MUST tolerate interleaving across channels. `[AWP-OBS-003]`
 - A world MAY mark a frame `keyframe` (self-contained) vs delta; every channel using deltas MUST emit a keyframe at subscription start and at least every `keyframe_interval` declared in the manifest. `[AWP-OBS-004]`
 - On subscription, the first frame MUST be a current snapshot, not a historical replay. `[AWP-OBS-005]`

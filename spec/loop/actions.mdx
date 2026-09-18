@@ -5,25 +5,26 @@ description: "Submission envelope, idempotency, validation."
 
 `action.submit` params:
 
-```json
+```json awp:action-submit
 {
-  "action_id": "a-01J8ZK3E9WPT",        
+  "action_id": "a-01J8ZK3E9WPT",
   "embodiment_id": "arm_01",
   "type": "move_to_pose",
-  "params": { "pose": { "p_m": [0.4, 0.1, 0.3], "q": [0, 0, 0, 1] }, "frame": "base" },
+  "params": { "pose": { "frame": "base", "p_m": [0.4, 0.1, 0.3], "q": [0, 0, 0, 1] } },
   "preempt": "replace",
   "deadline_ms": 5000
 }
 ```
 
-- `action_id` is client-generated and unique per session; resubmission with the same id MUST be idempotent (return current status, not double-execute). `[AWP-ACT-001]`
+- `action_id` is client-generated and unique per session. A resubmission with the same `action_id` and identical `type`, `params`, `embodiment_id`, `preempt`, and `deadline_ms` MUST be idempotent: the world returns the action's current state and does not execute it again. A resubmission with the same `action_id` but different content MUST be rejected with `AWP_ACTION_ID_CONFLICT` and MUST NOT affect the original action. Concurrent duplicate submissions are serialized by the world: the first processed wins, later ones observe its state. `[AWP-ACT-001]`
 - Worlds MUST validate `params` against the type's `params_schema` and reject invalid submissions with `AWP_PARAMS_INVALID` before any execution side effect. `[AWP-ACT-002]`
 - Submissions naming ungranted types or embodiments MUST be rejected with `AWP_FORBIDDEN`. `[AWP-ACT-003]`
-- `deadline_ms` is advisory in lockstep and binding in streaming: if not `completed` by the deadline the world MUST transition the action to `failed` with reason `deadline_exceeded` and apply the type's safe-abort behavior. `[AWP-ACT-004]`
+- `deadline_ms` is measured from the world's receipt of the submission and covers approval and queue waiting as well as execution. It is advisory in lockstep and binding in streaming: on expiry before `executing` the world MUST reject the action with reason `deadline_exceeded`; on expiry during `executing` it MUST apply the type's safe-abort behavior and fail the action with reason `deadline_exceeded`. `[AWP-ACT-004]`
 - The `preempt` field MUST be one of the policies the type declares (see [preemption](/spec/loop/preemption)). `[AWP-ACT-005]`
+- Worlds MUST retain the `action_id` and terminal state of every action for at least `reconnect_window_ms` after its terminal transition, and of every non-terminal action for the life of the session, so that idempotent resubmission and status pulls remain correct across reconnection. `[AWP-ACT-006]`
 
 ## Trajectory chunks (informative idiom)
 
-Policies that emit action chunks — timed sequences of setpoints executed at 10–50 Hz — map onto the lifecycle without any special machinery: **a chunk is one action**. Submit `type: "follow_trajectory"` with `params.points` as an array of timestamped setpoints and `preempt: "replace"` (or `"blend"`); when the policy emits its next chunk, the new submission replaces the unexecuted tail of the running one, and the replaced action terminates `preempted` per [preemption](/spec/loop/preemption). This yields exactly the receding-horizon behavior chunked policies expect, plus acceptance, progress, clamping, and audit that raw streaming never had. A standard schema is proposed in [RFD-004](/community/rfds/rfd-004-follow-trajectory).
+Policies that emit action chunks — timed sequences of setpoints executed at 10–50 Hz — map onto the lifecycle without any special machinery: **a chunk is one action**. Submit `type: "follow_trajectory"` with `params.points` as an array of timestamped setpoints and `preempt: "replace"` (or `"blend"`); when the policy emits its next chunk, the new submission replaces the unexecuted tail of the running one, and the replaced action terminates `preempted` per [preemption](/spec/loop/preemption). This yields exactly the receding-horizon behavior chunked policies expect, plus acceptance, progress, clamping, and audit that raw streaming never had.
 
-For true high-rate servoing (100–1000 Hz setpoints), per-setpoint JSON-RPC submissions are inappropriate; agent→world data-plane **command channels** are proposed in [RFD-002](/community/rfds/rfd-002-command-channels).
+For true high-rate servoing (100–1000 Hz setpoints), per-setpoint JSON-RPC submissions are inappropriate; setpoints stream over agent→world [command channels](/spec/loop/command-channels), opened by a `duration: "streaming"` action.

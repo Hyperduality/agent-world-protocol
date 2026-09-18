@@ -1,0 +1,984 @@
+# Requirement matrix source of truth. Columns: side (world|agent|both), applies (all|lockstep|streaming),
+# gate (core | core (<condition>) | profile:<name> | capability:<key> | feature:<condition>), test (assertion id,
+# "<id> (warning)" for SHOULD, "manual: …", or "untestable: …"). Regenerate spec/requirements.mdx with `npm run gen:requirements`.
+requirements:
+  - id: AWP-ACT-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-ACT-001
+  - id: AWP-ACT-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-002
+  - id: AWP-ACT-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-003
+  - id: AWP-ACT-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-004
+  - id: AWP-ACT-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-005
+  - id: AWP-ACT-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-006
+  - id: AWP-AGM-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AGM-001
+  - id: AWP-AGM-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AGM-002 (warning)
+  - id: AWP-AGT-001
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-001
+  - id: AWP-AGT-002
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-002
+  - id: AWP-AGT-003
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-003
+  - id: AWP-AGT-004
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-004
+  - id: AWP-AGT-005
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-005
+  - id: AWP-AGT-006
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-006
+  - id: AWP-AGT-007
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-007
+  - id: AWP-APR-001
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-001
+  - id: AWP-APR-002
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-002
+  - id: AWP-APR-003
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-003
+  - id: AWP-APR-004
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-004
+  - id: AWP-APR-005
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: "untestable: process or deployment policy"
+  - id: AWP-APR-006
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-006
+  - id: AWP-AUD-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-001
+  - id: AWP-AUD-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-002
+  - id: AWP-AUD-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-003 (warning)
+  - id: AWP-AUD-004
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-AUD-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-005 (replay bundle drives AWP-REP-003)
+  - id: AWP-AUD-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-006
+  - id: AWP-AUD-007
+    side: world
+    applies: all
+    gate: core
+    test: AWP-AUD-007
+  - id: AWP-AV-001
+    side: world
+    applies: all
+    gate: profile:realtime-av
+    test: AWP-AV-001
+  - id: AWP-AV-002
+    side: world
+    applies: all
+    gate: profile:realtime-av
+    test: AWP-AV-002
+  - id: AWP-CLK-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-001
+  - id: AWP-CLK-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-002
+  - id: AWP-CLK-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-003
+  - id: AWP-CLK-004
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-004
+  - id: AWP-CLK-005
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-005
+  - id: AWP-CMD-001
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-001
+  - id: AWP-CMD-002
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-002
+  - id: AWP-CMD-003
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-003
+  - id: AWP-CMD-004
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-004
+  - id: AWP-CMD-005
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-005
+  - id: AWP-CMD-006
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-006
+  - id: AWP-CMD-007
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-007
+  - id: AWP-CMD-008
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-008
+  - id: AWP-CNF-001
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-CNF-002
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-CNF-003
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-CNF-004
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-CNF-005
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-CNF-006
+    side: world
+    applies: all
+    gate: profile:robotics
+    test: "untestable: process or deployment policy"
+  - id: AWP-CTL-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-001
+  - id: AWP-CTL-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-002
+  - id: AWP-CTL-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-003
+  - id: AWP-CTL-004
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-004
+  - id: AWP-CTL-005
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-005
+  - id: AWP-CTL-006
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-006
+  - id: AWP-CTL-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-007
+  - id: AWP-CTL-008
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-008
+  - id: AWP-CTL-009
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CTL-009
+  - id: AWP-DAT-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-001
+  - id: AWP-DAT-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-002 (warning)
+  - id: AWP-DAT-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-003
+  - id: AWP-DAT-004
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-004
+  - id: AWP-DAT-005
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-005
+  - id: AWP-DAT-006
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-006
+  - id: AWP-DAT-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-007
+  - id: AWP-DAT-008
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-008 (schemas/test-vectors/frames.json)
+  - id: AWP-EMB-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EMB-001
+  - id: AWP-EMB-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EMB-002
+  - id: AWP-EMB-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EMB-003 (only if implemented)
+  - id: AWP-EMB-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EMB-004
+  - id: AWP-EMB-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EMB-005
+  - id: AWP-ENV-001
+    side: world
+    applies: all
+    gate: feature:envelopes declared
+    test: AWP-ENV-001
+  - id: AWP-ENV-002
+    side: world
+    applies: all
+    gate: feature:envelopes declared
+    test: AWP-ENV-002
+  - id: AWP-ENV-003
+    side: world
+    applies: all
+    gate: feature:envelopes declared
+    test: "manual: requires physical disturbance and sensor evidence"
+  - id: AWP-ENV-004
+    side: world
+    applies: all
+    gate: feature:envelopes declared
+    test: AWP-ENV-004
+  - id: AWP-ENV-005
+    side: world
+    applies: all
+    gate: feature:envelopes declared
+    test: AWP-ENV-005
+  - id: AWP-ERR-001
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-ERR-001
+  - id: AWP-EVT-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EVT-001
+  - id: AWP-EVT-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EVT-002
+  - id: AWP-GUI-001
+    side: world
+    applies: all
+    gate: profile:gui
+    test: AWP-GUI-001
+  - id: AWP-GUI-002
+    side: world
+    applies: all
+    gate: profile:gui
+    test: AWP-GUI-002
+  - id: AWP-GUI-003
+    side: world
+    applies: all
+    gate: profile:gui
+    test: AWP-GUI-003
+  - id: AWP-GUI-004
+    side: world
+    applies: all
+    gate: profile:gui
+    test: AWP-GUI-004
+  - id: AWP-GUI-005
+    side: world
+    applies: all
+    gate: profile:gui
+    test: AWP-GUI-005
+  - id: AWP-LIF-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-001
+  - id: AWP-LIF-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-002
+  - id: AWP-LIF-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-003 (warning)
+  - id: AWP-LIF-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-004
+  - id: AWP-LIF-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-005
+  - id: AWP-LIF-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-006
+  - id: AWP-LIF-007
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-007
+  - id: AWP-LIF-008
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-008
+  - id: AWP-LIF-009
+    side: both
+    applies: all
+    gate: core
+    test: AWP-LIF-009
+  - id: AWP-MA-001
+    side: world
+    applies: all
+    gate: feature:multiple sessions
+    test: AWP-MA-001 (only if implemented)
+  - id: AWP-MA-002
+    side: world
+    applies: all
+    gate: feature:multiple sessions
+    test: AWP-MA-002 (warning)
+  - id: AWP-MA-003
+    side: world
+    applies: all
+    gate: feature:multiple sessions
+    test: AWP-MA-003
+  - id: AWP-MA-004
+    side: world
+    applies: all
+    gate: feature:multiple sessions
+    test: AWP-MA-004
+  - id: AWP-MA-005
+    side: world
+    applies: all
+    gate: feature:multiple sessions
+    test: AWP-MA-005
+  - id: AWP-MAN-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-001
+  - id: AWP-MAN-002
+    side: world
+    applies: all
+    gate: core
+    test: "AWP-MAN-002 (schema: params_schema validates as JSON Schema 2020-12)"
+  - id: AWP-MAN-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-003
+  - id: AWP-MAN-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-004
+  - id: AWP-MAN-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-005
+  - id: AWP-MAN-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-006 (schema conditional)
+  - id: AWP-MAN-007
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MAN-007
+  - id: AWP-MOD-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-MOD-001
+  - id: AWP-MOD-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-MOD-002
+  - id: AWP-MOD-003
+    side: world
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-NEG-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-NEG-001
+  - id: AWP-NEG-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-NEG-002
+  - id: AWP-NEG-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-NEG-003 (only if implemented)
+  - id: AWP-NEG-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-NEG-004
+  - id: AWP-OBS-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-OBS-001
+  - id: AWP-OBS-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-OBS-002
+  - id: AWP-OBS-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-OBS-003
+  - id: AWP-OBS-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-OBS-004
+  - id: AWP-OBS-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-OBS-005
+  - id: AWP-PRE-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-001
+  - id: AWP-PRE-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-002
+  - id: AWP-PRE-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-003
+  - id: AWP-PRE-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-004
+  - id: AWP-PRE-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-005
+  - id: AWP-PRE-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRE-006 (only if implemented)
+  - id: AWP-PRM-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-001
+  - id: AWP-PRM-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-002
+  - id: AWP-PRM-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-003 (only if implemented)
+  - id: AWP-PRM-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-004 (only if implemented)
+  - id: AWP-PRM-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-005
+  - id: AWP-PRM-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-PRM-006
+  - id: AWP-REP-001
+    side: world
+    applies: all
+    gate: capability:seed
+    test: AWP-REP-001 (two seeded runs compared)
+  - id: AWP-REP-002
+    side: world
+    applies: all
+    gate: capability:snapshot
+    test: AWP-REP-002
+  - id: AWP-REP-003
+    side: world
+    applies: all
+    gate: capability:replay
+    test: AWP-REP-003 (record, restore, replay, compare hashes and state sequences)
+  - id: AWP-ROB-001
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: AWP-ROB-001
+  - id: AWP-ROB-002
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: "manual: requires physical disturbance and sensor evidence"
+  - id: AWP-ROB-003
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: "manual: review of claim wording"
+  - id: AWP-ROB-004
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: "manual: requires physical disturbance and sensor evidence"
+  - id: AWP-SAF-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-SAF-001
+  - id: AWP-SAF-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-SAF-002
+  - id: AWP-SAF-003
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-003
+  - id: AWP-SAF-004
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-004
+  - id: AWP-SAF-005
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-005 (warning)
+  - id: AWP-SAF-006
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-006
+  - id: AWP-SAF-007
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-007
+  - id: AWP-SAF-008
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-008
+  - id: AWP-SAF-009
+    side: world
+    applies: streaming
+    gate: feature:reliable channels declared
+    test: AWP-SAF-009
+  - id: AWP-SAF-010
+    side: agent
+    applies: streaming
+    gate: feature:reliable channels declared
+    test: AWP-SAF-010 (warning)
+  - id: AWP-SAF-011
+    side: both
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-SAF-011 (deadline enforcement while the agent is alive but silent)
+  - id: AWP-SAF-012
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: "manual: measured watchdog reaction time attached to the report"
+  - id: AWP-SCN-001
+    side: world
+    applies: all
+    gate: feature:scene channel offered
+    test: AWP-SCN-001
+  - id: AWP-SCN-002
+    side: world
+    applies: all
+    gate: feature:scene channel offered
+    test: AWP-SCN-002 (warning)
+  - id: AWP-SCN-003
+    side: world
+    applies: all
+    gate: feature:scene channel offered
+    test: AWP-SCN-003
+  - id: AWP-SEC-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SEC-001
+  - id: AWP-SEC-002
+    side: world
+    applies: all
+    gate: core (non-loopback)
+    test: AWP-SEC-002
+  - id: AWP-SEC-003
+    side: world
+    applies: all
+    gate: core (non-loopback)
+    test: AWP-SEC-003
+  - id: AWP-SEC-004
+    side: world
+    applies: all
+    gate: core (non-loopback)
+    test: AWP-SEC-004
+  - id: AWP-SES-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-001
+  - id: AWP-SES-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-002
+  - id: AWP-SES-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-003
+  - id: AWP-SES-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-004
+  - id: AWP-SES-005
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-005
+  - id: AWP-SES-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-006
+  - id: AWP-SES-007
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-007
+  - id: AWP-SES-008
+    side: both
+    applies: all
+    gate: core
+    test: AWP-SES-008
+  - id: AWP-SIM-001
+    side: world
+    applies: lockstep
+    gate: profile:sim
+    test: AWP-SIM-001
+  - id: AWP-TIM-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-TIM-001
+  - id: AWP-TIM-002
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-002
+  - id: AWP-TIM-003
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-003
+  - id: AWP-TIM-004
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-004 (two seeded runs compared)
+  - id: AWP-TIM-005
+    side: world
+    applies: streaming
+    gate: core
+    test: AWP-TIM-005
+  - id: AWP-TIM-006
+    side: world
+    applies: streaming
+    gate: core
+    test: AWP-TIM-006
+  - id: AWP-TIM-007
+    side: world
+    applies: streaming
+    gate: core
+    test: AWP-TIM-007
+  - id: AWP-TIM-008
+    side: world
+    applies: all
+    gate: core
+    test: AWP-TIM-008
+  - id: AWP-TIM-009
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-009
+  - id: AWP-TIM-010
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-010
+  - id: AWP-TIM-011
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-011
+  - id: AWP-TIM-012
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-012
+  - id: AWP-TRN-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-001
+  - id: AWP-TRN-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-002
+  - id: AWP-TRN-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-003
+  - id: AWP-TRN-004
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-004
+  - id: AWP-TSK-001
+    side: world
+    applies: all
+    gate: capability:task
+    test: AWP-TSK-001
+  - id: AWP-TSK-002
+    side: world
+    applies: all
+    gate: capability:task
+    test: AWP-TSK-002
+  - id: AWP-TSK-003
+    side: world
+    applies: all
+    gate: capability:task
+    test: AWP-TSK-003
+  - id: AWP-TSK-004
+    side: world
+    applies: all
+    gate: capability:task
+    test: AWP-TSK-004
+  - id: AWP-TSK-005
+    side: world
+    applies: all
+    gate: capability:task
+    test: AWP-TSK-005 (warning)
+  - id: AWP-UNI-001
+    side: world
+    applies: all
+    gate: core
+    test: AWP-UNI-001
+  - id: AWP-UNI-002
+    side: world
+    applies: all
+    gate: core
+    test: AWP-UNI-002
+  - id: AWP-UNI-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-UNI-003
+  - id: AWP-UNI-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-UNI-004
+  - id: AWP-VER-001
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-001
+  - id: AWP-VER-002
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-002
+  - id: AWP-VER-003
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-003
+  - id: AWP-VER-004
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-004
+  - id: AWP-VER-005
+    side: both
+    applies: all
+    gate: core
+    test: "untestable: process or deployment policy"
+  - id: AWP-VER-006
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-006
+  - id: AWP-VER-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-007

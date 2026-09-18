@@ -1,13 +1,29 @@
 ---
 title: "Audit log"
-description: "The normative session record: format, hashing, and replayability."
+description: "The normative session record: format, hashing, redaction, and the three record classes it can serve."
 ---
 
-Worlds MUST record, per session, an append-only log of: manifests, granted subset, every control-plane message (both directions), every action status transition, every safety event and approval, and for each observation frame either the payload or its SHA-256 hash plus header. `[AWP-AUD-001]`
+Worlds MUST record, per session, an append-only log of: manifests, granted subset, every control-plane message (both directions, after [redaction](#redaction)), every action status transition, every safety event and approval, and for each data-plane frame in either direction either the payload or its SHA-256 hash plus header. `[AWP-AUD-001]`
 
 - Records are JSON Lines; each record carries `ts_mono_ns`, `direction`, `kind`, and `body`. `[AWP-AUD-002]`
 - Worlds SHOULD hash-chain records (`prev_hash`) for tamper evidence. `[AWP-AUD-003]`
 - Retention policy is deployment-defined; the format is normative so logs are portable across tools. `[AWP-AUD-004]`
 - Logs with full payloads plus a starting snapshot are sufficient for [deterministic replay](/spec/reproducibility) on worlds that advertise it. `[AWP-AUD-005]`
+
+## Redaction
+
+- Before a control-plane message is written to the log, the world MUST replace the values of `session_token`, `transfer_token`, `snapshot_token`, any `Authorization` header or bearer credential, and every value addressed by a JSON pointer in `safety_policy.audit.redact_paths` (relative to `params` or `result`) with `"[redacted:sha256:<first 8 hex of the SHA-256 of the value>]"`, so that records can be correlated without exposing the value. Deployments use `redact_paths` for approval `params`/`note`, `task.content`, and any action parameters carrying personal data. Redaction applies to the log only, never to the wire; frame hashes are unaffected. See also AWP-APR-006, AWP-TSK-005. `[AWP-AUD-006]`
+
+## Record classes
+
+The same JSONL format serves three purposes with different completeness requirements. Tooling MUST label which class a file satisfies (`"class"` in the first record). `[AWP-AUD-007]`
+
+| Class | Contents | Can do | Cannot do |
+|---|---|---|---|
+| **Audit record** | Everything in AWP-AUD-001 with frame *hashes* only | Prove what was commanded, permitted, and reported; verify a replay's observation hashes (AWP-REP-003) | Reconstruct observations; produce a dataset |
+| **Replay bundle** | Audit record + initial `snapshot_token` (and the snapshot bytes or a reference resolvable by the world) + full frame payloads | Everything above, plus deterministic replay and inspection of what the agent saw | — |
+| **Dataset export** | Derived from a replay bundle: (observation, action, outcome) trajectories joined on `action_id`, with redactions applied | Training and evaluation | Serve as an audit record (it is derived, not primary) |
+
+A hash-only log is an audit record, not a dataset: the hashes let a replay prove it reproduced the original observations, but nothing in the log can regenerate them.
 
 The log is deliberately triple-purpose: safety audit trail, debugging record, and dataset — see [Record and replay](/guides/record-and-replay).

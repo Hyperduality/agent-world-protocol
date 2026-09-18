@@ -3,10 +3,22 @@ title: "action.status (notification)"
 description: "World → Agent transition notifications for every action."
 ---
 
-```json
+```json awp:action-status
 { "jsonrpc": "2.0", "method": "action.status",
   "params": { "action_id": "a-01J8ZK3E9WPT", "state": "executing",
-              "progress": 0.4, "ts_mono_ns": 913005200000 } }
+              "status_seq": 18, "progress": 0.4, "ts_mono_ns": 913005200000 } }
 ```
 
-Terminal states carry `reason` (`failed`/`rejected`, per the [error taxonomy](/spec/loop/events-and-errors)), `clamped` when an envelope clamped execution, and `blended`/`aborted_at_progress` where applicable. Undelivered statuses are replayed on `session.resume` (AWP-LIF-006). A pull variant exists: request `action.status` with `{ action_id }` to fetch current state.
+<ParamField body="action_id" type="string" required />
+<ParamField body="state" type="string" required>One of `pending_approval`, `queued`, `accepted`, `executing`, `cancelling`, `rejected`, `completed`, `failed`, `preempted`, `cancelled` ([lifecycle](/spec/loop/action-lifecycle)).</ParamField>
+<ParamField body="status_seq" type="integer" required>Per-session monotonic sequence shared by `action.status` and `world.event`. Receivers deduplicate on `(action_id, status_seq)` (AWP-LIF-009) and pass the highest seen value to `session.resume` (AWP-CTL-008).</ParamField>
+<ParamField body="ts_mono_ns" type="integer" required>Time of the transition in the world, on the session clock.</ParamField>
+<ParamField body="progress" type="number">0–1 during `executing` for `extended` types.</ParamField>
+<ParamField body="reason" type="string">Required in `rejected`, `failed`, `cancelled`; from the [status reason registry](/spec/loop/events-and-errors#status-reasons).</ParamField>
+<ParamField body="detail" type="string">Human-readable elaboration of `reason`.</ParamField>
+<ParamField body="clamped" type="boolean">True when an envelope clamped execution.</ParamField>
+<ParamField body="blended" type="boolean">True on a `preempted` status produced by a `blend`.</ParamField>
+<ParamField body="aborted_at_progress" type="number">On `cancelled`/`failed` after a safe abort: progress reached when the abort began.</ParamField>
+<ParamField body="stream" type="object">On `duration: streaming` actions: `{ frames_applied, last_seq, clamped_count }` (AWP-CMD-004).</ParamField>
+
+A transition happens once; its notification may be delivered more than once after `session.resume` (AWP-LIF-009). A pull variant exists: request `action.status` with `{ action_id }` to fetch the current state, which returns the same object as the most recent notification.

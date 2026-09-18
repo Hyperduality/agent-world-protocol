@@ -4,7 +4,7 @@ description: "The four layers and two planes of AWP."
 icon: "layer-group"
 ---
 
-AWP is defined in four independently versioned layers over two planes.
+AWP is defined in four layers over two planes. The layers organize the specification; they are not versioned separately. A single negotiated protocol version covers all four (see [versioning policy](/spec/versioning-policy), AWP-VER-001 and AWP-VER-006).
 
 ```mermaid
 flowchart TB
@@ -29,6 +29,6 @@ flowchart TB
 
 ## The two planes
 
-The **control plane** carries low-bandwidth, reliability-critical messages: handshakes, action submissions, lifecycle events, safety approvals. The **data plane** carries high-bandwidth, loss-tolerant sensor streams: camera frames, audio, lidar. The control plane negotiates data-plane endpoints; the spec defines the framing, not the pipe.
+The **control plane** carries low-bandwidth, reliability-critical messages: handshakes, action submissions, lifecycle events, safety approvals. The **data plane** carries high-bandwidth, loss-tolerant streams in both directions: sensor channels (camera frames, audio, lidar) world→agent, and high-rate command channels agent→world. The control plane negotiates data-plane endpoints; the spec defines the framing, not the pipe.
 
 Cross-cutting the layers are the [safety model](/concepts/safety-model), [reproducibility](/spec/reproducibility), and [conformance profiles](/spec/profiles/core).

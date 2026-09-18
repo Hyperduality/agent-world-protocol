@@ -8,17 +8,22 @@ A simulator can pause and wait for the agent. Reality cannot. AWP therefore defi
 
 ## Lockstep
 
-The world advances only when the agent acts. Observations are pulled per tick. Perfect for turn-based games, deterministic simulation, and evaluation harnesses.
+The world advances only when the agent calls `world.tick`. Submitting an action stages it; the next tick executes it and delivers the resulting observation. Perfect for turn-based games, deterministic simulation, and evaluation harnesses.
 
 ```mermaid
 sequenceDiagram
     participant A as Agent
     participant W as World
-    A->>W: world.tick()
-    W-->>A: obs frame (t=n)
+    W-->>A: obs frame (tick n)
     A->>W: action.submit(move)
-    W-->>A: action completed, obs frame (t=n+1)
+    W-->>A: accepted (staged)
+    A->>W: world.tick()
+    W-->>A: status executing, status completed
+    W-->>A: obs frame (tick n+1)
+    W-->>A: tick result {tick: n+1}
 ```
+
+An agent that submits and then waits for completion without ticking waits forever: nothing advances until it asks. Normative sequence and a full wire trace: [spec/loop/time-models](/spec/loop/time-models#wire-trace).
 
 ## Streaming
 
@@ -42,4 +47,4 @@ sequenceDiagram
 An agent written only for lockstep will silently misbehave in streaming mode: its observations are stale by the time it acts. Streaming worlds MUST report observation→action latency so agents can compensate, and agents SHOULD treat every observation as a snapshot of the past.
 </Warning>
 
-Because both modes share identical manifests, schemas, and action lifecycles, the same agent code can train in lockstep against `awp-sim` and deploy in streaming against hardware — swapping only the session mode. That is the [sim-to-real](/guides/sim-to-real) story. Normative details: [spec/loop/time-models](/spec/loop/time-models).
+Because both modes share identical manifests, schemas, and action lifecycles, the same agent code can train in lockstep against a simulator adapter and deploy in streaming against hardware — swapping only the session mode. That is the [sim-to-real](/guides/sim-to-real) story. Normative details: [spec/loop/time-models](/spec/loop/time-models).

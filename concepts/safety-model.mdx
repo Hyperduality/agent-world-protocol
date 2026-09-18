@@ -5,10 +5,10 @@ icon: "shield"
 ---
 
 <Warning>
-AWP spans physical actuation. Safety is a core-layer requirement of the protocol, not an extension. Worlds enforce; agents request.
+AWP spans physical actuation. Worlds enforce; agents request. Grants and the audit log are required of every conformant world (Core profile); envelopes, approval, and the safe-state watchdog are required by the profiles that actuate something physical or consequential (robotics, gui) and available to any world that wants them.
 </Warning>
 
-Four mechanisms compose:
+Five mechanisms compose:
 
 **1. Scoped grants.** A session carries explicit grants: which action types, which observation channels, which embodiments, with optional expiry. Anything not granted is rejected with `AWP_FORBIDDEN`. See [permissions](/spec/safety/permissions).
 
@@ -16,4 +16,6 @@ Four mechanisms compose:
 
 **3. Human-in-the-loop approval.** Action types marked `requires_approval` pause at the boundary and emit an approval request on a dedicated channel; a human or supervising system approves, denies, or lets it time out. See [approval](/spec/safety/approval).
 
-**4. Audit log.** Every session is an append-only, replayable record of manifests, grants, observations (or their hashes), actions, and status transitions. This is simultaneously the safety audit trail, the debugging tool, and the dataset. See [audit log](/spec/safety/audit-log).
+**4. Safe state.** A world-side watchdog stops motion when the agent goes quiet, independently of whether the connection has been declared lost, and a resumed session never restarts stale motion. See [liveness and safe state](/spec/safety/safe-state).
+
+**5. Audit log.** Every session is an append-only record of manifests, grants, actions, status transitions, and observation frames (payloads or their hashes), with credentials redacted. A log with full payloads is a replay bundle and a dataset; a hash-only log is an audit trail that can verify a replay but cannot reconstruct observations. See [audit log](/spec/safety/audit-log).

@@ -8,7 +8,7 @@ description: "SI units, unit-suffixed field names, and the frame tree."
 - The world publishes a **frame tree** in `session.ready`: named frames with parent links and static or timestamped transforms. Every pose in any message MUST name its frame; the frame MUST exist in the tree. `[AWP-UNI-003]`
 - Dynamic transforms (e.g. `base` → `world` for a mobile robot) are published on the reserved `awp.tf` channel. `[AWP-UNI-004]`
 
-```json
+```json awp:frame-tree
 { "frames": [
   { "id": "world", "parent": null },
   { "id": "base",  "parent": "world", "dynamic": true },

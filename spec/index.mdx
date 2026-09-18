@@ -5,12 +5,14 @@ description: "Status, scope, and reading order for the normative Agent World Pro
 ---
 
 <Note>
-**Status: draft.** Version 0.1 is published for public review. Requirements may change before v1.0. Propose changes through the [RFD process](/community/rfd-process).
+**Status: draft.** Version 0.1 is published for public review. The wire format is not frozen; requirements may change before 1.0. Propose changes through the [RFD process](/community/rfd-process).
 </Note>
 
 ## Scope
 
 This specification defines the protocol boundary between an **agent** (any observation→action policy) and a **world** (any environment that produces observations and accepts actions), covering: transports and message framing, session establishment and capability negotiation, the perception–action loop under two time models, semantic grounding conventions, safety enforcement, and reproducibility.
+
+The protocol assumes the agent and the world share a network environment — the same machine or a trusted local network; it is not an internet rendezvous protocol.
 
 ## Normative language
 
@@ -24,4 +26,4 @@ Implementers of worlds: [Transport](/spec/transport/overview) → [Session](/spe
 
 ## Licensing
 
-The specification text is licensed CC-BY 4.0. Canonical JSON Schemas and all reference code are licensed Apache-2.0 (its explicit patent grant matters for a protocol that spans physical actuation). Contributions are accepted without a CLA: by contributing you agree your contributions are licensed under Apache-2.0 and affirm you have the right to submit them.
+The specification text is licensed CC-BY 4.0. Canonical JSON Schemas and all reference code are licensed Apache-2.0 (its explicit patent grant matters for a protocol that spans physical actuation). Contributions are accepted without a CLA: by contributing you agree that your contributions to specification and documentation text are licensed under CC-BY 4.0, that your contributions to schemas and code are licensed under Apache-2.0, and you affirm you have the right to submit them. See [`LICENSE`](https://github.com/Hyperduality/agent-world-protocol/blob/main/LICENSE) and [`CONTRIBUTING.md`](https://github.com/Hyperduality/agent-world-protocol/blob/main/CONTRIBUTING.md).

@@ -1,8 +1,18 @@
 ---
 title: "action.cancel"
-description: "Request cancellation of a submitted or executing action. Agent → World."
+description: "Request cancellation of a pre-execution or executing action. Agent → World."
 ---
 
 <ParamField body="action_id" type="string" required />
 
-Result: `{ "state": "cancelling" }`; the terminal `cancelled` status arrives as a notification, carrying `aborted_at_progress` when the world had to complete a safe abort first (AWP-LIF-005). Cancelling an already-terminal action returns its terminal status (idempotent).
+**Result:** `{ "action_id": "…", "state": "<state>", "status_seq": n }`, the action's state immediately after the request was applied (AWP-LIF-005):
+
+- Pre-execution (`pending_approval`, `queued`, `accepted`) → `cancelled` directly, reason `cancelled_by_agent`; the action had no side effects.
+- `executing` → `cancelling`; the terminal `cancelled` status follows as a notification once the safe abort completes, carrying `aborted_at_progress`.
+- Already terminal → the existing terminal state (idempotent; no new transition).
+
+```json awp:action-cancel-result
+{ "action_id": "a-01J8ZK3E9WPT", "state": "cancelling", "status_seq": 21 }
+```
+
+If an e-stop or safe-state entry coincides with the cancel, the e-stop or safe-state outcome wins (AWP-LIF-008) and the action ends `failed`, not `cancelled`.

@@ -1,0 +1,18 @@
+---
+title: "task.update"
+description: "Replace the session task mid-session. Agent → World. Requires the `task` capability."
+---
+
+<ParamField body="task" type="object" required>`{ content: [ …content blocks… ] }` — same shape as `task` on [session.open](/api-reference/control/session-open). Replaces the current task whole.</ParamField>
+
+**Result:** `{}` on acknowledgement; the new task is in effect and recorded in the audit log.
+
+```json awp:task-update
+{ "jsonrpc": "2.0", "id": 12, "method": "task.update",
+  "params": { "task": { "content": [
+    { "type": "text", "text": "Stop sorting; stack the remaining blocks by size." } ] } } }
+```
+
+**Errors:** 3001 (`AWP_PARAMS_INVALID`); `-32601` on worlds without the `task` capability.
+
+See [Task](/spec/session/task) for semantics (AWP-TSK-001..005).

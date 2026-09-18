@@ -7,8 +7,8 @@ description: "How data-plane endpoints are established."
 
 ```json
 { "stream_endpoints": [
-  { "binding": "webrtc", "signaling": "wss://…/rtc", "channels": [1, 2] },
-  { "binding": "ws", "url": "wss://…/stream?token=…", "channels": [1, 2, 3] },
+  { "binding": "webrtc", "signaling": "ws://127.0.0.1:8710/rtc", "channels": [1, 2] },
+  { "binding": "ws", "url": "ws://127.0.0.1:8710/stream?token=…", "channels": [1, 2, 3] },
   { "binding": "inline" } ] }
 ```
 

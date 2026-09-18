@@ -3,8 +3,8 @@ title: "Security"
 description: "TLS, authentication, session tokens, and the threat model."
 ---
 
-- Production deployments MUST use TLS (`wss://`, gRPC over TLS). Plaintext is permitted only on loopback. `[AWP-SEC-001]`
-- Worlds MUST authenticate agents before `initialize` completes; defined schemes: bearer token (`Authorization: Bearer`), mutual TLS. `[AWP-SEC-002]`
+- Connections on loopback or stdio — the common deployment — MAY be plaintext; any connection that leaves the machine MUST use TLS (`wss://`, gRPC over TLS). `[AWP-SEC-001]`
+- Worlds MUST authenticate agents before `initialize` completes on any non-loopback connection; defined schemes: bearer token (`Authorization: Bearer`), mutual TLS. On stdio, process ownership stands in for authentication. On loopback, worlds SHOULD still require a bearer token — a local WebSocket port is reachable by every page in every browser on the machine, not just the intended agent tab. `[AWP-SEC-002]`
 - `session.ready` returns an unguessable **session token** used for `session.resume` and for binding data-plane connections to the session. Tokens MUST be scoped to one session. `[AWP-SEC-003]`
 - Data-plane endpoints MUST reject connections that do not present a valid session token. `[AWP-SEC-004]`
 

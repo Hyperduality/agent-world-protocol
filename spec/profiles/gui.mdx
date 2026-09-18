@@ -5,7 +5,8 @@ description: "Requirements for browser and desktop environments as worlds."
 
 Adds to Core:
 
-- Channels: `screenshot` (`image/jpeg` or `image/raw`) and `dom` or `a11y_tree` (`text/event+json`) with keyframe/delta support — AWP-OBS-004
-- Action types: `pointer_move`, `pointer_click`, `key_input`, `scroll`, `navigate` with normative param schemas (viewport-relative coordinates, `_px` suffix exception documented per schema)
-- Streaming time model; lockstep OPTIONAL for deterministic page testing
-- `requires_approval` REQUIRED for `navigate` outside an allowlist and for any credential-entry action class
+- Channels: a GUI world MUST offer `screenshot` (`image/jpeg` or `image/raw`) and at least one of `dom` or `a11y_tree` (`text/event+json`) with keyframe/delta support (AWP-OBS-004). `[AWP-GUI-001]`
+- Action types: a GUI world MUST offer `pointer_move`, `pointer_click`, `key_input`, `scroll`, and `navigate` with the normative param schemas published in [`schemas/v0.1/profiles/gui-actions.schema.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/schemas/v0.1/profiles/gui-actions.schema.json) (viewport-relative coordinates; the `_px` suffix is the documented exception to AWP-UNI-001). `[AWP-GUI-002]`
+- Time model: streaming is REQUIRED; lockstep is OPTIONAL and, when offered, MUST follow the sim-profile lockstep rules (AWP-TIM-009..012) for deterministic page testing. `[AWP-GUI-003]`
+- Approval: `navigate` to a URL outside the manifest's declared allowlist and every action class that enters credentials MUST be declared `requires_approval: true` (AWP-APR-001). `[AWP-GUI-004]`
+- Safe state: `safety_policy.safe_state.behavior` MUST be `hold` (no further input is injected) with `watchdog_ms` ≤ 10000. `[AWP-GUI-005]`

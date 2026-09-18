@@ -12,7 +12,7 @@ description: "Version negotiation and manifest exchange. Agent → World."
 
 **Errors:** `AWP_VERSION_UNSUPPORTED` (1001).
 
-```json Request
+```json awp:agent-manifest
 { "jsonrpc": "2.0", "id": 1, "method": "initialize",
   "params": { "protocol_versions": ["0.1"],
               "agent": { "name": "quickstart", "version": "0.0.1", "vendor": "dev" },

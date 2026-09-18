@@ -11,3 +11,5 @@ Design choices that work well:
 - **A2A out of band** when agents must coordinate privately or across worlds; AWP deliberately does not define this ([multi-agent](/spec/multi-agent)).
 - **Spectator sessions** (AWP-EMB-004) for referees, evaluators, and dashboards.
 - **Shared control** with declared arbitration for human-takeover setups (AWP-MA-003) — see [Human in the loop](/guides/human-in-the-loop).
+- **Shared lockstep time.** Declare `tick_authority: "barrier"`: the world advances once every bound lockstep session has called `world.tick`, and every session receives the same advance (AWP-TIM-012). A stalled agent then blocks the round — give barrier worlds a per-tick timeout that treats a silent session as having ticked, and document it in the manifest.
+- **Administrative mutations.** `world.reset`, `world.restore`, and (where the world chooses) `world.tick` require the `admin` grant class (AWP-PRM-005). Grant them to the harness session, not to competing agents; a reset cancels every session's in-flight actions (AWP-PRM-006).

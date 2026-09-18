@@ -6,9 +6,11 @@ description: "How to propose changes to the specification: Requests for Dialog."
 Specification changes move through **Requests for Dialog** (RFDs) — individually published proposals with a lifecycle, modeled on the process that has served ACP well.
 
 1. **Discuss** — open a GitHub discussion to test the idea.
-2. **Draft** — submit an RFD PR using `rfds/0000-template.md`: problem, proposal, compatibility, affected or new `AWP-*` requirement IDs. Merged drafts get a docs page in the [RFD index](/community/rfds).
+2. **Draft** — submit an RFD PR adding `rfds/NNNN-<slug>.md`, copied from [`rfds/0000-template.md`](https://github.com/Hyperduality/agent-world-protocol/blob/main/rfds/0000-template.md): problem, proposal, compatibility, affected or new `AWP-*` requirement IDs. Merged drafts are listed in the changelog.
 3. **Review** — ≥ 14 days of public review; maintainers may convene a working group for cross-cutting areas.
-4. **Stabilize** — accepted RFDs are implemented against the draft spec, their requirement IDs land in normative text, conformance assertions ship the same release, and a stabilization announcement is posted to the [changelog](/community/changelog).
-5. **Merge or close** — stabilized RFDs merge into the next MINOR (additive) or MAJOR (breaking) release; declined RFDs close with rationale and remain published.
+4. **Stabilize** — accepted RFDs are implemented, their requirement IDs land in normative text, conformance assertions ship the same release, and a stabilization announcement is posted to the [changelog](/community/changelog).
+5. **Merge or close** — stabilized RFDs merge into the next MINOR (additive) or MAJOR (breaking) release and their `rfds/` file is marked `status: stabilized`; declined RFDs are marked `status: declined` with rationale and stay in the repository history.
 
 Requirement IDs (`AWP-XXX-NNN`) are added or modified only through stabilized RFDs. Small editorial fixes skip the process — plain PRs welcome.
+
+While the specification is a v0.1 draft, the six proposals that seeded it (relay transport, command channels, task, `follow_trajectory`, elicitation, capabilities) have been folded directly into the draft text rather than tracked as separate RFDs; the process above applies from the first post-draft change.

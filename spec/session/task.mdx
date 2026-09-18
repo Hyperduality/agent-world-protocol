@@ -1,0 +1,20 @@
+---
+title: "Task"
+description: "The language instruction conditioning the agent — a first-class, auditable session field."
+---
+
+Language-conditioned policies (VLA-class) are a mainstream consumer of embodied interfaces. The instruction that conditions them ("pick up the red block") is session state, not an action: it names what the agent is trying to do, it can change mid-session, and approvers and audit tooling need to see it. AWP gives it one standard home — `awp.task`.
+
+```json awp:task
+{
+  "content": [
+    { "type": "text", "text": "Pick up the **red** block and place it in bin 3." }
+  ]
+}
+```
+
+- Worlds advertising the `task` capability accept an optional `task` on `session.open` and a `task.update` request mid-session; without the capability, `task.update` is an unknown method (AWP-VER-007). `[AWP-TSK-001]`
+- A task is `{ content: [ …content blocks… ] }`. Worlds MUST support `text` blocks, whose `text` is Markdown; other block types MAY be supported per the world's declared modalities and MUST otherwise be rejected with `AWP_PARAMS_INVALID`. `[AWP-TSK-002]`
+- `task.update` replaces the task whole (no diffing) and takes effect on acknowledgement; running actions are unaffected — the task conditions the agent, it does not command the world. `[AWP-TSK-003]`
+- The task confers nothing: grants, envelopes, and approval requirements are independent of its content. `[AWP-TSK-004]`
+- The initial task and every update appear in the [audit log](/spec/safety/audit-log) like any control-plane message, subject to `safety_policy.audit.redact_paths` (AWP-AUD-006) — deployments whose instructions may carry personal data list `/task/content` there. Worlds SHOULD surface the current task to approvers alongside `safety.approval_requested` (AWP-APR-001). `[AWP-TSK-005]`

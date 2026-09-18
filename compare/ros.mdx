@@ -3,8 +3,16 @@ title: "AWP vs ROS"
 description: "Robot middleware vs the agent boundary."
 ---
 
-ROS is **intra-robot middleware**: trusted processes on one machine or fleet exchanging topics and services, with rich device drivers and tooling. AWP is the **agent boundary**: an untrusted-by-default mind connecting to a robot (or any world) over a network with negotiated grants and enforced envelopes.
+ROS 2 is **intra-robot middleware**: processes on one machine or fleet exchanging topics, services, and actions over DDS, with rich device drivers and tooling. AWP is the **agent boundary**: an untrusted-by-default mind connecting to a robot (or any world) it shares an environment with, under negotiated grants and enforced envelopes.
 
-ROS has no notion of sessions, permissions, manifest discovery for an external agent, or a normative audit format; AWP has no device drivers, no DDS, no intra-robot plumbing — and doesn't want them.
+ROS 2 is not without security or asynchrony. SROS 2 and DDS-Security provide authentication, encryption, and per-topic access control through signed permission files, and ROS 2 actions carry goals, feedback, and cancellation. What ROS 2 does not define is the boundary AWP is about:
 
-The composition is an adapter, not a rivalry: the [ros2-bridge](/adapters/ros2-bridge) runs as a ROS node, translating topics/tf/actions into AWP channels/frames/actions and enforcing the safety policy at the boundary.
+- **Discovery for an external agent.** A ROS graph is introspectable by a trusted participant; there is no self-describing manifest of what an outside agent may perceive and do, in which units and frames, under which limits.
+- **Per-session authority.** DDS permissions are per participant identity, configured at deployment. AWP grants are negotiated per session, scoped to an embodiment, default-deny, expiring, and enumerated back to the agent.
+- **Quantitative envelopes at the boundary.** ROS controllers may have limits; AWP requires the world to clamp or reject at the protocol boundary and to record that it did.
+- **Time models.** ROS 2 runs in wall-clock (or `/clock`) time; AWP defines lockstep and streaming as negotiated session modes with identical schemas, so the same agent runs against a simulator and the robot.
+- **A normative record.** ROS bags record topics; AWP defines the session audit log, its redaction rules, and what a replay must reproduce.
+
+AWP has no device drivers, no DDS, no intra-robot plumbing, and doesn't want them.
+
+The composition is an adapter, not a rivalry: the planned [ros2-bridge](/adapters/ros2-bridge) runs as a ROS node, translating topics/tf/actions into AWP channels/frames/actions and enforcing the safety policy at the boundary.

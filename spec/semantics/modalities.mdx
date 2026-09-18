@@ -10,6 +10,7 @@ description: "The registry of standard payload encodings."
 | `audio/pcm` | PCM samples | schema declares rate_hz, channels, sample_format |
 | `text/event+json` | UTF-8 JSON | structured events; schema per channel |
 | `proprio/json` | UTF-8 JSON | joints, poses, twists (unit-suffixed fields) |
+| `servo/json` | UTF-8 JSON | setpoints: joint targets, twists, wrenches (unit-suffixed fields); agent→world counterpart of `proprio/json` |
 | `pointcloud/xyz32` | packed float32 triples | frame named in schema |
 | `tensor/raw` | dtype+shape header, row-major data | for learned features |
 

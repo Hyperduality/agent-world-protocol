@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentworldprotocol.com/schemas/v0.1/telemetry-payload.schema.json",
+  "title": "awp.telemetry frame payload (text/event+json, AWP-TIM-006)",
+  "type": "object",
+  "properties": {
+    "window_ms": { "type": "integer", "minimum": 1, "description": "Measurement window the percentiles cover." },
+    "observation_latency_ns": { "$ref": "#/$defs/percentiles", "description": "Capture → send, per the world's clock." },
+    "admission_latency_ns": { "$ref": "#/$defs/percentiles", "description": "action.submit receipt → admission acknowledgement sent." },
+    "channels": {
+      "type": "object",
+      "description": "Optional per-channel observation latency keyed by channel id.",
+      "additionalProperties": { "$ref": "#/$defs/percentiles" }
+    }
+  },
+  "required": ["window_ms", "observation_latency_ns", "admission_latency_ns"],
+  "additionalProperties": true,
+  "$defs": {
+    "percentiles": {
+      "type": "object",
+      "properties": {
+        "p50": { "$ref": "common.schema.json#/$defs/u53" },
+        "p95": { "$ref": "common.schema.json#/$defs/u53" },
+        "max": { "$ref": "common.schema.json#/$defs/u53" }
+      },
+      "required": ["p50", "p95"],
+      "additionalProperties": false
+    }
+  }
+}

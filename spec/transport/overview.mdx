@@ -5,11 +5,11 @@ description: "Two planes, transport independence, and required bindings."
 
 AWP separates a **control plane** (reliable, ordered, low-bandwidth) from a **data plane** (high-bandwidth, loss-tolerant per channel class).
 
-- The control plane carries JSON-RPC 2.0 messages ([control plane](/spec/transport/control-plane)). Worlds MUST offer at least the **WebSocket binding** (`wss://` in production). `[AWP-TRN-001]`
+- The control plane carries JSON-RPC 2.0 messages ([control plane](/spec/transport/control-plane)). Worlds MUST offer at least the **WebSocket binding**. One control connection carries one session (AWP-CTL-007). `[AWP-TRN-001]`
 - Optional control-plane bindings: stdio (local child processes), gRPC. Bindings MUST preserve message ordering per direction. `[AWP-TRN-002]`
 - The data plane carries binary frames ([data plane](/spec/transport/data-plane)). Endpoints are negotiated at `session.open`; defined bindings: WebSocket (binary messages), WebRTC data channels, gRPC streams, POSIX shared memory (local). `[AWP-TRN-003]`
 - A world MAY serve data-plane frames inline over the control-plane socket (`inline` binding) — the default for lockstep sessions and REQUIRED as a fallback when no other binding is mutually supported. `[AWP-TRN-004]`
 
 <Note>
-Worlds that cannot accept inbound connections (browser-hosted worlds, NAT'd robots) currently have no conformant rendezvous path; a brokered relay transport is proposed in [RFD-001](/community/rfds/rfd-001-relay-transport).
+AWP assumes the agent and the world share a network environment — the same machine or a trusted local network (an agent client in a browser tab beside a world simulator, a policy process beside a robot controller). Rendezvous across the public internet is out of scope; deployments that separate the two front the world with their own tunnel or proxy presenting a dialable endpoint.
 </Note>

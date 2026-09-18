@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/action-status.schema.json",
+  "action_id": "a-01J8ZK3E9WPT",
+  "state": "cancelled",
+  "status_seq": 22,
+  "ts_mono_ns": 913007400000,
+  "reason": "cancelled_by_agent",
+  "aborted_at_progress": 0.62
+}

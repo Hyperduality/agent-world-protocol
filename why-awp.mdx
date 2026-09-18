@@ -8,13 +8,13 @@ Modern agent stacks have standardized almost every interface except the one wher
 
 | Standard | Boundary | What it assumes |
 |---|---|---|
-| MCP | agent ↔ tools | Instantaneous request/response calls |
+| MCP | agent ↔ tools | Units of work the server performs for the caller (calls, progress, cancellation, tasks) |
 | A2A | agent ↔ agent | Peers exchanging messages and tasks |
 | ACP | editor ↔ coding agent | Conversational turns over a codebase |
-| Gym / dm_env | policy ↔ environment | In-process, lockstep, reward-centric training |
-| ROS | process ↔ process on a robot | Trusted middleware inside one machine/fleet |
+| Gym / dm_env | policy ↔ environment | In-process, lockstep, reward-centric training; spaces introspected in the trainer's process |
+| ROS 2 | process ↔ process on a robot | Middleware inside one machine/fleet; identity-based DDS security configured at deployment |
 
-None of these gives you a **network protocol for embodied interaction at inference time**. The consequences show up everywhere:
+Each of these has asynchrony, introspection, or security of its own. None of them standardizes the **combination** embodied interaction needs: observation freshness as a first-class quantity, actions with duration and preemption over a shared physical state, per-session authority over an embodiment, quantitative limits enforced at the boundary, and a portable session record. The consequences show up everywhere:
 
 - Every simulator, game, and robot stack invents a bespoke agent integration.
 - Agent code trained in simulation must be rewritten to run on hardware.
@@ -25,7 +25,7 @@ None of these gives you a **network protocol for embodied interaction at inferen
 
 **Self-describing worlds.** A world advertises its observation channels, action schemas, time models, and safety policy in a manifest. A generic agent can enter a world it has never seen and discover: *here I have two arms, a camera at 30 fps, and these 14 action types.*
 
-**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary trains against `awp-sim` and deploys against a ROS 2 bridge. See [Sim-to-real](/guides/sim-to-real).
+**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary can train against a simulator adapter and deploy against a robot adapter (the planned `awp-sim` and ROS 2 bridge are the reference designs). See [Sim-to-real](/guides/sim-to-real).
 
 **Safety at the boundary.** Scoped grants, server-side envelopes, approval hooks, and a normative audit log live in the protocol itself, not in each integration. See the [safety model](/concepts/safety-model).
 

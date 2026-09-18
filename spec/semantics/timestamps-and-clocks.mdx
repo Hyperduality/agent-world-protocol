@@ -5,5 +5,6 @@ description: "Monotonic session clock, wall anchor, and sim time."
 
 - All timestamps are `ts_mono_ns`: nanoseconds on the **session monotonic clock**, which starts ≥0 at session open and never goes backward. `[AWP-CLK-001]`
 - `session.ready` carries a `clock_anchor`: the wall-clock time (RFC 3339, UTC) corresponding to monotonic 0, letting logs correlate across systems. `[AWP-CLK-002]`
-- Simulated worlds additionally carry `ts_sim_ns` on frames when sim time diverges from the monotonic clock (fast-forward, slow-mo); lockstep frames also carry `tick`. `[AWP-CLK-003]`
+- Simulated worlds additionally carry `ts_sim_ns` (i64) on frames when sim time diverges from the monotonic clock (fast-forward, slow-mo), and sim-profile worlds always carry it; lockstep frames also carry `tick`. Both travel in the frame's [extension block](/spec/transport/data-plane#extension-block-present-only-when-flags-bit-2-is-set) (types `0x02` and `0x01`) or as named fields in the inline JSON form, never in the payload (AWP-DAT-007). `[AWP-CLK-003]`
 - Timestamps mark **capture time** (observations) and **event time** (statuses), not send time. `[AWP-CLK-004]`
+- In JSON, all timestamp and counter fields are integers bounded by 2^53 − 1 (AWP-CTL-009). Because the session clock starts at 0 this permits sessions of roughly 104 days; `clock_anchor` carries the absolute wall time so no field needs to hold an epoch timestamp. `[AWP-CLK-005]`

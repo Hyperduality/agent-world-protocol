@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentworldprotocol.com/schemas/v0.1/frame-inline.schema.json",
+  "title": "obs.frame / cmd.frame params (inline binding, AWP-DAT-004)",
+  "description": "The data-plane frame header and extension fields as JSON, payload base64-encoded.",
+  "type": "object",
+  "properties": {
+    "channel_id": { "$ref": "common.schema.json#/$defs/channel_id" },
+    "seq": { "$ref": "common.schema.json#/$defs/seq" },
+    "ts_mono_ns": { "$ref": "common.schema.json#/$defs/ts_mono_ns" },
+    "flags": { "type": "integer", "minimum": 0, "maximum": 3, "description": "Bits 0-1 only (keyframe, end-of-burst); bit 2 must be 0 in JSON." },
+    "tick": { "$ref": "common.schema.json#/$defs/tick" },
+    "ts_sim_ns": { "$ref": "common.schema.json#/$defs/ts_sim_ns" },
+    "payload_b64": { "type": "string", "pattern": "^[A-Za-z0-9+/]*={0,2}$" }
+  },
+  "required": ["channel_id", "seq", "ts_mono_ns", "flags", "payload_b64"],
+  "patternProperties": { "^x-[a-z0-9]+\\.": {} },
+  "additionalProperties": false
+}

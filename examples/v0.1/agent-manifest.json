@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/agent-manifest.schema.json",
+  "protocol_versions": ["0.1"],
+  "agent": { "name": "picker-agent", "version": "1.4.2", "vendor": "acme" },
+  "consumes_modalities": ["image/jpeg", "proprio/json", "text/event+json"],
+  "time_models": ["lockstep", "streaming"],
+  "max_obs_rate_hz": 30,
+  "extensions": {}
+}

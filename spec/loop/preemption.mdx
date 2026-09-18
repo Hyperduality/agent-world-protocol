@@ -7,9 +7,9 @@ Each action type declares its preemption policy in the manifest; the submitter s
 
 | Policy | Semantics |
 |---|---|
-| `queue` | New action waits; executes after current terminal state. Queue depth bounded by `max_queue` (manifest); overflow → `AWP_QUEUE_FULL`. `[AWP-PRE-002]` |
-| `replace` | Current action → `preempted` (after safe transition), new action starts. `[AWP-PRE-003]` |
+| `queue` | New action enters the `queued` state and becomes `accepted` when the group frees, in submission order. Queue depth bounded by `max_queue` (manifest); overflow → `AWP_QUEUE_FULL`. Queued actions terminate per the [pre-execution rules](/spec/loop/action-lifecycle#terminal-rules-for-pre-execution-actions): cancel, e-stop, session close, safe-state entry, world reset → `cancelled`; deadline expiry → `rejected`. `[AWP-PRE-002]` |
+| `replace` | Current `executing` action → `preempted` (after safe transition); current pre-execution actions in the group → `cancelled` (reason `superseded`); new action starts. `[AWP-PRE-003]` |
 | `blend` | World merges trajectories (continuous control); both actions report status, the replaced one ends `preempted` with `blended: true`. `[AWP-PRE-004]` |
-| `reject` | New submission is rejected with `AWP_BUSY` while one is running. `[AWP-PRE-005]` |
+| `reject` | New submission is rejected with `AWP_BUSY` while one is `executing` or pre-execution in the group. `[AWP-PRE-005]` |
 
-**Concurrency groups.** The manifest MAY partition action types into `concurrency_groups`; preemption applies within a group, and actions in different groups run concurrently (e.g. `base_motion` vs `gripper`). `[AWP-PRE-006]`
+**Concurrency groups.** Each action type MAY name a `concurrency_group` (string) in its schema. Types sharing a group name preempt one another; types in different groups run concurrently (e.g. `base_motion` vs `gripper`). Types with no group form an implicit group per embodiment. `[AWP-PRE-006]`

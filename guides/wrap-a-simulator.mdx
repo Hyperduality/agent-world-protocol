@@ -8,16 +8,14 @@ description: "A lockstep adapter over an existing sim, with seeding, snapshot, a
     Sim state → observation channels; sim inputs → action schemas; sim step() → tick. Keep the mapping table in your repo — it becomes your manifest.
   </Step>
   <Step title="Implement lockstep semantics">
-    Advance only on `world.tick`/accepted actions (AWP-TIM-002), emit exactly one frame per per-tick channel per advance (AWP-TIM-003), and remove all wall-clock reads from the state path (AWP-TIM-004).
+    Advance only on `world.tick` (AWP-TIM-002); stage submitted actions until the next advance (AWP-TIM-010); per advance, emit statuses and events first, then exactly one frame per per-tick channel, then the tick result (AWP-TIM-003/011); deliver a tick-0 frame right after `session.ready` (AWP-TIM-009); remove all wall-clock reads from the state path (AWP-TIM-004). If more than one lockstep session can bind, declare `tick_authority: "barrier"` (AWP-TIM-012).
   </Step>
   <Step title="Add sim-profile capabilities">
     Wire `seed` into your RNGs, implement `world.snapshot`/`restore` over your sim's serialization, and verify AWP-REP-003 by replaying a recorded log in CI.
   </Step>
   <Step title="Conformance">
-    ```bash
-    awp-conformance run ws://localhost:8710 --profile core --profile sim
-    ```
+    Map each requirement you implement to its ID in the [requirement matrix](/spec/requirements) and keep that mapping in your repo. The conformance suite that will automate this check is not published yet; until it is, a claim of conformance is self-assessed and MUST say so (AWP-CNF-005).
   </Step>
 </Steps>
 
-Reference implementation: [awp-sim](/adapters/awp-sim). For Gymnasium environments the [bridge](/adapters/gymnasium-bridge) does this mapping generically.
+Planned reference implementations: [awp-sim](/adapters/awp-sim) and, for Gymnasium environments, a [bridge](/adapters/gymnasium-bridge) that does this mapping generically. Neither is published yet.

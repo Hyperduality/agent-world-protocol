@@ -1,0 +1,6 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/error.schema.json",
+  "code": 4002,
+  "message": "AWP_ENVELOPE_EXCEEDED",
+  "data": { "retryable": true, "retry_after_ms": 100, "detail": "max_action_rate_hz 10 exceeded" }
+}

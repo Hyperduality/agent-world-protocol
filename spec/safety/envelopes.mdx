@@ -5,13 +5,14 @@ description: "Quantitative safety limits, enforced server-side."
 
 The world's `safety_policy` declares envelopes per embodiment:
 
-```json
+```json awp:envelope
 {
   "embodiment": "arm_01",
   "spatial": { "frame": "base", "aabb_m": [[-0.8,-0.8,0.0],[0.8,0.8,1.2]] },
   "max_velocity_mps": 1.0,
   "max_force_n": 40,
   "max_action_rate_hz": 10,
+  "enforcement": "both",
   "on_violation": "clamp"
 }
 ```
@@ -20,3 +21,6 @@ The world's `safety_policy` declares envelopes per embodiment:
 - `on_violation` is `clamp` (execute at the limit, report `clamped: true` in status) or `reject` (`AWP_ENVELOPE_EXCEEDED`). Declared per envelope. `[AWP-ENV-002]`
 - Violations of physical envelopes during execution (external disturbance) MUST fail the action (reason `envelope`) and emit `world.event: envelope_violation`. `[AWP-ENV-003]`
 - Rate limiting applies to `action.submit` admission; excess returns `AWP_ENVELOPE_EXCEEDED` with `retryable: true` and `retry_after_ms`. `[AWP-ENV-004]`
+- Each envelope declares `enforcement`: `command_check` (requested commands are clamped or rejected before actuation; the default), `measured` (executed motion is monitored and violations fail the action per AWP-ENV-003), or `both`. A world MUST NOT declare a limit it cannot enforce at least by `command_check`, and MUST NOT declare `measured` or `both` for a quantity it cannot observe. The [robotics profile](/spec/profiles/robotics) fixes which mode each limit requires. `[AWP-ENV-005]`
+
+On [command channels](/spec/loop/command-channels), enforcement applies per inbound frame (AWP-CMD-006).

@@ -1,9 +1,24 @@
 ---
 title: "Permissions"
-description: "The grant model: scopes, expiry, and default-deny."
+description: "The grant model: scopes, expiry, default-deny, and administrative mutations."
 ---
 
-- Sessions operate **default-deny**: only explicitly granted action types, channels, and embodiments are usable; everything else returns `AWP_FORBIDDEN`. `[AWP-PRM-001]`
+- Sessions operate **default-deny**: only explicitly granted action types, channels, embodiments, and administrative operations are usable; everything else returns `AWP_FORBIDDEN`. `[AWP-PRM-001]`
 - Grants are enumerated exactly in `session.ready` and are immutable for the session except channel subscriptions ([negotiation](/spec/session/negotiation)). `[AWP-PRM-002]`
 - Grants MAY carry `expires_at` (monotonic ns); expired grants behave as never granted, and the world emits `world.event: grant_expired`. `[AWP-PRM-003]`
 - Worlds MAY scope grants further per action type (e.g. `move_to_pose` limited to a named spatial region); such scopes appear in the granted schema. `[AWP-PRM-004]`
+
+## Administrative mutations
+
+Some control-plane methods change state that other sessions observe or depend on. They form a fourth grant class, `admin`, requested in `session.open` (`admin: string[]`) and enumerated in `session.ready` (`granted.admin`):
+
+| Operation | Method | Effect beyond this session |
+|---|---|---|
+| `snapshot` | `world.snapshot` | none (read-only), but tokens are credentials |
+| `restore` | `world.restore` | every session's world state changes |
+| `reset` | `world.reset` | every session's world state changes |
+| `tick` | `world.tick` on a shared lockstep world | every session's time advances (AWP-TIM-012) |
+
+- Administrative operations are default-deny like everything else. A world that hosts a single session MAY grant `admin` operations by default; a world that hosts several MUST grant `restore`, `reset`, and (with `tick_authority: "any_session"`) `tick` to at most one session at a time, or to none. `[AWP-PRM-005]`
+- `world.restore` and `world.reset` MUST: (1) emit `world.event: world_resetting` to every session, naming the initiating session id; (2) transition every non-terminal action in every session to `cancelled` (reason `world_reset`; `executing` actions through `cancelling`); (3) perform the state change; (4) in lockstep, deliver a fresh frame on every subscribed per-tick channel of every session (as AWP-TIM-009) with the restored `tick`. Sessions, grants, tokens, and subscriptions persist across a reset. Snapshot tokens remain valid after a restore. `[AWP-PRM-006]`
+- `task.update` changes only the calling session's task and requires no admin grant (AWP-TSK-003).

@@ -1,6 +1,15 @@
 ---
 title: "Observation frames"
-description: "Per-modality payload examples."
+description: "Per-modality payloads and per-frame metadata."
 ---
 
-Payload encoding is fixed by the channel's declared [modality](/spec/semantics/modalities). JSON modalities (`text/event+json`, `proprio/json`) are UTF-8; binary modalities (`image/jpeg`, `audio/pcm`, `pointcloud/xyz32`, `tensor/raw`) are raw bytes per their schema. Frames on per-tick lockstep channels additionally include `tick` in a 8-byte extension when flag bit 2 is set (v0.1 reserves this; SDKs surface `tick` uniformly).
+Payload encoding is fixed by the channel's declared [modality](/spec/semantics/modalities). JSON modalities (`text/event+json`, `proprio/json`) are UTF-8; binary modalities (`image/jpeg`, `audio/pcm`, `pointcloud/xyz32`, `tensor/raw`) are raw bytes per their schema. The payload is exactly the modality's encoding and nothing else (AWP-DAT-007).
+
+Per-frame metadata beyond the fixed header travels in the [extension block](/spec/transport/data-plane#extension-block-present-only-when-flags-bit-2-is-set), or as named JSON fields in the inline binding:
+
+| Metadata | Binary | Inline JSON | Required |
+|---|---|---|---|
+| `tick` | extension `0x01`, u64 | `"tick"` | Lockstep, per-tick channels (AWP-OBS-002) |
+| `ts_sim_ns` | extension `0x02`, i64 | `"ts_sim_ns"` | When sim time diverges from the session clock (AWP-CLK-003); always on sim-profile worlds |
+
+A JPEG frame therefore never carries its tick inside the JPEG bytes; the decoder reads it from the extension block and passes the payload to the image decoder untouched. SDKs surface `tick` and `ts_sim_ns` uniformly regardless of binding.

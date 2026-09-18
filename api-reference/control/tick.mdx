@@ -3,6 +3,14 @@ title: "world.tick"
 description: "Advance a lockstep world. Agent → World."
 ---
 
-<ParamField body="count" type="integer">Ticks to advance. Default 1.</ParamField>
+<ParamField body="count" type="integer">Advances to perform, ≥ 1. Default 1.</ParamField>
 
-Only valid in lockstep sessions with `tick_policy` `on_tick` or `on_both`. Result: `{ "tick": 4212 }` after all per-tick frames for the new tick have been delivered (AWP-TIM-003).
+Only valid in lockstep sessions. Performs `count` sequential advances (AWP-TIM-011). For each advance the world delivers, before starting the next: every `action.status` and `world.event` produced by the advance, then exactly one `obs.frame` per subscribed per-tick channel (AWP-TIM-003). The result is sent after the last advance:
+
+```json awp:tick-result
+{ "tick": 4212 }
+```
+
+Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance (AWP-TIM-012).
+
+**Errors:** 2002 (`AWP_TIME_MODEL_UNSUPPORTED` in a streaming session), 3006 (`AWP_TICK_NOT_AUTHORIZED`).

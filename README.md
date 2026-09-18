@@ -12,7 +12,25 @@ mint dev            # http://localhost:3000
 mint broken-links   # link check (run in CI too)
 ```
 
-Layout: `docs.json` (nav/theme) · `*.mdx` pages per tab (Documentation, Specification, API Reference, SDKs & Adapters, Community) · `logo/`, `images/`, `snippets/`.
+## Layout
+
+- `docs.json` (nav/theme) · `*.mdx` pages per tab (Documentation, Specification, API Reference, SDKs & Adapters, Community) · `logo/`, `images/`, `snippets/`.
+- `schemas/v0.1/*.schema.json` — canonical JSON Schemas (Apache-2.0); `schemas/test-vectors/frames.json` — data-plane frame test vectors.
+- `examples/v0.1/*.json` — complete instances validated against the schemas.
+- `generated/awp-v0.1.d.ts` — TypeScript types generated from the schemas.
+- `spec/requirements.yaml` → `spec/requirements.mdx` — the requirement matrix (side, applicability, gate, test) for every `AWP-*` ID.
+- `scripts/` — `validate.mjs`, `gen-schema-docs.mjs`, `gen-types.mjs`, `gen-requirements.mjs`, and the reference `frame-codec.mjs`.
+- `rfds/0000-template.md` — the RFD template.
+
+## Checks
+
+```bash
+npm install
+npm run check   # schemas, examples, tagged doc blocks, frame vectors, generated-file drift
+npm run gen     # regenerate api-reference/schemas/*.mdx, generated/, spec/requirements.mdx
+```
+
+Tagged JSON blocks in the docs (```` ```json awp:<schema> ````) are validated in CI; untagged blocks are illustrative fragments.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose changes and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
 

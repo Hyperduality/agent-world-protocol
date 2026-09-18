@@ -1,0 +1,20 @@
+---
+title: "Command frames"
+description: "Agent→world frames on command channels."
+---
+
+Command frames use the same [frame format](/api-reference/data/frame-format) as observation frames — header, optional extension block, payload — sent by the agent on a [command channel](/spec/loop/command-channels) while its bound `duration: "streaming"` action is `executing`. `seq` and `ts_mono_ns` are set by the agent; the world applies frames in `seq` order and envelope-checks each before actuation. Command frames on a lockstep world (not permitted: command channels are streaming-only, AWP-CMD-001) never carry `tick`; `ts_sim_ns` is not meaningful agent→world and MUST be omitted.
+
+A `servo/json` payload against the example channel from the [command channels](/spec/loop/command-channels) spec page:
+
+```json
+{ "q_target_rad": [0.12, -0.87, 1.43, -1.98, 0.05, 1.21, 0.33] }
+```
+
+Inline binding (AWP-DAT-004):
+
+```json awp:cmd-frame
+{ "jsonrpc": "2.0", "method": "cmd.frame",
+  "params": { "channel_id": 7, "seq": 1201, "ts_mono_ns": 913005202000, "flags": 0,
+              "payload_b64": "eyJxX3RhcmdldF9yYWQiOlswLjEyLC0wLjg3LDEuNDMsLTEuOTgsMC4wNSwxLjIxLDAuMzNdfQ==" } }
+```

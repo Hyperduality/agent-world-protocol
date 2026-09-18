@@ -3,15 +3,18 @@ title: "Record and replay"
 description: "The audit log as debugger, benchmark, and dataset."
 ---
 
-Every session already produces a normative [audit log](/spec/safety/audit-log). Three uses:
+Every session already produces a normative [audit log](/spec/safety/audit-log). Which of the three [record classes](/spec/safety/audit-log#record-classes) you keep decides what you can do with it later:
 
-**Debugging.** `awp-log view session.awpl` reconstructs the timeline: every frame, submission, and transition on the session clock. Because timestamps mark capture/event time (AWP-CLK-004), latency problems are visible directly.
+| You keep | You get |
+|---|---|
+| Audit record (frame hashes) | Proof of what was commanded, permitted, and reported; the ability to *verify* a replay |
+| Replay bundle (hashes + payloads + initial snapshot) | Everything above plus deterministic replay and inspection of what the agent saw |
+| Dataset export (derived) | Trajectories for training and evaluation, with redactions applied |
 
-**Benchmarks.** On sim-profile worlds, a log plus its initial snapshot is a reproducible episode (AWP-REP-003). Publish the snapshot + a scoring script and any conformant agent can be evaluated on identical states.
+**Debugging.** A log viewer reconstructs the timeline from the JSONL: every frame, submission, and transition on the session clock. Because timestamps mark capture/event time (AWP-CLK-004), latency problems are visible directly. Tokens are already redacted (AWP-AUD-006), so logs can be shared.
 
-**Datasets.** Logs with full payloads are (observation, action, outcome) trajectories in one portable format — filter by terminal status, join on `action_id`, and export.
+**Benchmarks.** On sim-profile worlds, a replay bundle is a reproducible episode: restore the initial snapshot, feed the recorded submissions and ticks in `status_seq` order, and the world must reproduce every frame hash and every action's state sequence (AWP-REP-003). Publish the snapshot plus a scoring script and any conformant agent can be evaluated on identical states.
 
-```bash
-awp-log record ws://localhost:8710 --out episode.awpl     # proxy recorder
-awp-log replay episode.awpl --against ws://localhost:8710 # verify AWP-REP-003
-```
+**Datasets.** Only a replay bundle can become a dataset: filter by terminal status, join observations to actions on `action_id`, and export. A hash-only audit record cannot be turned into one after the fact, so decide the record class before the session starts.
+
+Recording and replay tooling (`awp-log record` / `awp-log replay`) is planned alongside the SDKs and is not published yet.

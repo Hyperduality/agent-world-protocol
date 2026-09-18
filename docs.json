@@ -14,7 +14,7 @@
   },
   "favicon": "/favicon.svg",
   "banner": {
-    "content": "v0.1 draft — spec only. SDKs and adapters are not published.",
+    "content": "v0.1 draft — specification only. SDKs and adapters are not published.",
     "dismissible": true
   },
   "navigation": {
@@ -81,6 +81,7 @@
                   "spec/index",
                   "spec/terminology",
                   "spec/conformance",
+                  "spec/requirements",
                   "spec/versioning-policy"
                 ]
               },
@@ -100,6 +101,7 @@
                   "spec/session/world-manifest",
                   "spec/session/agent-manifest",
                   "spec/session/negotiation",
+                  "spec/session/task",
                   "spec/session/embodiments"
                 ]
               },
@@ -110,6 +112,7 @@
                   "spec/loop/observations",
                   "spec/loop/actions",
                   "spec/loop/action-lifecycle",
+                  "spec/loop/command-channels",
                   "spec/loop/preemption",
                   "spec/loop/events-and-errors"
                 ]
@@ -129,6 +132,7 @@
                   "spec/safety/permissions",
                   "spec/safety/envelopes",
                   "spec/safety/approval",
+                  "spec/safety/safe-state",
                   "spec/safety/audit-log",
                   "spec/reproducibility",
                   "spec/multi-agent"
@@ -167,6 +171,7 @@
               "api-reference/control/manifest",
               "api-reference/control/session-open",
               "api-reference/control/session-close",
+              "api-reference/control/task-update",
               "api-reference/control/subscribe",
               "api-reference/control/action-submit",
               "api-reference/control/action-cancel",
@@ -181,6 +186,7 @@
             "pages": [
               "api-reference/data/frame-format",
               "api-reference/data/observation-frames",
+              "api-reference/data/command-frames",
               "api-reference/data/event-frames",
               "api-reference/data/stream-negotiation"
             ]
@@ -188,11 +194,22 @@
           {
             "group": "Schemas",
             "pages": [
+              "api-reference/schemas/common",
               "api-reference/schemas/world-manifest",
+              "api-reference/schemas/agent-manifest",
+              "api-reference/schemas/embodiment",
               "api-reference/schemas/action-schema",
               "api-reference/schemas/observation-channel",
               "api-reference/schemas/safety-policy",
-              "api-reference/schemas/frame-tree"
+              "api-reference/schemas/frame-tree",
+              "api-reference/schemas/session-open",
+              "api-reference/schemas/session-ready",
+              "api-reference/schemas/action-submit",
+              "api-reference/schemas/action-status",
+              "api-reference/schemas/frame-inline",
+              "api-reference/schemas/world-event",
+              "api-reference/schemas/telemetry-payload",
+              "api-reference/schemas/error"
             ]
           }
         ]
@@ -248,18 +265,6 @@
               "community/faq",
               "community/brand"
             ]
-          },
-          {
-            "group": "RFDs",
-            "pages": [
-              "community/rfds",
-              "community/rfds/rfd-001-relay-transport",
-              "community/rfds/rfd-002-command-channels",
-              "community/rfds/rfd-003-task",
-              "community/rfds/rfd-004-follow-trajectory",
-              "community/rfds/rfd-005-elicitation",
-              "community/rfds/rfd-006-capabilities"
-            ]
           }
         ]
       }
@@ -294,8 +299,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/Hyperduality/agent-world-protocol",
-      "x": "https://x.com/awprotocol"
+      "github": "https://github.com/Hyperduality/agent-world-protocol"
     }
   },
   "contextual": {

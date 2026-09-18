@@ -16,15 +16,18 @@ The pattern: **manifest → context → loop**.
         return "\n".join(lines)
     ```
   </Step>
-  <Step title="Loop: observe, decide, act, await">
+  <Step title="Loop: observe, decide, submit, tick, read">
     ```python
     while not done:
-        obs = await session.observe()                     # lockstep pull
+        obs = await session.observe()                     # frame for the current tick
         decision = llm.decide(render_capabilities(session), summarize(obs))
         action = await session.submit(type=decision.type, params=decision.params)
-        status = await action.terminal()                  # completed/failed/preempted
+        # `action` is admitted and staged; nothing happens until the world advances.
+        await session.tick()                              # world.tick — delivers statuses + next frame
+        status = await action.terminal()                  # resolves from statuses delivered by the tick
         feed_back(llm, status)                            # failures are information
     ```
+    In lockstep, `await action.terminal()` without a preceding `tick()` never resolves — the world does not advance on its own (AWP-TIM-002). Extended actions may need several ticks; loop on `tick()` until the status is terminal. In streaming mode drop the `tick()` call: the world advances on its own and statuses arrive as they happen.
   </Step>
   <Step title="Handle the lifecycle honestly">
     Feed `failed`, `preempted`, and `clamped` statuses back into context — they are the world teaching the model its limits. Never retry non-retryable errors with identical params (AWP-ERR-001).

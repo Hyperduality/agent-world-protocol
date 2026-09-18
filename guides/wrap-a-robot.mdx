@@ -20,9 +20,9 @@ Physical actuation. Implement the [robotics profile](/spec/profiles/robotics) co
   <Step title="Report latency">
     Publish pipeline latencies on `awp.telemetry` (AWP-TIM-006); measure capture→send for observations and submit→admit for actions.
   </Step>
-  <Step title="Declare disconnect behavior">
-    Choose and test `on_disconnect` (`safe_stop` for arms, `hold` for grippers) — it runs when the reconnect window expires (AWP-EMB-002).
+  <Step title="Declare and measure the safe state">
+    Choose `safety_policy.safe_state.behavior` (`safe_stop` for arms, `hold` for grippers) and a `watchdog_ms` your controller can honor (robotics default 2000 ms). The watchdog runs on the adapter, from the last control message received, and fires whether or not the connection has been declared lost (AWP-SAF-003/004). Test it: kill the agent process mid-motion and measure, on the adapter's clock, last-message → actuator-stop; the number must be within `watchdog_ms` + 100 ms and goes in your conformance report (AWP-SAF-012). The reconnect window only decides how long the session token stays valid; a resumed agent must submit a new action to move again (AWP-SAF-008).
   </Step>
 </Steps>
 
-Reference implementations: [ros2-bridge](/adapters/ros2-bridge) for ROS 2 stacks, [lerobot-bridge](/adapters/lerobot-bridge) for LeRobot-class affordable arms (no ROS required).
+Planned reference implementations (not yet published): [ros2-bridge](/adapters/ros2-bridge) for ROS 2 stacks, [lerobot-bridge](/adapters/lerobot-bridge) for LeRobot-class affordable arms (no ROS required).
