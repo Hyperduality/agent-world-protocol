@@ -6,27 +6,30 @@ icon: "eye"
 
 Worlds expose named **observation channels**, each declaring a modality, encoding, schema, resolution, and nominal rate in the manifest. An agent subscribes to the subset it can consume.
 
+Every frame has the same shape regardless of what it carries: a per-channel sequence number, a capture timestamp, in streaming a send timestamp, and a payload. The payload is exactly the bytes of the channel's declared modality — a JPEG for an image channel, UTF-8 JSON for a proprioception or event channel — and nothing else.
+
 <Tabs>
   <Tab title="Image">
-  ```json
-  { "channel": "rgb_main", "seq": 4211, "ts_mono_ns": 913004112000,
-    "modality": "image/jpeg", "width": 1280, "height": 720, "payload": "<binary>" }
-  ```
+    | Field | Value |
+    |---|---|
+    | `seq` | 4211 |
+    | `ts_mono_ns` | 913004112000 |
+    | `payload` | JPEG bytes (binary), 1280×720 as declared in the channel schema |
   </Tab>
   <Tab title="Proprioception">
-  ```json
-  { "channel": "proprio", "seq": 88123, "ts_mono_ns": 913004498000,
-    "modality": "proprio/json",
-    "data": { "joints_rad": [0.12, -1.04, 0.88], "gripper": 0.5 } }
-  ```
+    | Field | Value |
+    |---|---|
+    | `seq` | 88123 |
+    | `ts_mono_ns` | 913004498000 |
+    | `payload` | `{"joints_rad": [0.12, -1.04, 0.88], "gripper": 0.5}` |
   </Tab>
   <Tab title="Semantic event">
-  ```json
-  { "channel": "events", "seq": 74, "ts_mono_ns": 913004501000,
-    "modality": "text/event+json",
-    "data": { "event": "entity_appeared", "entity": "box_12", "frame": "world" } }
-  ```
+    | Field | Value |
+    |---|---|
+    | `seq` | 74 |
+    | `ts_mono_ns` | 913004501000 |
+    | `payload` | `{"event": "entity_appeared", "entity": "box_12", "frame": "world"}` |
   </Tab>
 </Tabs>
 
-Delivery depends on the [time model](/concepts/time-models): in **lockstep**, frames are pulled per tick over the control plane; in **streaming**, they are pushed over the data plane with timestamps and sequence numbers, and the agent must tolerate staleness. Every frame carries enough metadata (`seq`, `ts_mono_ns`, channel binding) for the agent to reason about ordering and latency — see [timestamps and clocks](/spec/semantics/timestamps-and-clocks).
+Delivery depends on the [time model](/concepts/time-models): in **lockstep**, the world sends one frame per channel per tick, usually inline on the control connection; in **streaming**, frames are pushed continuously on their channels with capture and send timestamps and sequence numbers, and the agent measures the staleness of each one against a clock it has synchronized to the world's over the heartbeat. Every frame carries enough metadata (`seq`, `ts_mono_ns`, `ts_send_ns`, channel binding) for the agent to reason about ordering, loss, and latency — see [timestamps and clocks](/spec/semantics/timestamps-and-clocks).

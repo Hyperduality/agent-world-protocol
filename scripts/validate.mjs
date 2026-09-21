@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Validates the canonical schemas, the example instances, every tagged JSON block in the docs,
-// and the data-plane frame test vectors. Exit code 1 on any failure. Apache-2.0.
+// the frame test vectors, and the wire traces. Exit code 1 on any failure. Apache-2.0.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
@@ -115,5 +115,94 @@ for (const v of vectors) {
   if (diffs.length) fail(`${where}: mismatch on ${diffs.join(", ")}`); else ok(where);
 }
 
-console.log(failures ? `\n${failures} failure(s)` : `\nall checks passed (${schemas.length} schemas, ${tagged} tagged blocks, ${vectors.length} vectors)`);
+// ---------------------------------------------------------------- wire traces
+// Method → schema for params, result, or notification params. A trace line is
+// { from: "agent"|"world", step, msg } or { marker } (a transport event, not a message).
+export const METHODS = {
+  "initialize": { params: "agent-manifest", result: "world-manifest" },
+  "world.manifest": { params: "empty-result", result: "world-manifest" },
+  "ping": { params: "ping", result: "ping-result" },
+  "session.open": { params: "session-open", result: "session-ready" },
+  "session.resume": { params: "session-resume", result: "session-ready" },
+  "session.close": { params: "empty-result", result: "empty-result" },
+  "session.transfer": { params: "session-transfer", result: "session-transfer-result" },
+  "session.state": { notification: "session-state" },
+  "session.telemetry": { notification: "session-telemetry" },
+  "task.update": { params: "task-update", result: "empty-result" },
+  "obs.subscribe": { params: "subscribe", result: "subscribe-result" },
+  "obs.unsubscribe": { params: "unsubscribe", result: "subscribe-result" },
+  "obs.frame": { notification: "frame-inline" },
+  "obs.report": { notification: "obs-report" },
+  "cmd.frame": { notification: "frame-inline" },
+  "action.submit": { params: "action-submit", result: "action-submit-result" },
+  "action.cancel": { params: "action-ref", result: "action-cancel-result" },
+  "action.status": { params: "action-ref", result: "action-status", notification: "action-status" },
+  "world.tick": { params: "tick", result: "tick-result" },
+  "world.snapshot": { params: "empty-result", result: "snapshot-result" },
+  "world.restore": { params: "restore", result: "reset-result" },
+  "world.reset": { params: "reset", result: "reset-result" },
+  "world.event": { notification: "world-event" },
+  "safety.approval_requested": { notification: "approval-requested" },
+  "safety.approval.respond": { params: "approval-respond", result: "empty-result" },
+};
+const schemaFor = (name) => ajv.getSchema(SCHEMA_BASE + name + ".schema.json");
+for (const name of new Set(Object.values(METHODS).flatMap((m) => Object.values(m)))) {
+  if (!schemaFor(name)) fail(`METHODS map names missing schema ${name}`);
+}
+const traceFiles = walk(join(ROOT, "examples", "v0.1", "traces"), (f) => f.endsWith(".jsonl")).sort();
+for (const p of traceFiles) {
+  const lines = readFileSync(p, "utf8").split("\n").filter((l) => l.trim());
+  const pending = new Map(); // `${from}:${id}` -> method
+  let nextStatusSeq = null, bad = 0; // first status_seq seen sets the baseline; then +1 per notification
+  const seqs = new Map(); // channel_id -> last seq
+  const problem = (n, msg) => { bad++; fail(`${rel(p)}:${n}: ${msg}`); };
+  lines.forEach((line, i) => {
+    const n = i + 1;
+    let entry;
+    try { entry = JSON.parse(line); } catch (e) { return problem(n, `not valid JSON — ${e.message}`); }
+    if (entry.marker) return;
+    const { from, msg } = entry;
+    if (!["agent", "world"].includes(from) || !msg) return problem(n, `expected { from, msg } or { marker }`);
+    if (msg.jsonrpc !== "2.0") return problem(n, `jsonrpc must be "2.0"`);
+    const check = (name, value, what) => { const v = schemaFor(name); if (!v(value)) problem(n, `${what} invalid against ${name}: ${ajv.errorsText(v.errors, { separator: "; " })}`); };
+    if (msg.method !== undefined) {
+      const spec = METHODS[msg.method];
+      if (!spec) return problem(n, `unknown method ${msg.method}`);
+      if (msg.id !== undefined) {
+        if (!spec.params) return problem(n, `${msg.method} is notification-only`);
+        check(spec.params, msg.params ?? {}, `${msg.method} params`);
+        pending.set(`${from}:${msg.id}`, msg.method);
+      } else {
+        if (!spec.notification) return problem(n, `${msg.method} is not a notification`);
+        check(spec.notification, msg.params ?? {}, `${msg.method} notification`);
+        if (msg.method === "obs.frame" || msg.method === "cmd.frame") {
+          const { channel_id, seq, flags } = msg.params;
+          const last = seqs.get(`${from}:${channel_id}`);
+          if (last !== undefined && seq <= last) problem(n, `channel ${channel_id} seq ${seq} not increasing (last ${last})`);
+          if (last !== undefined && seq !== last + 1 && !(flags & 0x08)) problem(n, `channel ${channel_id} seq gap without resync`);
+          seqs.set(`${from}:${channel_id}`, seq);
+        }
+      }
+    } else if (msg.result !== undefined || msg.error !== undefined) {
+      const other = from === "agent" ? "world" : "agent";
+      const method = pending.get(`${other}:${msg.id}`);
+      if (!method) return problem(n, `response to unknown request id ${msg.id}`);
+      pending.delete(`${other}:${msg.id}`);
+      if (msg.error !== undefined) check("error", msg.error, `${method} error`);
+      else check(METHODS[method].result, msg.result, `${method} result`);
+      if (from === "world" && msg.result && ["action.submit", "action.cancel"].includes(method) && msg.result.status_seq !== undefined) {
+        if (nextStatusSeq !== null && msg.result.status_seq !== nextStatusSeq) problem(n, `status_seq ${msg.result.status_seq}, expected ${nextStatusSeq} (AWP-CTL-008)`);
+        nextStatusSeq = msg.result.status_seq + 1;
+      }
+    } else return problem(n, `neither request, notification, nor response`);
+    if (from === "world" && msg.method && ["action.status", "world.event", "session.state"].includes(msg.method) && msg.id === undefined) {
+      if (nextStatusSeq !== null && msg.params.status_seq !== nextStatusSeq) problem(n, `status_seq ${msg.params.status_seq}, expected ${nextStatusSeq} (AWP-CTL-008)`);
+      nextStatusSeq = msg.params.status_seq + 1;
+    }
+  });
+  for (const [k, m] of pending) problem(lines.length, `request ${k} (${m}) never answered`);
+  if (!bad) ok(`trace ${rel(p)} (${lines.length} lines)`);
+}
+
+console.log(failures ? `\n${failures} failure(s)` : `\nall checks passed (${schemas.length} schemas, ${tagged} tagged blocks, ${vectors.length} vectors, ${traceFiles.length} traces)`);
 process.exit(failures ? 1 : 0);

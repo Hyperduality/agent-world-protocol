@@ -1,0 +1,19 @@
+---
+title: "Control channel"
+description: "Channel 0: JSON-RPC 2.0 framing, ordering, heartbeats, and reconnection."
+---
+
+- The control channel carries JSON-RPC 2.0 objects. Requests originate from either side; notifications (no `id`) are used for status and event pushes. `[AWP-CTL-001]`
+- Method names are namespaced: `initialize`, `ping`, `world.*`, `session.*`, `task.*`, `obs.*`, `action.*`, `safety.*`. Unknown methods MUST return JSON-RPC `-32601`. `[AWP-CTL-002]`
+- Per-direction ordering on the control channel MUST be preserved by the binding; recipients MUST NOT assume cross-direction ordering, nor ordering relative to any other channel (AWP-TRN-007). `[AWP-CTL-003]`
+- **Heartbeats.** `ping` is a JSON-RPC request either side may send, carrying `{ origin_ns }`; its result is the pong, `{ origin_ns, receive_ns, transmit_ns }`, and every exchange is a clock-synchronization sample ([timestamps and clocks](/spec/semantics/timestamps-and-clocks#clock-synchronization), AWP-CLK-007/008). Interval, response bound, and loss detection are normative in [Liveness and safe state](/spec/safety/safe-state) (AWP-SAF-001/002): send at least every `heartbeat_interval_ms`, answer within the same, three silent intervals is loss. `[AWP-CTL-004]`
+- **Reconnection.** A lost control connection moves the session to `Suspended` and does not terminate it for `reconnect_window_ms` (declared in `session.ready`, default 30000). The agent reconnects, completes `initialize`, and calls `session.resume` with its session token and `last_status_seq`; the world replays per [status delivery](#status-delivery-and-replay) and re-issues `stream_endpoints`, from which the agent re-establishes its stream connections (AWP-TRN-008). Embodiment behavior during the gap is governed by the world-side watchdog, not by the reconnect window (AWP-SAF-003..008): motion stops at `watchdog_ms`, and resumption never restarts it. `[AWP-CTL-005]`
+- Batch requests MUST NOT be used. `[AWP-CTL-006]`
+- **One session per connection.** A control connection carries exactly one control channel and at most one session. A second `session.open` on a connection that already holds a session MUST fail with `AWP_SESSION_EXISTS`; to run several sessions against one world, open several connections. Multiplexing is deferred to a future RFD. `[AWP-CTL-007]`
+
+## Status delivery and replay
+
+- Every `action.status`, `world.event`, and `session.state` notification carries `status_seq`, a per-session integer that starts at 1 and increases by exactly 1 per notification across all three kinds; the `action.submit` and `action.cancel` results carry the `status_seq` of the transition they report, which is consumed from the same sequence. `session.resume` carries `last_status_seq`, the highest `status_seq` the agent has processed (0 if none); the world MUST replay, in order, every notification with `status_seq > last_status_seq`, then continue live. Delivery is therefore at-least-once and receivers deduplicate on `status_seq` (AWP-LIF-009). Worlds MUST retain undelivered notifications for at least `reconnect_window_ms`. All notifications are replayed, not only terminal statuses, so a suspension is reported to the agent when it returns. `[AWP-CTL-008]`
+- **64-bit integers in JSON.** `ts_mono_ns`, `ts_sim_ns`, `ts_send_ns`, `received_ts_mono_ns`, `basis_ts_mono_ns`, `valid_until_ns`, `origin_ns`, `receive_ns`, `transmit_ns`, `seq`, `tick`, `status_seq`, `expires_at_ns`, and every other 64-bit field are encoded as JSON integers and MUST NOT exceed 2^53 − 1. Because the session clock starts at 0, this bounds a session at roughly 104 days. A receiver that observes a larger value MUST close the session with `AWP_INTEGER_RANGE`. Senders MUST NOT encode these fields as strings or floats. `[AWP-CTL-009]`
+
+See the [API Reference](/api-reference/message-envelope) for the envelope and every method.

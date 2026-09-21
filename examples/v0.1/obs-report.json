@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/obs-report.schema.json",
+  "window_ms": 1000,
+  "sync": { "offset_ns": 912998975000, "rtt_ns": 50000, "samples": 8 },
+  "channels": {
+    "1": { "frames": 30, "gaps": 0, "jitter_ns": 1800000, "staleness_ns": { "count": 30, "p50": 14100000, "p95": 29500000 } },
+    "2": { "frames": 99, "gaps": 1, "jitter_ns": 300000, "staleness_ns": { "count": 99, "p50": 1600000, "p95": 3200000 } }
+  },
+  "decision_latency_ns": { "count": 9, "p50": 22000000, "p95": 35000000 }
+}

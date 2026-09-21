@@ -3,7 +3,7 @@ title: "Frame format"
 description: "The 28-byte binary header, the optional extension block, and the inline JSON form."
 ---
 
-See the normative layout in [spec/transport/data-plane](/spec/transport/data-plane). Quick reference:
+See the normative layout in [spec/transport/frames](/spec/transport/frames). Quick reference:
 
 ```
 0        4   5   6      8            16           24        28
@@ -20,7 +20,7 @@ See the normative layout in [spec/transport/data-plane](/spec/transport/data-pla
                  | payload…
 ```
 
-Little-endian throughout. Flags: bit 0 keyframe, bit 1 end-of-burst, bit 2 has_extensions, bits 3–7 reserved (zero on send, ignored on receive). Extension types: `0x01` tick (u64), `0x02` ts_sim_ns (i64), `0x80`–`0xFF` vendor. `payload_len` counts payload bytes only.
+Little-endian throughout. Flags: bit 0 keyframe, bit 1 end-of-burst, bit 2 has_extensions, bit 3 resync (first frame after a discontinuity; always a keyframe), bits 4–7 reserved (zero on send, ignored on receive). Extension types: `0x01` tick (u64), `0x02` ts_sim_ns (i64), `0x03` ts_send_ns (u64), `0x80`–`0xFF` vendor. `payload_len` counts payload bytes only.
 
 ## Inline JSON form
 
@@ -33,7 +33,13 @@ In the `inline` binding the same frame is an `obs.frame` or `cmd.frame` notifica
               "payload_b64": "eyJhdmF0YXIiOlsyLDNdfQ==" } }
 ```
 
-`flags` in JSON carries bits 0–1 only; extension values are the named fields `tick` and `ts_sim_ns` (vendor extensions: `x-<vendor>.<name>`).
+`flags` in JSON carries bits 0, 1, and 3 only; extension values are the named fields `tick`, `ts_sim_ns`, and `ts_send_ns` (vendor extensions: `x-<vendor>.<name>`). A streaming observation frame carries its send time (test vector `streaming_ts_send`):
+
+```json awp:obs-frame
+{ "jsonrpc": "2.0", "method": "obs.frame",
+  "params": { "channel_id": 1, "seq": 4211, "ts_mono_ns": 913004112000, "ts_send_ns": 913004120200, "flags": 1,
+              "payload_b64": "eyJhdmF0YXIiOlsyLDNdfQ==" } }
+```
 
 ## Worked example
 

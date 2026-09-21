@@ -15,4 +15,6 @@ description: "Request cancellation of a pre-execution or executing action. Agent
 { "action_id": "a-01J8ZK3E9WPT", "state": "cancelling", "status_seq": 21 }
 ```
 
+**Errors:** 3008 (`AWP_ACTION_UNKNOWN`). The type MAY bound the abort with `max_abort_ms` (AWP-LIF-010).
+
 If an e-stop or safe-state entry coincides with the cancel, the e-stop or safe-state outcome wins (AWP-LIF-008) and the action ends `failed`, not `cancelled`.

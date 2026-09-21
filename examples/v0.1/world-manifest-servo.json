@@ -58,7 +58,8 @@
         "on_violation": "clamp"
       }
     ],
-    "safe_state": { "behavior": "hold", "watchdog_ms": 1000 }
+    "safe_state": { "behavior": "hold", "watchdog_ms": 1000 },
+    "max_basis_age_ms": 100
   },
   "$defs": {
     "servo_params": {

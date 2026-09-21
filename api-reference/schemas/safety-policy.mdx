@@ -18,6 +18,7 @@ world-manifest.safety_policy (spec/safety/envelopes, approval, safe-state, audit
     <ResponseField name="watchdog_ms" type="integer" required>Time since the last agent control message before safe state is entered. MUST be ≤ reconnect_window_ms.</ResponseField>
   </Expandable>
 </ResponseField>
+<ResponseField name="max_basis_age_ms" type="integer">Maximum age of an intent's basis observation when execution begins (AWP-SAF-013). Required by the robotics profile (AWP-ROB-005).</ResponseField>
 <ResponseField name="approval_timeout_ms" type="integer">AWP-APR-003. Default `60000`.</ResponseField>
 <ResponseField name="approval_channel" type="string">Where approval requests are routed (deployment-defined).</ResponseField>
 <ResponseField name="audit" type="object">

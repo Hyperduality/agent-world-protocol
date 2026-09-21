@@ -9,16 +9,17 @@ Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action li
 
 | Requirement | Refs |
 |---|---|
-| WebSocket control-plane binding, JSON-RPC framing, one session per connection, heartbeats, status sequencing, JSON integer bounds | AWP-TRN-001, AWP-CTL-001..009, AWP-SAF-001..002 |
+| Channel model, WebSocket control connection, JSON-RPC framing, one session per connection, heartbeats, status sequencing, JSON integer bounds | AWP-TRN-001..011, AWP-CTL-001..009, AWP-SAF-001..002 |
+| Session clock, wall anchor, and the clock-synchronization exchange on the heartbeat | AWP-CLK-001..009 |
 | `initialize` with a valid world manifest | AWP-MAN-001..007 |
 | At least one embodiment, one observation channel, one action type | AWP-MAN-001 |
-| One time model (either) with its full semantics | AWP-TIM-001..012 |
-| Complete action lifecycle with status notifications | AWP-LIF-001..009, AWP-ACT-001..006, AWP-PRE-001..006 |
-| Session lifecycle, resumption, and recovery scope | AWP-SES-001..008 |
+| One time model (either) with its full semantics; when streaming, send timestamps and telemetry | AWP-TIM-001..012, AWP-OBS-006 |
+| Complete action lifecycle with status notifications | AWP-LIF-001..010, AWP-ACT-001..007, AWP-PRE-001..006 |
+| Session lifecycle, identity, resumption, and recovery scope | AWP-SES-001..009 |
 | Default-deny grants (incl. admin class) and exact `session.ready` enumeration | AWP-PRM-001..006, AWP-NEG-001..004 |
-| Error taxonomy and `retryable` marking | AWP-ERR-001, AWP-EVT-001..002 |
+| Error taxonomy, `retryable` marking, control-channel events | AWP-ERR-001, AWP-EVT-001..003 |
 | Audit log with redaction and record class labelling | AWP-AUD-001..007 |
-| Inline data-plane binding with the JSON frame form | AWP-TRN-004, AWP-DAT-001..008 |
+| Inline binding with the JSON frame form, frame envelope, resync | AWP-TRN-004, AWP-DAT-001..009 |
 
 **A Core Agent MUST:**
 
@@ -27,7 +28,9 @@ Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action li
 - Submit only granted action types on granted embodiments and subscribe only to granted channels (AWP-PRM-001). `[AWP-AGT-003]`
 - Generate unique `action_id`s and resubmit only with identical content (AWP-ACT-001). `[AWP-AGT-004]`
 - Handle every lifecycle state, including `pending_approval`, `queued`, `cancelling`, and `preempted`, and deduplicate redelivered statuses on `(action_id, status_seq)` (AWP-LIF-009). `[AWP-AGT-005]`
-- Send heartbeats at the negotiated interval, and in lockstep call `world.tick` rather than waiting for completion (AWP-SAF-001, AWP-TIM-002). `[AWP-AGT-006]`
+- Send heartbeats at the negotiated interval carrying `origin_ns`, answer the world's pings with `receive_ns` and `transmit_ns`, and in lockstep call `world.tick` rather than waiting for completion (AWP-SAF-001, AWP-CLK-007, AWP-TIM-002). `[AWP-AGT-006]`
 - On `session.resume`, pass `last_status_seq` and treat the embodiment as being in safe state until a new action executes (AWP-CTL-008, AWP-SAF-008). `[AWP-AGT-007]`
+- Maintain the clock-offset estimate from heartbeat exchanges and express every agent-originated session-clock value through it (AWP-CLK-008, AWP-CLK-009). `[AWP-AGT-008]`
+- Expose `world.tick` as an explicit call and never advance time as a side effect of any other operation; an SDK helper that submits and ticks in one step MUST be a distinct, lockstep-only entry point that fails in a streaming session. `[AWP-AGT-009]`
 
-Data-plane bindings beyond `inline`, snapshots, approval, envelopes, and the safe-state watchdog are **not** required by Core; they arrive with profiles. A Core world that offers streaming does still declare `safe_state` (AWP-MAN-006) because the field is part of a valid manifest.
+Stream bindings beyond `inline`, snapshots, approval, envelopes, and the safe-state watchdog are **not** required by Core; they arrive with profiles. A Core world that offers streaming does still declare `safe_state` (AWP-MAN-006), stamps `ts_send_ns` on every observation frame (AWP-OBS-006), and sends `session.telemetry` (AWP-TIM-006), because those are part of the streaming time model itself.

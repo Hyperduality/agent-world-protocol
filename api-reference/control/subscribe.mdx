@@ -3,6 +3,29 @@ title: "obs.subscribe / obs.unsubscribe"
 description: "Adjust channel subscriptions mid-session. Agent → World."
 ---
 
-<ParamField body="channels" type="object[]" required>`{ channel, rate_hz? }` entries to add or modify.</ParamField>
+## obs.subscribe
 
-Result enumerates the granted outcome exactly (AWP-NEG-001): `{ granted: [ { channel, rate_hz, channel_id } ] }`. First frame after subscribe is a current snapshot/keyframe (AWP-OBS-005). `obs.unsubscribe` takes `{ channels: string[] }`.
+<ParamField body="channels" type="object[]" required>`{ channel, rate_hz? }` entries to add or re-rate.</ParamField>
+
+```json awp:subscribe
+{ "jsonrpc": "2.0", "id": 5, "method": "obs.subscribe", "params": { "channels": [ { "channel": "rgb_wrist", "rate_hz": 15 } ] } }
+```
+
+## obs.unsubscribe
+
+<ParamField body="channels" type="string[]" required>Channel names to remove.</ParamField>
+
+```json awp:unsubscribe
+{ "jsonrpc": "2.0", "id": 6, "method": "obs.unsubscribe", "params": { "channels": ["rgb_wrist"] } }
+```
+
+## Result
+
+Both return the session's complete channel grant list after the change, enumerated exactly (AWP-NEG-001, AWP-NEG-004). The first frame on a newly subscribed channel is a current snapshot or keyframe (AWP-OBS-005); in lockstep it carries the current tick (AWP-TIM-009).
+
+```json awp:subscribe-result
+{ "granted": [ { "channel": "rgb_wrist", "rate_hz": 15, "channel_id": 1 },
+               { "channel": "proprio", "rate_hz": 100, "channel_id": 2 } ] }
+```
+
+**Errors:** 2007 (`AWP_CHANNEL_UNKNOWN`: not declared in the manifest), 4001 (`AWP_FORBIDDEN`: declared but not readable by this session).

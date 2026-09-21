@@ -125,11 +125,11 @@ for (const r of rows.values()) {
 // ------------------------------------------------------------ render
 const AREA_NAMES = {
   ACT: "Actions", AGM: "Agent manifest", AGT: "Core agent", APR: "Approval", AUD: "Audit log", AV: "Realtime A/V profile",
-  CLK: "Timestamps and clocks", CMD: "Command channels", CNF: "Conformance", CTL: "Control plane", DAT: "Data plane",
+  CLK: "Timestamps and clocks", CMD: "Command channels", CNF: "Conformance", CTL: "Control channel", DAT: "Frames",
   EMB: "Embodiments", ENV: "Envelopes", ERR: "Errors", EVT: "Events", GUI: "GUI profile", LIF: "Action lifecycle",
   MA: "Multi-agent", MAN: "World manifest", MOD: "Modalities", NEG: "Negotiation", OBS: "Observations", PRE: "Preemption",
   PRM: "Permissions", REP: "Reproducibility", ROB: "Robotics profile", SAF: "Liveness and safe state", SCN: "Scene graphs",
-  SEC: "Security", SES: "Session lifecycle", SIM: "Sim profile", TIM: "Time models", TRN: "Transport", TSK: "Task",
+  SEC: "Security", SES: "Session lifecycle", SIM: "Sim profile", TIM: "Time models", TRN: "Transport and channels", TSK: "Task",
   UNI: "Units and frames", VER: "Versioning",
 };
 const esc = (s) => s.replace(/\|/g, "\\|").replace(/</g, "&lt;").replace(/\{/g, "&#123;").replace(/\}/g, "&#125;");

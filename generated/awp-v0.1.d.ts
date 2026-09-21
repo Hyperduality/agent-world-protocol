@@ -15,10 +15,14 @@ export interface ActionCancelResult {
     | "preempted"
     | "cancelled";
   /**
-   * Per-session notification sequence shared by action.status and world.event (AWP-CTL-008).
+   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
    */
   status_seq: number;
   [k: string]: unknown;
+}
+
+export interface ActionRef {
+  action_id: string;
 }
 
 /**
@@ -57,6 +61,10 @@ export type ActionSchema = {
    * Per-stream watchdog for streaming types (AWP-CMD-005).
    */
   watchdog_ms?: number;
+  /**
+   * Upper bound on the cancelling state for this type (AWP-LIF-010).
+   */
+  max_abort_ms?: number;
   description?: string;
   [k: string]: unknown;
 };
@@ -83,7 +91,7 @@ export type ActionStatus = {
     | "preempted"
     | "cancelled";
   /**
-   * Per-session notification sequence shared by action.status and world.event (AWP-CTL-008).
+   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
    */
   status_seq: number;
   /**
@@ -106,6 +114,7 @@ export type ActionStatus = {
         | "approval_denied"
         | "approval_timeout"
         | "deadline_exceeded"
+        | "stale_intent"
         | "cancelled_by_agent"
         | "superseded"
         | "e_stop"
@@ -146,11 +155,15 @@ export interface ActionSubmitResult {
   action_id: string;
   state: "pending_approval" | "queued" | "accepted";
   /**
-   * Per-session notification sequence shared by action.status and world.event (AWP-CTL-008).
+   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
    */
   status_seq: number;
   /**
-   * Nanoseconds on the session monotonic clock (AWP-CLK-001).
+   * Session-clock time the world received the submission; origin of deadline_ms and of admission latency.
+   */
+  received_ts_mono_ns: number;
+  /**
+   * Time of the reported transition.
    */
   ts_mono_ns: number;
   [k: string]: unknown;
@@ -172,6 +185,14 @@ export interface ActionSubmit {
    * From world receipt; covers approval and queue wait (AWP-ACT-004).
    */
   deadline_ms?: number;
+  /**
+   * Capture time of the newest observation this intent relies on (AWP-ACT-007).
+   */
+  basis_ts_mono_ns?: number;
+  /**
+   * Session-clock instant after which the intent must not begin executing (AWP-ACT-007).
+   */
+  valid_until_ns?: number;
   [k: string]: unknown;
 }
 
@@ -312,6 +333,12 @@ export interface Embodiment {
   [k: string]: unknown;
 }
 
+/**
+ * Used by session.close, world.manifest, world.snapshot params, task.update result, and safety.approval.respond result.
+ */
+
+export interface EmptyResult {}
+
 export interface Error {
   code: number;
   message: string;
@@ -324,7 +351,7 @@ export interface Error {
 }
 
 /**
- * The data-plane frame header and extension fields as JSON, payload base64-encoded.
+ * The frame header and extension fields as JSON, payload base64-encoded.
  */
 
 export interface FrameInline {
@@ -338,9 +365,9 @@ export interface FrameInline {
    */
   ts_mono_ns: number;
   /**
-   * Bits 0-1 only (keyframe, end-of-burst); bit 2 must be 0 in JSON.
+   * Bits 0, 1, and 3 only (keyframe, end-of-burst, resync); bit 2 must be 0 in JSON.
    */
-  flags: number;
+  flags: 0 | 1 | 2 | 3 | 8 | 9 | 10 | 11;
   /**
    * Lockstep tick number.
    */
@@ -349,6 +376,10 @@ export interface FrameInline {
    * Simulated time in nanoseconds (AWP-CLK-003).
    */
   ts_sim_ns?: number;
+  /**
+   * Required on observation frames in streaming sessions (AWP-OBS-006).
+   */
+  ts_send_ns?: number;
   payload_b64: string;
   /**
    * This interface was referenced by `FrameInline`'s JSON-Schema definition
@@ -415,12 +446,115 @@ export interface Transform {
 }
 
 /**
+ * Agent-side delivery quality, staleness, and decision latency aggregated over the preceding window.
+ */
+
+export interface ObsReport {
+  /**
+   * Measurement window the statistics cover.
+   */
+  window_ms: number;
+  /**
+   * Current clock-offset estimate (AWP-CLK-008).
+   */
+  sync: {
+    /**
+     * session clock = agent clock + offset_ns.
+     */
+    offset_ns: number;
+    /**
+     * Round-trip time of the selected sample; the offset error is bounded by rtt_ns / 2.
+     */
+    rtt_ns: number;
+    /**
+     * Exchanges completed so far in the session.
+     */
+    samples?: number;
+  };
+  channels: PerChannel;
+  decision_latency_ns?: LatencyStats1;
+  /**
+   * This interface was referenced by `ObsReport`'s JSON-Schema definition
+   * via the `patternProperty` "^x-[a-z0-9]+\.".
+   */
+  [k: string]: unknown;
+}
+
+/**
+ * Per observation channel that delivered frames in the window.
+ */
+
+export interface PerChannel {
+  [k: string]: {
+    /**
+     * Frames received.
+     */
+    frames: number;
+    /**
+     * Frames missing, by seq.
+     */
+    gaps: number;
+    /**
+     * Mean of |(R_j − R_i) − (S_j − S_i)| over consecutive frames; R is the agent clock at receipt, S is ts_send_ns.
+     */
+    jitter_ns?: number;
+    staleness_ns?: LatencyStats;
+  };
+}
+
+/**
+ * Staleness at receipt: (agent receipt + offset_ns) − ts_mono_ns.
+ */
+
+export interface LatencyStats {
+  /**
+   * Samples in the window.
+   */
+  count: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p50: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p95: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  max?: number;
+}
+
+/**
+ * Agent receipt of the basis frame → action.submit transmitted, over submissions in the window.
+ */
+
+export interface LatencyStats1 {
+  /**
+   * Samples in the window.
+   */
+  count: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p50: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p95: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  max?: number;
+}
+
+/**
  * An entry in world-manifest.observation_channels or world-manifest.command_channels (AWP-DAT-002, AWP-CMD-001).
  */
 
 export interface ObservationChannel {
   /**
-   * Unique per world. awp.* names are reserved (awp.tf, awp.telemetry).
+   * Unique per world. awp.* names are reserved (awp.tf).
    */
   id: string;
   /**
@@ -448,7 +582,7 @@ export interface ObservationChannel {
    */
   keyframe_interval?: number;
   /**
-   * Age after which frames are stale; drives data_plane_degraded on reliable channels (AWP-SAF-009). Default 2 × period.
+   * Age after which frames are stale; drives channel_degraded on reliable channels (AWP-SAF-009). Default 2 × period.
    */
   stale_after_ms?: number;
   /**
@@ -456,6 +590,50 @@ export interface ObservationChannel {
    */
   schema: {};
   [k: string]: unknown;
+}
+
+export interface PingResult {
+  /**
+   * Echoed from the ping.
+   */
+  origin_ns: number;
+  /**
+   * Responder's clock when the ping was received.
+   */
+  receive_ns: number;
+  /**
+   * Responder's clock when this result was transmitted.
+   */
+  transmit_ns: number;
+}
+
+export interface Ping {
+  /**
+   * Sender's clock at transmission: the session clock from the world, the agent clock from the agent.
+   */
+  origin_ns: number;
+}
+
+export interface ResetResult {
+  /**
+   * Present in lockstep sessions.
+   */
+  tick?: number;
+}
+
+export interface Reset {
+  /**
+   * Default: the manifest's first initial_states entry.
+   */
+  initial_state?: string;
+  /**
+   * Requires capabilities.seed.
+   */
+  seed?: number;
+}
+
+export interface Restore {
+  snapshot_token: string;
 }
 
 /**
@@ -479,6 +657,10 @@ export interface SafetyPolicy {
      */
     watchdog_ms: number;
   };
+  /**
+   * Maximum age of an intent's basis observation when execution begins (AWP-SAF-013). Required by the robotics profile (AWP-ROB-005).
+   */
+  max_basis_age_ms?: number;
   /**
    * AWP-APR-003.
    */
@@ -585,6 +767,10 @@ export interface SessionOpen {
 
 export interface SessionReady {
   /**
+   * World-assigned session identifier; not a credential (AWP-SES-009).
+   */
+  session_id: string;
+  /**
    * Credential; redacted in the audit log (AWP-SEC-003, AWP-AUD-006).
    */
   session_token: string;
@@ -594,14 +780,7 @@ export interface SessionReady {
    */
   heartbeat_interval_ms: number;
   granted: {
-    channels: {
-      /**
-       * Names for channels, action types, embodiments, frames, entities.
-       */
-      channel: string;
-      rate_hz: number | null;
-      channel_id: number;
-    }[];
+    channels: ChannelGrant[];
     action_types: string[];
     admin?: ("snapshot" | "restore" | "reset" | "tick")[];
     envelopes: Envelope[];
@@ -615,17 +794,31 @@ export interface SessionReady {
    */
   stream_endpoints: [
     {
-      binding: "inline" | "ws" | "webrtc" | "grpc" | "shm";
+      /**
+       * Stream binding (AWP-TRN-003).
+       */
+      binding: "inline" | "ws" | "grpc" | "webrtc" | "webtransport" | "shm";
       url?: string;
       signaling?: string;
       channels?: number[];
+      /**
+       * Largest frame this endpoint carries (AWP-TRN-011).
+       */
+      max_frame_bytes?: number;
       [k: string]: unknown;
     },
     ...{
-      binding: "inline" | "ws" | "webrtc" | "grpc" | "shm";
+      /**
+       * Stream binding (AWP-TRN-003).
+       */
+      binding: "inline" | "ws" | "grpc" | "webrtc" | "webtransport" | "shm";
       url?: string;
       signaling?: string;
       channels?: number[];
+      /**
+       * Largest frame this endpoint carries (AWP-TRN-011).
+       */
+      max_frame_bytes?: number;
       [k: string]: unknown;
     }[]
   ];
@@ -647,6 +840,19 @@ export interface SessionReady {
 }
 
 /**
+ * A granted channel subscription as enumerated in session.ready and obs.subscribe results (AWP-NEG-001).
+ */
+
+export interface ChannelGrant {
+  /**
+   * Names for channels, action types, embodiments, frames, entities.
+   */
+  channel: string;
+  rate_hz: number | null;
+  channel_id: number;
+}
+
+/**
  * Named coordinate frames published in session.ready (AWP-UNI-003).
  */
 
@@ -662,12 +868,182 @@ export interface SessionResume {
   last_status_seq: number;
 }
 
+export interface SessionState {
+  state: "negotiating" | "ready" | "active" | "suspended" | "closed";
+  /**
+   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
+   */
+  status_seq: number;
+  /**
+   * Nanoseconds on the session monotonic clock (AWP-CLK-001).
+   */
+  ts_mono_ns: number;
+  /**
+   * Cause of the transition.
+   */
+  reason?:
+    | "opened"
+    | "first_activity"
+    | "connection_lost"
+    | "resumed"
+    | "session_closed"
+    | "window_expired"
+    | "world_shutdown"
+    | "transferred";
+}
+
+/**
+ * World-side latency measurements aggregated over the preceding window. Each quantity is present whenever at least one sample fell in the window.
+ */
+
+export interface SessionTelemetry {
+  /**
+   * Measurement window the statistics cover.
+   */
+  window_ms: number;
+  observation_latency_ns?: LatencyStats;
+  admission_latency_ns?: LatencyStats1;
+  observation_to_action_ns?: LatencyStats2;
+  command_latency_ns?: LatencyStats3;
+  channels?: PerChannel;
+  /**
+   * This interface was referenced by `SessionTelemetry`'s JSON-Schema definition
+   * via the `patternProperty` "^x-[a-z0-9]+\.".
+   */
+  [k: string]: unknown;
+}
+
+/**
+ * Pipeline latency, ts_send_ns − ts_mono_ns, over every observation frame sent in the window.
+ */
+
+/**
+ * Admission acknowledgement transmitted − received_ts_mono_ns, over every action.submit in the window.
+ */
+
+/**
+ * received_ts_mono_ns − basis_ts_mono_ns, over every submission in the window that carried a basis.
+ */
+
+export interface LatencyStats2 {
+  /**
+   * Samples in the window.
+   */
+  count: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p50: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p95: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  max?: number;
+}
+
+/**
+ * World receipt − ts_mono_ns, over every command frame received in the window.
+ */
+
+export interface LatencyStats3 {
+  /**
+   * Samples in the window.
+   */
+  count: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p50: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p95: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  max?: number;
+}
+
+/**
+ * Pipeline latency per observation channel, for every channel that sent frames in the window.
+ */
+
+/**
+ * Distribution of a latency or staleness quantity over a measurement window, in nanoseconds. Present only when count > 0.
+ */
+
+export interface LatencyStats4 {
+  /**
+   * Samples in the window.
+   */
+  count: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p50: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  p95: number;
+  /**
+   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
+   */
+  max?: number;
+}
+
 export interface SessionTransferResult {
   /**
    * Single-use credential; redacted in the audit log (AWP-EMB-003, AWP-AUD-006).
    */
   transfer_token: string;
   expires_in_ms: number;
+}
+
+export interface SessionTransfer {
+  expires_in_ms?: number;
+}
+
+export interface SnapshotResult {
+  /**
+   * Opaque credential; redacted in the audit log (AWP-AUD-006).
+   */
+  snapshot_token: string;
+}
+
+export interface SubscribeResult {
+  /**
+   * The session's complete channel grant list after the change.
+   */
+  granted: ChannelGrant[];
+}
+
+/**
+ * A granted channel subscription as enumerated in session.ready and obs.subscribe results (AWP-NEG-001).
+ */
+
+export interface Subscribe {
+  /**
+   * @minItems 1
+   */
+  channels: [
+    {
+      /**
+       * Names for channels, action types, embodiments, frames, entities.
+       */
+      channel: string;
+      rate_hz?: number;
+    },
+    ...{
+      /**
+       * Names for channels, action types, embodiments, frames, entities.
+       */
+      channel: string;
+      rate_hz?: number;
+    }[]
+  ];
 }
 
 export interface TaskUpdate {
@@ -678,80 +1054,29 @@ export interface TaskUpdate {
  * Task content block (AWP-TSK-002). text is Markdown; other types are world-defined.
  */
 
-export interface TelemetryPayload {
-  /**
-   * Measurement window the percentiles cover.
-   */
-  window_ms: number;
-  observation_latency_ns: Percentiles;
-  admission_latency_ns: Percentiles1;
-  /**
-   * Optional per-channel observation latency keyed by channel id.
-   */
-  channels?: {
-    [k: string]: Percentiles2;
-  };
-  [k: string]: unknown;
-}
-
-/**
- * Capture → send, per the world's clock.
- */
-
-export interface Percentiles {
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p50: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p95: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  max?: number;
-}
-
-/**
- * action.submit receipt → admission acknowledgement sent.
- */
-
-export interface Percentiles1 {
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p50: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p95: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  max?: number;
-}
-
-export interface Percentiles2 {
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p50: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  p95: number;
-  /**
-   * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
-   */
-  max?: number;
-}
-
 export interface TickResult {
   /**
    * Lockstep tick number.
    */
   tick: number;
+}
+
+export interface Tick {
+  /**
+   * The current tick as the agent knows it; a mismatch fails with AWP_TICK_MISMATCH.
+   */
+  expected_tick: number;
+  /**
+   * Advances to perform.
+   */
+  count?: number;
+}
+
+export interface Unsubscribe {
+  /**
+   * @minItems 1
+   */
+  channels: [string, ...string[]];
 }
 
 export type WorldEvent = {
@@ -768,13 +1093,13 @@ export type WorldEvent = {
         | "grant_expired"
         | "safe_state_entered"
         | "safe_state_exited"
-        | "data_plane_degraded"
+        | "channel_degraded"
         | "world_resetting"
         | "world_shutdown"
       )
     | string;
   /**
-   * Per-session notification sequence shared by action.status and world.event (AWP-CTL-008).
+   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
    */
   status_seq: number;
   /**

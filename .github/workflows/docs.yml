@@ -27,6 +27,7 @@ jobs:
           cache: npm
       - run: npm ci
       # Compiles every schema, validates examples/ and every ```json awp:<tag> block,
-      # decodes schemas/test-vectors/frames.json, then fails if any generated file
-      # (api-reference/schemas/*.mdx, generated/awp-v0.1.d.ts, spec/requirements.mdx) is stale.
+      # decodes schemas/test-vectors/frames.json, validates every wire trace in examples/v0.1/traces/,
+      # then fails if any generated file (api-reference/schemas/*.mdx, generated/awp-v0.1.d.ts,
+      # spec/requirements.mdx, spec/wire-traces.mdx) is stale.
       - run: npm run check

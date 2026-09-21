@@ -24,6 +24,7 @@
       "required": ["behavior", "watchdog_ms"],
       "additionalProperties": false
     },
+    "max_basis_age_ms": { "type": "integer", "minimum": 1, "description": "Maximum age of an intent's basis observation when execution begins (AWP-SAF-013). Required by the robotics profile (AWP-ROB-005)." },
     "approval_timeout_ms": { "type": "integer", "minimum": 1, "default": 60000, "description": "AWP-APR-003." },
     "approval_channel": { "type": "string", "description": "Where approval requests are routed (deployment-defined)." },
     "audit": {

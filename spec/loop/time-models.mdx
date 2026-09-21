@@ -1,20 +1,20 @@
 ---
 title: "Time models (normative)"
-description: "Lockstep and streaming semantics, tick rules, and what worlds must declare."
+description: "Lockstep and streaming semantics, tick rules, streaming telemetry, and what worlds must declare."
 ---
 
 A world declares supported time models in its manifest; a session runs in exactly one. `[AWP-TIM-001]`
 
 ## Lockstep
 
-In lockstep the world is paused between advances and time moves only when told to. v0.1 defines exactly one advancement policy, `on_tick`: the world advances only in response to `world.tick`. Accepting an action never advances time by itself. (Earlier drafts listed `on_action` and `on_both`; they are removed from v0.1 and may return through an RFD.)
+In lockstep the world is paused between advances and time moves only when told to. v0.1 defines exactly one advancement policy, `on_tick`: the world advances only in response to `world.tick`. Accepting an action never advances time by itself.
 
 - A lockstep world MUST declare `tick_policy: "on_tick"` and MUST advance only in response to `world.tick`. `[AWP-TIM-002]`
-- After each advance, the world MUST deliver exactly one frame on every subscribed per-tick channel, plus every `action.status` and `world.event` produced by that advance, before the `world.tick` result for that advance is sent and before accepting the next advance. `[AWP-TIM-003]`
+- After each advance, the world MUST send every `action.status` and `world.event` produced by the advance on the control channel before the `world.tick` result, and MUST send exactly one frame carrying the advance's `tick` on every subscribed per-tick channel, before accepting the next advance. The agent MUST treat the advance as complete only when it holds the result and, on every subscribed per-tick channel, a frame whose `tick` equals the result's; on the inline binding those frames precede the result. `[AWP-TIM-003]`
 - Wall-clock time MUST NOT influence world state in lockstep mode (determinism requirement; see [reproducibility](/spec/reproducibility)). `[AWP-TIM-004]`
-- **Initial observations.** Immediately after `session.ready`, and after every `obs.subscribe`, the world MUST deliver one frame for the current tick on each newly subscribed per-tick channel, so the agent always observes before it acts. `[AWP-TIM-009]`
+- **Initial observations.** Immediately after `session.ready`, and after every `obs.subscribe`, the world MUST send one frame carrying the current tick on each newly subscribed per-tick channel, and the agent waits for it before acting, so the agent always observes before it acts. `[AWP-TIM-009]`
 - **Staging.** `action.submit` in lockstep is admitted immediately (AWP-LIF-002) and the action is *staged*: the world MUST NOT begin executing it before the next advance, and MUST transition it to `executing` at the start of that advance so its first effects appear in the advance's frames. Cancelling a staged action before the advance has no side effects. `[AWP-TIM-010]`
-- **Multi-tick advances.** `world.tick { count: n }` performs `n` sequential advances. Each advance delivers its frames, statuses, and events as in AWP-TIM-003 before the next begins; the result `{ tick }` is sent after the last. Extended actions spanning several ticks report progress on each advance. `[AWP-TIM-011]`
+- **Advances.** `world.tick { expected_tick, count }` performs `count` sequential advances (default 1) from `expected_tick`, which MUST equal the world's current tick; otherwise the call fails with `AWP_TICK_MISMATCH` carrying the current tick in `data.tick` and nothing advances, so a call retried after a lost result cannot advance twice. Each advance delivers its frames, statuses, and events as in AWP-TIM-003 before the next begins; the result `{ tick }` is sent after the last. Extended actions spanning several ticks report progress on each advance. `[AWP-TIM-011]`
 - **Tick authority.** The manifest declares `tick_authority`: `any_session` (the default for worlds that admit one lockstep session at a time) or `barrier` (the default when several lockstep sessions may be bound: the world advances once every bound, non-observer lockstep session has called `world.tick` for the current tick, delivering the same advance to all). `world.tick` from a session that lacks authority — an observer session, or a session without the `tick` [admin grant](/spec/safety/permissions) where the world requires one — MUST fail with `AWP_TICK_NOT_AUTHORIZED`. `[AWP-TIM-012]`
 
 ### Wire trace
@@ -22,12 +22,11 @@ In lockstep the world is paused between advances and time moves only when told t
 A complete lockstep exchange for one action on a single-session `on_tick` world. Heartbeats and `id` values are elided.
 
 ```json
-// 1. session.open → session.ready (lockstep, subscribed to grid_view and events)
+// 1. session.open → session.ready (lockstep, subscribed to grid_view)
 { "method": "session.open", "params": { "embodiment": "avatar_0", "mode": "lockstep",
-  "subscribe": [ { "channel": "grid_view" }, { "channel": "events" } ] } }
-{ "result": { "session_token": "st_9f2…", "reconnect_window_ms": 30000, "heartbeat_interval_ms": 5000,
-  "granted": { "channels": [ { "channel": "grid_view", "rate_hz": null, "channel_id": 1 },
-                             { "channel": "events",    "rate_hz": null, "channel_id": 2 } ],
+  "subscribe": [ { "channel": "grid_view" } ] } }
+{ "result": { "session_id": "sess_01", "session_token": "st_9f2…", "reconnect_window_ms": 30000, "heartbeat_interval_ms": 5000,
+  "granted": { "channels": [ { "channel": "grid_view", "rate_hz": null, "channel_id": 1 } ],
                "action_types": ["move"], "envelopes": [], "admin": ["tick"] },
   "stream_endpoints": [ { "binding": "inline" } ], "tick": 0 } }
 
@@ -37,10 +36,10 @@ A complete lockstep exchange for one action on a single-session `on_tick` world.
 
 // 3. Submit → admitted and staged (AWP-TIM-010)
 { "method": "action.submit", "params": { "action_id": "a-1", "type": "move", "params": { "direction": "north" } } }
-{ "result": { "action_id": "a-1", "state": "accepted", "status_seq": 1, "ts_mono_ns": 0 } }
+{ "result": { "action_id": "a-1", "state": "accepted", "status_seq": 1, "received_ts_mono_ns": 0, "ts_mono_ns": 0 } }
 
 // 4. Advance one tick (AWP-TIM-011). Before the result: statuses, then frames.
-{ "method": "world.tick", "params": { "count": 1 } }
+{ "method": "world.tick", "params": { "expected_tick": 0, "count": 1 } }
 { "method": "action.status", "params": { "action_id": "a-1", "state": "executing", "status_seq": 2, "ts_mono_ns": 1000000 } }
 { "method": "action.status", "params": { "action_id": "a-1", "state": "completed", "status_seq": 3, "ts_mono_ns": 1000000 } }
 { "method": "obs.frame", "params": { "channel_id": 1, "seq": 2, "tick": 1, "ts_mono_ns": 1000000,
@@ -52,9 +51,39 @@ The agent-side loop is therefore `observe → submit → tick → read statuses/
 
 ## Streaming
 
-- The world advances in real time regardless of agent activity. Observation frames are pushed at negotiated rates with monotonic timestamps. `[AWP-TIM-005]`
-- The world MUST publish latency metadata at least every 5 s on the `awp.telemetry` channel (`text/event+json`, [telemetry payload schema](/api-reference/schemas/telemetry-payload)): observation pipeline latency and action admission latency (p50/p95, ns). Agents SHOULD compensate for staleness. `[AWP-TIM-006]`
-- Worlds MUST declare `safety_policy.safe_state` (behavior and `watchdog_ms`) and enforce it as specified in [Liveness and safe state](/spec/safety/safe-state) (AWP-SAF-003..008). `[AWP-TIM-007]`
+- The world advances in real time regardless of agent activity. Observation frames are pushed at negotiated rates, each carrying its capture time `ts_mono_ns` and its send time `ts_send_ns` (AWP-OBS-006); the agent relates them to its own clock through the heartbeat exchange (AWP-CLK-006..009). `[AWP-TIM-005]`
+- **Telemetry.** In streaming sessions the world MUST send a [`session.telemetry`](/api-reference/control/session-telemetry) notification at least once per second aggregating, over the preceding window, the quantities defined in [Latency and staleness](/spec/semantics/timestamps-and-clocks#latency-and-staleness): pipeline latency overall and per channel, admission latency, observation-to-action latency, and command latency, each present whenever at least one sample fell in the window. `[AWP-TIM-006]`
+- Worlds MUST declare `safety_policy.safe_state` (behavior and `watchdog_ms`) and enforce it as specified in [Liveness and safe state](/spec/safety/safe-state) (AWP-SAF-003..008); worlds MAY declare `safety_policy.max_basis_age_ms` and then enforce stale-intent rejection (AWP-SAF-013). `[AWP-TIM-007]`
+
+### Wire trace
+
+One observation→action cycle on a streaming session over the inline binding. Heartbeats other than the synchronization sample, `id` values, and the `jsonrpc` field are elided.
+
+```json
+// 1. Heartbeat as clock synchronization (AWP-CLK-007/008). Agent clock at send: 5000000; at receipt: 5100000.
+//    rtt_ns = (5100000 − 5000000) − (913004050000 − 913004000000) = 50000
+//    offset_ns = ((913004000000 − 5000000) + (913004050000 − 5100000)) / 2 = 912998975000
+{ "method": "ping", "params": { "origin_ns": 5000000 } }
+{ "result": { "origin_ns": 5000000, "receive_ns": 913004000000, "transmit_ns": 913004050000 } }
+
+// 2. Frame captured at 913004112000 and sent 8.2 ms later (AWP-OBS-006)
+{ "method": "obs.frame", "params": { "channel_id": 1, "seq": 4211, "ts_mono_ns": 913004112000, "ts_send_ns": 913004120200,
+  "flags": 1, "payload_b64": "…" } }
+
+// 3. Submit naming its basis and a 200 ms validity window (AWP-ACT-007); admitted with receipt and transition times (AWP-LIF-002)
+{ "method": "action.submit", "params": { "action_id": "a-7", "type": "move_to_pose",
+  "params": { "pose": { "frame": "base", "p_m": [0.4, 0.1, 0.3], "q": [0, 0, 0, 1] } },
+  "basis_ts_mono_ns": 913004112000, "valid_until_ns": 913004312000 } }
+{ "result": { "action_id": "a-7", "state": "accepted", "status_seq": 17, "received_ts_mono_ns": 913004141000, "ts_mono_ns": 913004142100 } }
+// observation-to-action latency 29.0 ms; admission latency 1.1 ms — both aggregated into the next telemetry notification
+
+// 4. Telemetry on the control channel, once per second (AWP-TIM-006)
+{ "method": "session.telemetry", "params": { "window_ms": 1000,
+  "observation_latency_ns": { "count": 30, "p50": 8200000, "p95": 21500000 },
+  "admission_latency_ns": { "count": 1, "p50": 1100000, "p95": 1100000 },
+  "observation_to_action_ns": { "count": 1, "p50": 29000000, "p95": 29000000 },
+  "channels": { "1": { "count": 30, "p50": 8200000, "p95": 21500000 } } } }
+```
 
 ## Declaration
 

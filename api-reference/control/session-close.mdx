@@ -1,6 +1,6 @@
 ---
-title: "session.close / session.resume / session.transfer"
-description: "Ending, resuming, and handing off sessions."
+title: "session.close / session.resume / session.transfer / session.state"
+description: "Ending, resuming, and handing off sessions, and the transition notification."
 ---
 
 ## session.close
@@ -25,8 +25,22 @@ Call after reconnecting and completing `initialize`, within `reconnect_window_ms
 
 ## session.transfer
 
-Current holder mints `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). In-flight actions of the previous holder end `preempted`. Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
+Current holder calls `session.transfer` with optional `{ expires_in_ms }` (default 30000) and receives `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). In-flight actions of the previous holder end `preempted`. Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
 
 ```json awp:session-transfer-result
 { "transfer_token": "tt_4c1…", "expires_in_ms": 30000 }
+```
+
+## session.state (notification)
+
+World → Agent on every transition from `Ready` onward (AWP-SES-007). Shares the `status_seq` sequence with `action.status` and `world.event`, so a `suspended` transition the agent could not receive is replayed after `session.resume`.
+
+<ParamField body="state" type="string" required>`ready`, `active`, `suspended`, or `closed`.</ParamField>
+<ParamField body="status_seq" type="integer" required>Shared per-session sequence (AWP-CTL-008).</ParamField>
+<ParamField body="ts_mono_ns" type="integer" required>Time of the transition.</ParamField>
+<ParamField body="reason" type="string">`opened`, `first_activity`, `connection_lost`, `resumed`, `session_closed`, `window_expired`, `world_shutdown`, or `transferred`.</ParamField>
+
+```json awp:session-state
+{ "jsonrpc": "2.0", "method": "session.state",
+  "params": { "state": "suspended", "status_seq": 42, "ts_mono_ns": 913020000000, "reason": "connection_lost" } }
 ```

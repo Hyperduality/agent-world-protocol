@@ -3,14 +3,23 @@ title: "world.tick"
 description: "Advance a lockstep world. Agent → World."
 ---
 
+<ParamField body="expected_tick" type="integer" required>The current tick as the agent knows it. A mismatch fails with `AWP_TICK_MISMATCH` and nothing advances (AWP-TIM-011).</ParamField>
 <ParamField body="count" type="integer">Advances to perform, ≥ 1. Default 1.</ParamField>
 
-Only valid in lockstep sessions. Performs `count` sequential advances (AWP-TIM-011). For each advance the world delivers, before starting the next: every `action.status` and `world.event` produced by the advance, then exactly one `obs.frame` per subscribed per-tick channel (AWP-TIM-003). The result is sent after the last advance:
+```json awp:tick
+{ "jsonrpc": "2.0", "id": 9, "method": "world.tick", "params": { "expected_tick": 4211, "count": 1 } }
+```
+
+Only valid in lockstep sessions. For each advance the world sends, before starting the next, every `action.status` and `world.event` produced by the advance on the control channel, then one frame carrying the new tick on every subscribed per-tick channel (AWP-TIM-003). The result is sent after the last advance, and the agent treats the advance as complete when it holds the result and a frame with that tick on every per-tick channel:
 
 ```json awp:tick-result
 { "tick": 4212 }
 ```
 
-Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance (AWP-TIM-012).
+Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance (AWP-TIM-012). A call retried after a lost result carries a stale `expected_tick` and is rejected, so time never advances twice:
 
-**Errors:** 2002 (`AWP_TIME_MODEL_UNSUPPORTED` in a streaming session), 3006 (`AWP_TICK_NOT_AUTHORIZED`).
+```json awp:error
+{ "code": 3009, "message": "AWP_TICK_MISMATCH", "data": { "retryable": false, "tick": 4212, "detail": "expected_tick 4211, current 4212" } }
+```
+
+**Errors:** 2002 (`AWP_TIME_MODEL_UNSUPPORTED` in a streaming session), 3006 (`AWP_TICK_NOT_AUTHORIZED`), 3009 (`AWP_TICK_MISMATCH`).

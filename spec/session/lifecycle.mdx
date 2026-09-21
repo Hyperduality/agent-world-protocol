@@ -1,7 +1,13 @@
 ---
 title: "Session lifecycle"
-description: "The normative session state machine."
+description: "Discovery, the normative session state machine, session identity, and recovery scope."
 ---
+
+## Discovery
+
+The world's endpoint is deployment configuration ([transport](/spec/transport/overview)). Capability discovery is `initialize`: the agent states the protocol versions it supports and what it can consume, and the world answers with its manifest — embodiments, channels, action types, capabilities, and safety policy — under the selected version (AWP-VER-002). `world.manifest` re-fetches the same document at any time. Everything the agent may later request is visible in that one response.
+
+## State machine
 
 ```mermaid
 stateDiagram-v2
@@ -25,7 +31,11 @@ stateDiagram-v2
 | Suspended | window expires | Closed; world MUST apply safe state if not already entered, then release embodiments (AWP-EMB-002) | `[AWP-SES-005]` |
 | any | `session.close` | Closed; pre-execution actions → `cancelled` (`session_closed`), `executing` actions → `cancelling` → `cancelled` (`session_closed`) after safe abort; embodiment released after safe state | `[AWP-SES-006]` |
 
-Worlds MUST emit a `session.state` notification on every transition. `[AWP-SES-007]`
+Worlds MUST emit a `session.state` notification — `{ state, status_seq, ts_mono_ns, reason? }`, [schema](/api-reference/schemas/session-state) — on every transition from `Ready` onward; it shares the `status_seq` sequence with statuses and events (AWP-CTL-008), so the `suspended` transition reaches the agent on replay after `session.resume`. `[AWP-SES-007]`
+
+## Session identity
+
+`session.ready` carries `session_id`, a world-assigned identifier stable for the life of the session and unique within the world process. It names the session in approval requests, `world_resetting` events, and audit records, and MAY be shown to other sessions; it is not a credential and grants nothing. The `session_token` is the credential and is never used as an identifier. `[AWP-SES-009]`
 
 ## Recovery scope
 

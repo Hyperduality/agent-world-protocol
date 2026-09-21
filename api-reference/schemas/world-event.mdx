@@ -7,7 +7,7 @@ description: "Canonical schema for world.event notifications."
 
 <Note>Generated from [`schemas/v0.1/world-event.schema.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/schemas/v0.1/world-event.schema.json) (`$id`: `https://agentworldprotocol.com/schemas/v0.1/world-event.schema.json`). Normative text: [/spec/loop/events-and-errors](/spec/loop/events-and-errors). Every tagged example on this site is validated against this schema in CI.</Note>
 
-<ResponseField name="event" type="entity_appeared | entity_removed | collision | e_stop_engaged | e_stop_released | envelope_violation | grant_expired | safe_state_entered | safe_state_exited | data_plane_degraded | world_resetting | world_shutdown | vendor_key" required> </ResponseField>
+<ResponseField name="event" type="entity_appeared | entity_removed | collision | e_stop_engaged | e_stop_released | envelope_violation | grant_expired | safe_state_entered | safe_state_exited | channel_degraded | world_resetting | world_shutdown | vendor_key" required> </ResponseField>
 <ResponseField name="status_seq" type="status_seq" required> </ResponseField>
 <ResponseField name="ts_mono_ns" type="ts_mono_ns" required> </ResponseField>
 <ResponseField name="tick" type="tick"> </ResponseField>

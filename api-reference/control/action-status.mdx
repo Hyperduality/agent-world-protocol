@@ -21,4 +21,4 @@ description: "World → Agent transition notifications for every action."
 <ParamField body="aborted_at_progress" type="number">On `cancelled`/`failed` after a safe abort: progress reached when the abort began.</ParamField>
 <ParamField body="stream" type="object">On `duration: streaming` actions: `{ frames_applied, last_seq, clamped_count }` (AWP-CMD-004).</ParamField>
 
-A transition happens once; its notification may be delivered more than once after `session.resume` (AWP-LIF-009). A pull variant exists: request `action.status` with `{ action_id }` to fetch the current state, which returns the same object as the most recent notification.
+A transition happens once; its notification may be delivered more than once after `session.resume` (AWP-LIF-009). A pull variant exists: request `action.status` with `{ action_id }` to fetch the current state, which returns the same object as the most recent notification, or fails with 3008 (`AWP_ACTION_UNKNOWN`) once the action has left retention (AWP-ACT-006, AWP-LIF-010).

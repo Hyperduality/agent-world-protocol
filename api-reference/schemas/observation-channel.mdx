@@ -9,10 +9,10 @@ description: "Canonical schema for channel declarations (observation and command
 
 An entry in world-manifest.observation_channels or world-manifest.command_channels (AWP-DAT-002, AWP-CMD-001).
 
-<ResponseField name="id" type="identifier" required>Unique per world. awp.* names are reserved (awp.tf, awp.telemetry).</ResponseField>
+<ResponseField name="id" type="identifier" required>Unique per world. awp.* names are reserved (awp.tf).</ResponseField>
 <ResponseField name="modality" type="image/jpeg | image/raw | audio/pcm | text/event+json | proprio/json | servo/json | pointcloud/xyz32 | tensor/raw | vendor_key" required>From the modality registry or x-&lt;vendor>.&lt;name> (AWP-MOD-002).</ResponseField>
 <ResponseField name="rate_hz" type="number | null" required>Nominal push rate; null for per-tick lockstep channels.</ResponseField>
 <ResponseField name="loss_class" type="loss_class" required> </ResponseField>
 <ResponseField name="keyframe_interval" type="integer">Frames between keyframes when deltas are used (AWP-OBS-004).</ResponseField>
-<ResponseField name="stale_after_ms" type="integer">Age after which frames are stale; drives data_plane_degraded on reliable channels (AWP-SAF-009). Default 2 × period.</ResponseField>
+<ResponseField name="stale_after_ms" type="integer">Age after which frames are stale; drives channel_degraded on reliable channels (AWP-SAF-009). Default 2 × period.</ResponseField>
 <ResponseField name="schema" type="object" required>Modality-specific parameters (dimensions, sample rates, event schema).</ResponseField>

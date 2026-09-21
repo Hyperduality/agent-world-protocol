@@ -1,0 +1,5 @@
+{"marker":"Continues the streaming trace after a-7 began executing (status_seq 4)."}
+{"from":"world","step":"Progress update","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-7","state":"executing","status_seq":5,"ts_mono_ns":913004600000,"progress":0.4}}}
+{"from":"agent","step":"Cancel the executing action","msg":{"jsonrpc":"2.0","id":10,"method":"action.cancel","params":{"action_id":"a-7"}}}
+{"from":"world","step":"Executing actions enter cancelling while the safe abort runs (AWP-LIF-005)","msg":{"jsonrpc":"2.0","id":10,"result":{"action_id":"a-7","state":"cancelling","status_seq":6}}}
+{"from":"world","step":"Safe abort complete within max_abort_ms; progress reached is reported","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-7","state":"cancelled","status_seq":7,"ts_mono_ns":913004900000,"reason":"cancelled_by_agent","aborted_at_progress":0.4}}}

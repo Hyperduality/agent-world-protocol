@@ -1,12 +1,12 @@
 ---
 title: "API Reference"
-description: "How to read this section: the JSON-RPC control plane, the binary data plane, and canonical schemas."
+description: "How to read this section: the JSON-RPC control channel, binary frames, and canonical schemas."
 ---
 
-The **control plane** is JSON-RPC 2.0; each method has a page listing params, result, errors, and examples. The **data plane** is a binary frame format documented in hand-written pages (it is not HTTP, so there is no playground for it). **Schemas** are generated from the canonical JSON Schemas in this repository (`schemas/v0.1/*.schema.json`); every tagged example on these pages is validated against them in CI.
+The **control channel** is JSON-RPC 2.0; each method has a page listing params, result, errors, and examples. **Frames** on observation and command channels are a binary format documented in hand-written pages (it is not HTTP, so there is no playground for it). **Schemas** are generated from the canonical JSON Schemas in this repository (`schemas/v0.1/*.schema.json`); every tagged example on these pages is validated against them in CI.
 
 <Note>
-Examples use a small grid world (`gridworld`) as the running example. No demo world is published yet; the examples are complete, validated messages, not transcripts of a running server.
+Examples use a small grid world (`gridworld`) as the running example. No demo world is published yet; the examples are complete, validated messages, not transcripts of a running server. End-to-end sequences are in the [wire traces](/spec/wire-traces).
 </Note>
 
 Conventions: requests may originate from either side; notifications have no `id`; all timestamps are `ts_mono_ns` on the session clock; all errors carry AWP codes from the [error registry](/api-reference/error-codes).

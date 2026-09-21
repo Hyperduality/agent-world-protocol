@@ -7,8 +7,9 @@
     "action_id": { "$ref": "common.schema.json#/$defs/action_id" },
     "state": { "type": "string", "enum": ["pending_approval", "queued", "accepted"] },
     "status_seq": { "$ref": "common.schema.json#/$defs/status_seq" },
-    "ts_mono_ns": { "$ref": "common.schema.json#/$defs/ts_mono_ns" }
+    "received_ts_mono_ns": { "$ref": "common.schema.json#/$defs/ts_mono_ns", "description": "Session-clock time the world received the submission; origin of deadline_ms and of admission latency." },
+    "ts_mono_ns": { "$ref": "common.schema.json#/$defs/ts_mono_ns", "description": "Time of the reported transition." }
   },
-  "required": ["action_id", "state", "status_seq", "ts_mono_ns"],
+  "required": ["action_id", "state", "status_seq", "received_ts_mono_ns", "ts_mono_ns"],
   "additionalProperties": true
 }

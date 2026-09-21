@@ -1,10 +1,37 @@
 ---
 title: "Timestamps and clocks"
-description: "Monotonic session clock, wall anchor, and sim time."
+description: "Session clock, wall anchor, sim time, clock synchronization over the heartbeat, and the latency and staleness quantities built on them."
 ---
+
+## Session clock
 
 - All timestamps are `ts_mono_ns`: nanoseconds on the **session monotonic clock**, which starts ≥0 at session open and never goes backward. `[AWP-CLK-001]`
 - `session.ready` carries a `clock_anchor`: the wall-clock time (RFC 3339, UTC) corresponding to monotonic 0, letting logs correlate across systems. `[AWP-CLK-002]`
-- Simulated worlds additionally carry `ts_sim_ns` (i64) on frames when sim time diverges from the monotonic clock (fast-forward, slow-mo), and sim-profile worlds always carry it; lockstep frames also carry `tick`. Both travel in the frame's [extension block](/spec/transport/data-plane#extension-block-present-only-when-flags-bit-2-is-set) (types `0x02` and `0x01`) or as named fields in the inline JSON form, never in the payload (AWP-DAT-007). `[AWP-CLK-003]`
-- Timestamps mark **capture time** (observations) and **event time** (statuses), not send time. `[AWP-CLK-004]`
+- Simulated worlds additionally carry `ts_sim_ns` (i64) on frames when sim time diverges from the monotonic clock (fast-forward, slow-mo), and sim-profile worlds always carry it; lockstep frames also carry `tick`. Both travel in the frame's [extension block](/spec/transport/frames#extension-block-present-only-when-flags-bit-2-is-set) (types `0x02` and `0x01`) or as named fields in the inline JSON form, never in the payload (AWP-DAT-007). `[AWP-CLK-003]`
+- Timestamps mark **capture time** (observation frames), **event time** (statuses and events), and **issue time** (command frames), never send time; send time travels separately as `ts_send_ns` (AWP-OBS-006). `[AWP-CLK-004]`
 - In JSON, all timestamp and counter fields are integers bounded by 2^53 − 1 (AWP-CTL-009). Because the session clock starts at 0 this permits sessions of roughly 104 days; `clock_anchor` carries the absolute wall time so no field needs to hold an epoch timestamp. `[AWP-CLK-005]`
+
+## Clock synchronization
+
+The session clock lives in the world. The agent learns where its own clock stands relative to it from the heartbeat, which carries the four timestamps of a symmetric time transfer.
+
+- **Agent clock.** The agent keeps its own monotonic nanosecond counter, the agent clock, starting ≥0 and bounded per AWP-CTL-009. It appears on the wire only in `ping` exchanges and in `obs.report`. `[AWP-CLK-006]`
+- **Exchange.** `ping` carries `origin_ns`, the sender's clock at transmission; its result carries `origin_ns` echoed, `receive_ns`, the responder's clock at receipt, and `transmit_ns`, the responder's clock at transmission of the result. Each side stamps on its own clock — the world on the session clock, the agent on the agent clock — and the responder MUST take `receive_ns` and `transmit_ns` as close to the transport as its runtime permits. `[AWP-CLK-007]`
+- **Estimate.** On receipt of the result the initiator records `destination_ns`, its clock at receipt, and computes `rtt_ns = (destination_ns − origin_ns) − (transmit_ns − receive_ns)` and `offset_ns = ((receive_ns − origin_ns) + (transmit_ns − destination_ns)) / 2`, so that for an agent-initiated exchange `session clock = agent clock + offset_ns`. The agent MUST maintain a current estimate taken from the sample with the smallest `rtt_ns` among its most recent eight exchanges, MUST treat `rtt_ns / 2` of that sample as the bound on the estimate's error, SHOULD complete four exchanges within the first second after `session.ready`, and MUST complete at least one before sending any value governed by AWP-CLK-009. `[AWP-CLK-008]`
+- **Agent-originated session timestamps.** Every session-clock value the agent places on the wire that originates on its own clock — `ts_mono_ns` on command frames and `valid_until_ns` on submissions — MUST be mapped through the current `offset_ns`; values copied from frames the world sent, such as `basis_ts_mono_ns`, are forwarded unchanged. `[AWP-CLK-009]`
+
+## Latency and staleness
+
+Every latency quantity in this specification is one of the differences below, in nanoseconds on the session clock. Where the agent is the measuring side, its receipt and transmission times are its own clock mapped through `offset_ns`.
+
+| Quantity | Definition | Measured by | Reported in |
+|---|---|---|---|
+| Pipeline latency | `ts_send_ns − ts_mono_ns` of an observation frame | world, per frame | `session.telemetry` `observation_latency_ns`, `channels` |
+| Transit latency | agent receipt − `ts_send_ns` | agent, per frame | — |
+| Staleness | agent now − `ts_mono_ns` of the observation, at the moment the observation is used | agent | `obs.report` `staleness_ns` (at receipt) |
+| Decision latency | `action.submit` transmitted − agent receipt of its basis frame | agent, per submission | `obs.report` `decision_latency_ns` |
+| Observation-to-action latency | `received_ts_mono_ns − basis_ts_mono_ns` | world, per submission | `session.telemetry` `observation_to_action_ns` |
+| Admission latency | admission acknowledgement transmitted − `received_ts_mono_ns` | world, per submission | `session.telemetry` `admission_latency_ns` |
+| Command latency | world receipt − `ts_mono_ns` of a command frame | world, per frame | `session.telemetry` `command_latency_ns` |
+
+Staleness at the moment of use equals staleness at receipt plus decision latency; observation-to-action latency equals staleness at use plus the agent→world transit of the submission. Together the two reports account for every segment between a sensor reading and the world's receipt of the intent built on it.

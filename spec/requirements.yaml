@@ -32,6 +32,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-ACT-006
+  - id: AWP-ACT-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-ACT-007
   - id: AWP-AGM-001
     side: world
     applies: all
@@ -77,6 +82,16 @@ requirements:
     applies: all
     gate: core
     test: AWP-AGT-007
+  - id: AWP-AGT-008
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-008
+  - id: AWP-AGT-009
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-AGT-009
   - id: AWP-APR-001
     side: world
     applies: all
@@ -177,6 +192,26 @@ requirements:
     applies: all
     gate: core
     test: AWP-CLK-005
+  - id: AWP-CLK-006
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-CLK-006
+  - id: AWP-CLK-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-CLK-007
+  - id: AWP-CLK-008
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-CLK-008
+  - id: AWP-CLK-009
+    side: agent
+    applies: all
+    gate: core
+    test: AWP-CLK-009
   - id: AWP-CMD-001
     side: world
     applies: streaming
@@ -332,6 +367,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-DAT-008 (schemas/test-vectors/frames.json)
+  - id: AWP-DAT-009
+    side: both
+    applies: all
+    gate: core
+    test: AWP-DAT-009
   - id: AWP-EMB-001
     side: world
     applies: all
@@ -397,6 +437,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-EVT-002
+  - id: AWP-EVT-003
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EVT-003
   - id: AWP-GUI-001
     side: world
     applies: all
@@ -467,6 +512,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-LIF-009
+  - id: AWP-LIF-010
+    side: world
+    applies: all
+    gate: core
+    test: AWP-LIF-010
   - id: AWP-MA-001
     side: world
     applies: all
@@ -587,6 +637,16 @@ requirements:
     applies: all
     gate: core
     test: AWP-OBS-005
+  - id: AWP-OBS-006
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-OBS-006
+  - id: AWP-OBS-007
+    side: agent
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-OBS-007 (warning)
   - id: AWP-PRE-001
     side: world
     applies: all
@@ -682,6 +742,16 @@ requirements:
     applies: streaming
     gate: profile:robotics
     test: "manual: requires physical disturbance and sensor evidence"
+  - id: AWP-ROB-005
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: AWP-ROB-005
+  - id: AWP-ROB-006
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: AWP-ROB-006
   - id: AWP-SAF-001
     side: both
     applies: all
@@ -730,7 +800,7 @@ requirements:
   - id: AWP-SAF-010
     side: agent
     applies: streaming
-    gate: feature:reliable channels declared
+    gate: core (streaming)
     test: AWP-SAF-010 (warning)
   - id: AWP-SAF-011
     side: both
@@ -742,6 +812,11 @@ requirements:
     applies: streaming
     gate: profile:robotics
     test: "manual: measured watchdog reaction time attached to the report"
+  - id: AWP-SAF-013
+    side: world
+    applies: streaming
+    gate: feature:max_basis_age_ms declared
+    test: AWP-SAF-013
   - id: AWP-SCN-001
     side: world
     applies: all
@@ -817,6 +892,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-SES-008
+  - id: AWP-SES-009
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-009
   - id: AWP-SIM-001
     side: world
     applies: lockstep
@@ -833,7 +913,7 @@ requirements:
     gate: core
     test: AWP-TIM-002
   - id: AWP-TIM-003
-    side: world
+    side: both
     applies: lockstep
     gate: core
     test: AWP-TIM-003
@@ -902,6 +982,41 @@ requirements:
     applies: all
     gate: core
     test: AWP-TRN-004
+  - id: AWP-TRN-005
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-005
+  - id: AWP-TRN-006
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-006
+  - id: AWP-TRN-007
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-007
+  - id: AWP-TRN-008
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-008
+  - id: AWP-TRN-009
+    side: world
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-TRN-009
+  - id: AWP-TRN-010
+    side: both
+    applies: streaming
+    gate: core (streaming)
+    test: AWP-TRN-010
+  - id: AWP-TRN-011
+    side: both
+    applies: all
+    gate: core
+    test: AWP-TRN-011
   - id: AWP-TSK-001
     side: world
     applies: all

@@ -15,7 +15,7 @@ mint broken-links   # link check (run in CI too)
 ## Layout
 
 - `docs.json` (nav/theme) · `*.mdx` pages per tab (Documentation, Specification, API Reference, SDKs & Adapters, Community) · `logo/`, `images/`, `snippets/`.
-- `schemas/v0.1/*.schema.json` — canonical JSON Schemas (Apache-2.0); `schemas/test-vectors/frames.json` — data-plane frame test vectors.
+- `schemas/v0.1/*.schema.json` — canonical JSON Schemas (Apache-2.0); `schemas/test-vectors/frames.json` — frame test vectors; `examples/v0.1/traces/*.jsonl` — complete wire traces, validated in CI and rendered at `spec/wire-traces`.
 - `examples/v0.1/*.json` — complete instances validated against the schemas.
 - `generated/awp-v0.1.d.ts` — TypeScript types generated from the schemas.
 - `spec/requirements.yaml` → `spec/requirements.mdx` — the requirement matrix (side, applicability, gate, test) for every `AWP-*` ID.

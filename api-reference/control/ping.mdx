@@ -1,0 +1,18 @@
+---
+title: "ping"
+description: "Heartbeat and clock-synchronization exchange. Either direction."
+---
+
+<ParamField body="origin_ns" type="integer" required>The sender's clock at transmission: the session clock when the world sends, the agent clock when the agent sends (AWP-CLK-007).</ParamField>
+
+**Result — the pong:**
+
+```json awp:ping-result
+{ "origin_ns": 5000000, "receive_ns": 913004000000, "transmit_ns": 913004050000 }
+```
+
+`receive_ns` and `transmit_ns` are the responder's clock at receipt of the ping and at transmission of the result, stamped as close to the transport as the runtime permits. The initiator records its own clock at receipt as `destination_ns` and derives `rtt_ns = (destination_ns − origin_ns) − (transmit_ns − receive_ns)` and `offset_ns = ((receive_ns − origin_ns) + (transmit_ns − destination_ns)) / 2`; the agent keeps the minimum-RTT sample of its last eight exchanges as its estimate (AWP-CLK-008). Cadence and loss detection follow AWP-SAF-001/002.
+
+```json awp:ping
+{ "jsonrpc": "2.0", "id": 12, "method": "ping", "params": { "origin_ns": 5000000 } }
+```

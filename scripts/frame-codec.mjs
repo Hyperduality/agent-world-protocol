@@ -1,4 +1,4 @@
-// Reference encoder/decoder for the AWP data-plane frame envelope (spec/transport/data-plane).
+// Reference encoder/decoder for the AWP frame envelope (spec/transport/frames).
 // Apache-2.0. Used by scripts/validate.mjs to exercise schemas/test-vectors/frames.json.
 
 export const MAGIC = 0x46505741; // "AWPF" little-endian
@@ -6,11 +6,13 @@ export const VERSION = 1;
 export const FLAG_KEYFRAME = 0x01;
 export const FLAG_END_OF_BURST = 0x02;
 export const FLAG_HAS_EXTENSIONS = 0x04;
-export const RESERVED_FLAG_MASK = 0xf8;
+export const FLAG_RESYNC = 0x08;
+export const RESERVED_FLAG_MASK = 0xf0;
 
 export const EXT_TICK = 0x01;
 export const EXT_TS_SIM_NS = 0x02;
-const REGISTERED_EXT_LEN = { [EXT_TICK]: 8, [EXT_TS_SIM_NS]: 8 };
+export const EXT_TS_SEND_NS = 0x03;
+const REGISTERED_EXT_LEN = { [EXT_TICK]: 8, [EXT_TS_SIM_NS]: 8, [EXT_TS_SEND_NS]: 8 };
 
 export class FrameError extends Error {
   constructor(code, message) {
@@ -35,8 +37,8 @@ function i64ToNumber(big, field) {
 }
 
 /**
- * Decode a frame. Returns { channel_id, seq, ts_mono_ns, flags, keyframe, end_of_burst,
- * tick?, ts_sim_ns?, vendor: [{type, value}], payload }.
+ * Decode a frame. Returns { channel_id, seq, ts_mono_ns, flags, keyframe, end_of_burst, resync,
+ * tick?, ts_sim_ns?, ts_send_ns?, vendor: [{type, value}], payload }.
  * Throws FrameError("AWP_MALFORMED" | "AWP_INTEGER_RANGE").
  */
 export function decodeFrame(bytes) {
@@ -56,9 +58,10 @@ export function decodeFrame(bytes) {
     channel_id,
     seq,
     ts_mono_ns,
-    flags: flags & 0x07, // reserved bits 3-7 are ignored (AWP-DAT-005)
+    flags: flags & 0x0f, // reserved bits 4-7 are ignored (AWP-DAT-005)
     keyframe: (flags & FLAG_KEYFRAME) !== 0,
     end_of_burst: (flags & FLAG_END_OF_BURST) !== 0,
+    resync: (flags & FLAG_RESYNC) !== 0,
     vendor: [],
   };
 
@@ -85,10 +88,12 @@ export function decodeFrame(bytes) {
         out.tick = u64ToNumber(dv.getBigUint64(valueOffset, true), "tick");
       } else if (type === EXT_TS_SIM_NS) {
         out.ts_sim_ns = i64ToNumber(dv.getBigInt64(valueOffset, true), "ts_sim_ns");
+      } else if (type === EXT_TS_SEND_NS) {
+        out.ts_send_ns = u64ToNumber(dv.getBigUint64(valueOffset, true), "ts_send_ns");
       } else if (type >= 0x80) {
         out.vendor.push({ type, value: Array.from(buf.subarray(valueOffset, valueOffset + len)) });
       }
-      // 0x03..0x7f: unknown registered-range types are skipped (AWP-DAT-006)
+      // 0x04..0x7f: unknown registered-range types are skipped (AWP-DAT-006)
       offset = valueOffset + len;
     }
     offset = end;
@@ -102,13 +107,14 @@ export function decodeFrame(bytes) {
 }
 
 /**
- * Encode a frame from { channel_id, seq, ts_mono_ns, keyframe?, end_of_burst?, tick?, ts_sim_ns?,
+ * Encode a frame from { channel_id, seq, ts_mono_ns, keyframe?, end_of_burst?, resync?, tick?, ts_sim_ns?, ts_send_ns?,
  * vendor?: [{type, value}], payload: Uint8Array, reservedBits?: number (test use only) }.
  */
 export function encodeFrame(f) {
   const entries = [];
   if (f.tick !== undefined) entries.push({ type: EXT_TICK, value: u64Bytes(BigInt(f.tick)) });
   if (f.ts_sim_ns !== undefined) entries.push({ type: EXT_TS_SIM_NS, value: i64Bytes(BigInt(f.ts_sim_ns)) });
+  if (f.ts_send_ns !== undefined) entries.push({ type: EXT_TS_SEND_NS, value: u64Bytes(BigInt(f.ts_send_ns)) });
   for (const v of f.vendor ?? []) entries.push({ type: v.type, value: Uint8Array.from(v.value) });
   const ext_len = entries.reduce((n, e) => n + 2 + e.value.length, 0);
   const hasExt = entries.length > 0;
@@ -118,7 +124,7 @@ export function encodeFrame(f) {
   const dv = new DataView(buf.buffer);
   dv.setUint32(0, MAGIC, true);
   dv.setUint8(4, VERSION);
-  let flags = (f.keyframe ? FLAG_KEYFRAME : 0) | (f.end_of_burst ? FLAG_END_OF_BURST : 0) | (hasExt ? FLAG_HAS_EXTENSIONS : 0);
+  let flags = (f.keyframe ? FLAG_KEYFRAME : 0) | (f.end_of_burst ? FLAG_END_OF_BURST : 0) | (hasExt ? FLAG_HAS_EXTENSIONS : 0) | (f.resync ? FLAG_RESYNC : 0);
   flags |= (f.reservedBits ?? 0) & RESERVED_FLAG_MASK;
   dv.setUint8(5, flags);
   dv.setUint16(6, f.channel_id, true);

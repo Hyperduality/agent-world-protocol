@@ -9,16 +9,18 @@ description: "Submit a typed intent. Agent → World."
 <ParamField body="embodiment_id" type="string">Required only in multi-bind sessions.</ParamField>
 <ParamField body="preempt" type="string">One of the type's declared policies.</ParamField>
 <ParamField body="deadline_ms" type="integer">Measured from world receipt; covers approval and queue wait. Binding in streaming mode (AWP-ACT-004).</ParamField>
+<ParamField body="basis_ts_mono_ns" type="integer">Capture time of the newest observation this intent relies on, copied from that frame's `ts_mono_ns` (AWP-ACT-007). Required by the robotics profile (AWP-ROB-005).</ParamField>
+<ParamField body="valid_until_ns" type="integer">Session-clock instant after which the intent must not begin executing; expressed through the agent's clock offset (AWP-CLK-009).</ParamField>
 
 **Result — the admission acknowledgement (AWP-LIF-002):**
 
 ```json awp:action-submit-result
-{ "action_id": "a-01J8ZK3E9WPT", "state": "accepted", "status_seq": 17, "ts_mono_ns": 913004100000 }
+{ "action_id": "a-01J8ZK3E9WPT", "state": "accepted", "status_seq": 17, "received_ts_mono_ns": 913004141000, "ts_mono_ns": 913004142100 }
 ```
 
-`state` is the post-validation state: `accepted` (permission to execute), `pending_approval` (waiting for an approver), or `queued` (waiting for the concurrency group). A JSON-RPC error means the action is `rejected` and never executed. Subsequent transitions arrive as [`action.status` notifications](/api-reference/control/action-status); the result's `status_seq` is the sequence number of this first status, so the agent can order it against later notifications.
+`state` is the post-validation state: `accepted` (permission to execute), `pending_approval` (waiting for an approver), or `queued` (waiting for the concurrency group). A JSON-RPC error means the action is `rejected` and never executed. Subsequent transitions arrive as [`action.status` notifications](/api-reference/control/action-status); the result's `status_seq` is the sequence number of this first status, so the agent can order it against later notifications. `received_ts_mono_ns` is when the world received the submission — the origin of `deadline_ms` and of the admission and observation-to-action latencies in `session.telemetry`; `ts_mono_ns` is the time of the reported transition.
 
-**Errors:** 3001, 3002, 3003, 3004, 3005, 4001, 4002.
+**Errors:** 3001, 3002, 3003, 3004, 3005, 3007, 4001, 4002.
 
 ```json awp:action-submit
 { "jsonrpc": "2.0", "id": 7, "method": "action.submit",

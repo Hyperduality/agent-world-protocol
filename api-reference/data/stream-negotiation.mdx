@@ -1,15 +1,27 @@
 ---
 title: "Stream negotiation"
-description: "How data-plane endpoints are established."
+description: "How frame channels are mapped onto connections."
 ---
 
-`session.ready` lists `stream_endpoints`, ordered by world preference:
+`session.ready` lists `stream_endpoints`, ordered by world preference; each names the binding, how to reach it, and the channels it carries:
 
 ```json
 { "stream_endpoints": [
+  { "binding": "webtransport", "url": "https://127.0.0.1:8711/stream", "channels": [1, 2] },
   { "binding": "webrtc", "signaling": "ws://127.0.0.1:8710/rtc", "channels": [1, 2] },
   { "binding": "ws", "url": "ws://127.0.0.1:8710/stream?token=…", "channels": [1, 2, 3] },
   { "binding": "inline" } ] }
 ```
 
-The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Data connections authenticate with the session token (AWP-SEC-004).
+The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Stream connections authenticate with the session token (AWP-SEC-004) and are re-established from the re-issued endpoints after `session.resume` (AWP-TRN-008).
+
+| Binding | Transport | Independent flow control per channel |
+|---|---|---|
+| `inline` | control connection | no |
+| `ws` | WebSocket binary messages | no |
+| `grpc` | HTTP/2 streams | no |
+| `webrtc` | data channels | yes |
+| `webtransport` | QUIC streams and datagrams | yes |
+| `shm` | POSIX shared memory (local) | yes |
+
+On a binding without independent flow control, a `latest-wins` channel is delivered without transit loss and the sender holds at most one undelivered frame per channel (AWP-TRN-009). Profiles that stream sensors next to safety-critical control — realtime A/V and robotics — require a binding from the lower three rows for those channels (AWP-AV-001, AWP-ROB-006).

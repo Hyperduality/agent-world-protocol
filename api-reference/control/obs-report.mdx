@@ -1,0 +1,22 @@
+---
+title: "obs.report (notification)"
+description: "Agent → World receiver report: clock sync, delivery quality, staleness, and decision latency."
+---
+
+```json awp:obs-report
+{ "jsonrpc": "2.0", "method": "obs.report",
+  "params": { "window_ms": 1000,
+              "sync": { "offset_ns": 912998975000, "rtt_ns": 50000, "samples": 8 },
+              "channels": { "1": { "frames": 30, "gaps": 0, "jitter_ns": 1800000,
+                                   "staleness_ns": { "count": 30, "p50": 14100000, "p95": 29500000 } },
+                            "2": { "frames": 99, "gaps": 1, "jitter_ns": 300000,
+                                   "staleness_ns": { "count": 99, "p50": 1600000, "p95": 3200000 } } },
+              "decision_latency_ns": { "count": 9, "p50": 22000000, "p95": 35000000 } } }
+```
+
+<ParamField body="window_ms" type="integer" required>Window the statistics cover.</ParamField>
+<ParamField body="sync" type="object" required>`{ offset_ns, rtt_ns, samples? }` — the agent's current clock-offset estimate and the round-trip time of the sample it came from (AWP-CLK-008).</ParamField>
+<ParamField body="channels" type="object" required>Keyed by decimal `channel_id`: `{ frames, gaps, jitter_ns?, staleness_ns? }`. `gaps` counts missing `seq` values; `jitter_ns` is the mean absolute variation of transit time between consecutive frames; `staleness_ns` is the distribution of staleness at receipt.</ParamField>
+<ParamField body="decision_latency_ns" type="object">`{ count, p50, p95, max? }` from receipt of a basis frame to transmission of the submission built on it.</ParamField>
+
+Sent at least every 5 s in streaming sessions (AWP-OBS-007). The world may lower a channel's delivery rate in response, never above the negotiated rate. Definitions: [latency and staleness](/spec/semantics/timestamps-and-clocks#latency-and-staleness).

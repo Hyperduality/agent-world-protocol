@@ -5,8 +5,8 @@ description: "Requirements for high-bandwidth audio/video streaming worlds."
 
 Adds to Core:
 
-- A non-inline data-plane binding: WebRTC data channels or gRPC streams — AWP-TRN-003
+- A stream binding with independent flow control (`webrtc`, `webtransport`, or `shm`) for every media channel — AWP-TRN-003
 - `latest-wins` loss class with backpressure dropping — AWP-DAT-002
 - Media channels: the world MUST offer at least one `image/*` channel at ≥ 15 Hz or one continuous `audio/pcm` channel, and each MUST declare `stale_after_ms` (AWP-SAF-009). `[AWP-AV-001]`
-- Latency telemetry at ≥ 1 Hz on `awp.telemetry`, with per-channel entries for every media channel — AWP-TIM-006. `[AWP-AV-002]`
+- Every `session.telemetry` notification MUST carry a `channels` entry for every media channel that sent frames in its window — AWP-TIM-006. `[AWP-AV-002]`
 - Keyframe/delta encoding with declared `keyframe_interval` — AWP-OBS-004

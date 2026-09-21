@@ -9,7 +9,9 @@ Robotics-profile conformance is **experimental** in v0.1 (AWP-CNF-006): no valid
 
 Adds to Core:
 
-- Streaming time model with latency telemetry — AWP-TIM-005..007
+- Streaming time model with send timestamps and latency telemetry — AWP-TIM-005..007, AWP-OBS-006
+- Clock synchronization and stale-intent enforcement on every submission — AWP-CLK-006..009, AWP-SAF-013, AWP-ROB-005 (below)
+- Independent flow control for every `latest-wins` channel — AWP-TRN-003, AWP-ROB-006 (below)
 - Envelope enforcement on every limit the world declares — AWP-ENV-001..005, AWP-ROB-001..004 (below)
 - E-stop events with mandatory termination of all non-terminal actions — AWP-EVT-002
 - Approval flow available for at least one action class — AWP-APR-001..003
@@ -25,5 +27,15 @@ Checking a *requested command* against a limit and monitoring *executed motion* 
 - **Measured monitoring** (`enforcement: measured` or `both`) is REQUIRED for `spatial` and `max_velocity_mps` — the world MUST observe executed motion and fail the action on violation (AWP-ENV-003). For `max_force_n`, measured monitoring is REQUIRED if and only if the envelope is declared; a world whose hardware cannot measure force MUST NOT declare `max_force_n`, and its safety policy then provides no force guarantee. `[AWP-ROB-002]`
 - **Claim wording.** A robotics-profile claim MUST enumerate which limits are enforced under `both` and which under `command_check` only. A world without a `max_force_n` envelope MUST word its claim "robotics (no force monitoring)". `[AWP-ROB-003]`
 - **Evidence.** The conformance report MUST record, per declared limit: the sensor or estimator used for measured monitoring, its sampling rate, the measured reaction time from violation to `failed` status, and the watchdog measurement of AWP-SAF-012. Limits without evidence are treated as `command_check` only. `[AWP-ROB-004]`
+
+## Stale intents
+
+Physical actuation on an observation the agent made too long ago is a safety fault, not a performance issue. The profile therefore makes the basis of every intent explicit and bounds its age world-side.
+
+- A robotics-profile world MUST declare `safety_policy.max_basis_age_ms` ≤ 500 and MUST reject with `AWP_STALE_INTENT` every `action.submit` that omits `basis_ts_mono_ns`; enforcement follows AWP-SAF-013. `[AWP-ROB-005]`
+
+## Stream bindings
+
+- A robotics-profile world MUST offer, for every `latest-wins` observation or command channel, at least one stream binding with independent flow control (`webrtc`, `webtransport`, or `shm`), so that a stalled sensor stream can never delay the control channel; the inline binding remains available as the fallback (AWP-TRN-004). `[AWP-ROB-006]`
 
 The planned [ros2-bridge](/adapters/ros2-bridge) and [lerobot-bridge](/adapters/lerobot-bridge) target this profile; neither is published. Chunk-based policies map onto the chunk-replacement idiom (see [Actions](/spec/loop/actions)); for servo- or torque-level control at 100–1000 Hz, worlds SHOULD declare [command channels](/spec/loop/command-channels) rather than accept per-setpoint submissions.

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/session-telemetry.schema.json",
+  "window_ms": 1000,
+  "observation_latency_ns": { "count": 130, "p50": 8200000, "p95": 21500000, "max": 40100000 },
+  "admission_latency_ns": { "count": 9, "p50": 1100000, "p95": 3900000 },
+  "observation_to_action_ns": { "count": 9, "p50": 31000000, "p95": 58000000 },
+  "channels": {
+    "1": { "count": 30, "p50": 12400000, "p95": 27800000 },
+    "2": { "count": 100, "p50": 900000, "p95": 2100000 }
+  }
+}

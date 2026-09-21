@@ -1,0 +1,48 @@
+---
+title: "Frames"
+description: "The binary frame envelope carried on observation and command channels: header, flags, extension block, loss classes, and resumption."
+---
+
+Frames flow world→agent on [observation channels](/spec/loop/observations) and agent→world on [command channels](/spec/loop/command-channels); the envelope is identical in both directions. Every frame is a fixed 28-byte header, an optional extension block, and the payload. All integers are little-endian.
+
+## Header (28 bytes)
+
+| Offset | Size | Field | Notes |
+|---|---|---|---|
+| 0 | 4 | magic | ASCII `AWPF` |
+| 4 | 1 | version | `1` |
+| 5 | 1 | flags | bit 0: keyframe; bit 1: end-of-burst; bit 2: has_extensions; bit 3: resync; bits 4–7: reserved |
+| 6 | 2 | channel_id | u16 assigned in `session.ready` |
+| 8 | 8 | seq | u64, per-channel, monotonically increasing |
+| 16 | 8 | ts_mono_ns | u64, session monotonic clock |
+| 24 | 4 | payload_len | u32, length of the payload only (excludes header and extension block) |
+
+## Extension block (present only when flags bit 2 is set)
+
+| Offset | Size | Field | Notes |
+|---|---|---|---|
+| 28 | 2 | ext_len | u16, total bytes of the TLV entries that follow (not counting these 2 bytes) |
+| 30 | ext_len | entries | zero or more TLV entries, each `type u8, len u8, value[len]` |
+
+Registered extension types:
+
+| Type | Name | len | Value | Required when |
+|---|---|---|---|---|
+| `0x01` | `tick` | 8 | u64 tick number | Lockstep, per-tick channels (AWP-OBS-002) |
+| `0x02` | `ts_sim_ns` | 8 | i64 simulated time in ns | Sim time diverges from the session clock (AWP-CLK-003) |
+| `0x03` | `ts_send_ns` | 8 | u64 session-clock time the frame was handed to the transport | Observation frames in streaming sessions (AWP-OBS-006) |
+| `0x80`–`0xFF` | vendor | any | vendor-defined | Declared in the channel schema under `x-<vendor>.extensions` |
+
+The payload begins at offset `28` (no extension block) or `30 + ext_len` (extension block present). Total frame length = `28 + (has_extensions ? 2 + ext_len : 0) + payload_len`.
+
+## Requirements
+
+- Frames MUST carry per-channel monotonically increasing `seq`; receivers detect loss by gaps. `[AWP-DAT-001]`
+- Channels declare their class in the manifest as `loss_class` (AWP-TRN-006): `reliable` (no loss permitted) or `latest-wins` (droppable; senders MUST drop the older frame rather than queue when a newer one is produced before the older is sent). `[AWP-DAT-002]`
+- Senders MUST NOT exceed the negotiated per-channel rate; receivers MAY request a rate change via `obs.subscribe`. `[AWP-DAT-003]`
+- **Inline binding.** In the `inline` binding a frame is carried as the params of an `obs.frame` (world→agent) or `cmd.frame` (agent→world) notification with the header and extension fields as JSON and the payload base64-encoded: `{ channel_id, seq, ts_mono_ns, flags, tick?, ts_sim_ns?, ts_send_ns?, payload_b64 }`. `flags` carries bits 0, 1, and 3 only; bit 2 MUST be 0 because extensions are explicit fields. Registered extensions map to their named fields; vendor extensions map to `x-<vendor>.<name>` fields. A Core implementation therefore needs no binary parser. `[AWP-DAT-004]`
+- **Reserved flag bits.** Senders MUST set flags bits 4–7 to zero. Receivers MUST ignore bits 4–7 and MUST NOT reject a frame because of them. `[AWP-DAT-005]`
+- **Extension block.** Senders MUST set flags bit 2 if and only if an extension block is present, and MUST NOT emit two entries of the same type in one frame. Receivers MUST skip unknown types using `len`, MUST reject a frame whose `ext_len` is inconsistent with its entries or whose registered entry has the wrong `len` (dropping it and, on a `reliable` channel, closing the data connection with `AWP_MALFORMED`), and MUST treat a frame carrying a duplicate type as malformed. `[AWP-DAT-006]`
+- **Metadata placement.** `tick`, `ts_sim_ns`, and `ts_send_ns` MUST be carried in the extension block (binary) or as the named JSON fields (inline). They MUST NOT be embedded in or appended to the payload; payload bytes are exactly the modality's encoding. `[AWP-DAT-007]`
+- **Test vectors.** Implementations MUST decode every vector in [`schemas/test-vectors/frames.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/schemas/test-vectors/frames.json) to the listed fields, and reject the vectors marked `expect_error`; the vectors cover: minimal frame, keyframe with `tick`, `tick` + `ts_sim_ns`, `ts_send_ns` on a streaming frame, unknown extension type, zero-length payload, resync keyframe, reserved flag bits set, inconsistent `ext_len`, wrong registered `len`, and duplicate type. `[AWP-DAT-008]`
+- **Resync.** The `resync` flag (bit 3) marks the first frame a sender emits after a discontinuity it knows about — resumption (AWP-TRN-008), a keyframe re-request, or an internal restart of the channel. A resync frame MUST be a keyframe; `seq` continues to increase monotonically; receivers MUST NOT count the `seq` gap preceding a resync frame as loss (AWP-DAT-001) and MUST discard any delta state from before it. `[AWP-DAT-009]`

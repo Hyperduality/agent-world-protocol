@@ -10,7 +10,7 @@ description: "The grant model: scopes, expiry, default-deny, and administrative 
 
 ## Administrative mutations
 
-Some control-plane methods change state that other sessions observe or depend on. They form a fourth grant class, `admin`, requested in `session.open` (`admin: string[]`) and enumerated in `session.ready` (`granted.admin`):
+Some control-channel methods change state that other sessions observe or depend on. They form a fourth grant class, `admin`, requested in `session.open` (`admin: string[]`) and enumerated in `session.ready` (`granted.admin`):
 
 | Operation | Method | Effect beyond this session |
 |---|---|---|

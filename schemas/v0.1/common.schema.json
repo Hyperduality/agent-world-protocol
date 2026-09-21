@@ -18,10 +18,42 @@
     },
     "ts_mono_ns": { "$ref": "#/$defs/u53", "description": "Nanoseconds on the session monotonic clock (AWP-CLK-001)." },
     "ts_sim_ns": { "$ref": "#/$defs/i53", "description": "Simulated time in nanoseconds (AWP-CLK-003)." },
+    "ts_send_ns": { "$ref": "#/$defs/u53", "description": "Session-clock time at which a frame was handed to the transport (AWP-OBS-006)." },
+    "agent_ns": { "$ref": "#/$defs/u53", "description": "Nanoseconds on the agent's monotonic clock (AWP-CLK-006)." },
     "tick": { "$ref": "#/$defs/u53", "description": "Lockstep tick number." },
     "seq": { "$ref": "#/$defs/u53", "description": "Per-channel frame sequence number (AWP-DAT-001)." },
-    "status_seq": { "$ref": "#/$defs/u53", "description": "Per-session notification sequence shared by action.status and world.event (AWP-CTL-008)." },
+    "status_seq": { "$ref": "#/$defs/u53", "description": "Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008)." },
+    "session_id": { "type": "string", "minLength": 1, "maxLength": 128, "description": "World-assigned session identifier; not a credential (AWP-SES-009)." },
+    "session_state": { "type": "string", "enum": ["negotiating", "ready", "active", "suspended", "closed"] },
     "channel_id": { "type": "integer", "minimum": 0, "maximum": 65535 },
+    "channel_grant": {
+      "description": "A granted channel subscription as enumerated in session.ready and obs.subscribe results (AWP-NEG-001).",
+      "type": "object",
+      "properties": {
+        "channel": { "$ref": "#/$defs/identifier" },
+        "rate_hz": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "null" }] },
+        "channel_id": { "$ref": "#/$defs/channel_id" }
+      },
+      "required": ["channel", "rate_hz", "channel_id"],
+      "additionalProperties": false
+    },
+    "latency_stats": {
+      "description": "Distribution of a latency or staleness quantity over a measurement window, in nanoseconds. Present only when count > 0.",
+      "type": "object",
+      "properties": {
+        "count": { "$ref": "#/$defs/u53", "description": "Samples in the window." },
+        "p50": { "$ref": "#/$defs/u53" },
+        "p95": { "$ref": "#/$defs/u53" },
+        "max": { "$ref": "#/$defs/u53" }
+      },
+      "required": ["count", "p50", "p95"],
+      "additionalProperties": false
+    },
+    "per_channel": {
+      "description": "Object keyed by the decimal channel_id assigned in session.ready.",
+      "type": "object",
+      "propertyNames": { "pattern": "^(0|[1-9][0-9]{0,4})$" }
+    },
     "identifier": {
       "description": "Names for channels, action types, embodiments, frames, entities.",
       "type": "string",
@@ -84,7 +116,7 @@
         {
           "type": "string",
           "enum": [
-            "params_invalid", "forbidden", "envelope", "approval_denied", "approval_timeout", "deadline_exceeded",
+            "params_invalid", "forbidden", "envelope", "approval_denied", "approval_timeout", "deadline_exceeded", "stale_intent",
             "cancelled_by_agent", "superseded", "e_stop", "connection_lost", "safe_state", "session_closed",
             "world_reset", "watchdog", "world_error"
           ]

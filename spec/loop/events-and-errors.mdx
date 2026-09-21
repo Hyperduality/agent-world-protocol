@@ -5,7 +5,9 @@ description: "World events, the error taxonomy, and recovery expectations."
 
 ## World events
 
-Worlds emit `world.event` notifications for state changes not tied to a specific action: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `data_plane_degraded`, `world_resetting`, `world_shutdown`. Events carry `ts_mono_ns`, `status_seq`, and structured detail. Custom events use `x-<vendor>.` names. `[AWP-EVT-001]`
+Worlds emit `world.event` notifications for state changes not tied to a specific action: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `channel_degraded`, `world_resetting`, `world_shutdown`. Events carry `ts_mono_ns`, `status_seq`, and structured detail. Custom events use `x-<vendor>.` names. `[AWP-EVT-001]`
+
+`world.event` notifications travel only on the control channel, where `status_seq` orders them against action statuses and resumption replays them. A `text/event+json` observation channel carries the world's own structured samples — detections, scene deltas, game state — and MUST NOT carry the events of this registry. `[AWP-EVT-003]`
 
 `e_stop_engaged` MUST terminate every non-terminal action: `executing` actions → `failed` (reason `e_stop`); `pending_approval`, `queued`, and `accepted` actions → `cancelled` (reason `e_stop`). Action admission is suspended (`AWP_ESTOP_ACTIVE`) until `e_stop_released`. `[AWP-EVT-002]`
 
@@ -21,6 +23,7 @@ Terminal `action.status` notifications in `rejected`, `failed`, or `cancelled` c
 | `approval_denied` | rejected | Approver denied (AWP-APR-002) |
 | `approval_timeout` | rejected | No approval decision in time (AWP-APR-003) |
 | `deadline_exceeded` | rejected, failed | `deadline_ms` expired (AWP-ACT-004) |
+| `stale_intent` | rejected | `valid_until_ns` passed, or the basis observation exceeded `max_basis_age_ms`, before execution began (AWP-SAF-013) |
 | `cancelled_by_agent` | cancelled | `action.cancel` (AWP-LIF-005) |
 | `superseded` | cancelled | A newer `replace`/`blend` submission arrived before execution (AWP-PRE-003) |
 | `e_stop` | failed, cancelled | `e_stop_engaged` (AWP-EVT-002) |
@@ -38,8 +41,8 @@ Errors surface as JSON-RPC error objects with AWP codes (see [error codes](/api-
 | Range | Area | Examples |
 |---|---|---|
 | 1xxx | Protocol | `AWP_VERSION_UNSUPPORTED` (1001), `AWP_MALFORMED` (1002) |
-| 2xxx | Session | `AWP_EMBODIMENT_UNAVAILABLE` (2001), `AWP_TIME_MODEL_UNSUPPORTED` (2002), `AWP_SESSION_EXPIRED` (2003), `AWP_SESSION_EXISTS` (2004), `AWP_SESSION_UNKNOWN` (2005), `AWP_INTEGER_RANGE` (2006) |
-| 3xxx | Action | `AWP_PARAMS_INVALID` (3001), `AWP_BUSY` (3002), `AWP_QUEUE_FULL` (3003), `AWP_ACTION_ID_CONFLICT` (3004), `AWP_ESTOP_ACTIVE` (3005), `AWP_TICK_NOT_AUTHORIZED` (3006) |
+| 2xxx | Session | `AWP_EMBODIMENT_UNAVAILABLE` (2001), `AWP_TIME_MODEL_UNSUPPORTED` (2002), `AWP_SESSION_EXPIRED` (2003), `AWP_SESSION_EXISTS` (2004), `AWP_SESSION_UNKNOWN` (2005), `AWP_INTEGER_RANGE` (2006), `AWP_CHANNEL_UNKNOWN` (2007) |
+| 3xxx | Action | `AWP_PARAMS_INVALID` (3001), `AWP_BUSY` (3002), `AWP_QUEUE_FULL` (3003), `AWP_ACTION_ID_CONFLICT` (3004), `AWP_ESTOP_ACTIVE` (3005), `AWP_TICK_NOT_AUTHORIZED` (3006), `AWP_STALE_INTENT` (3007), `AWP_ACTION_UNKNOWN` (3008), `AWP_TICK_MISMATCH` (3009) |
 | 4xxx | Safety | `AWP_FORBIDDEN` (4001), `AWP_ENVELOPE_EXCEEDED` (4002), `AWP_APPROVAL_DENIED` (4003), `AWP_APPROVAL_TIMEOUT` (4004) |
 
 Every error object marks `retryable: true|false` in `data`. Agents MUST NOT retry non-retryable errors with identical parameters. `[AWP-ERR-001]`

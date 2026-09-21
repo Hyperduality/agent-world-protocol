@@ -33,18 +33,21 @@ The world runs in wall-clock time. Observations are pushed with timestamps; acti
 sequenceDiagram
     participant A as Agent
     participant W as World
-    W--)A: obs frames (30 fps, continuous)
-    A->>W: action.submit(move_to_pose)
-    W-->>A: accepted
+    A->>W: ping (origin_ns)
+    W-->>A: pong (origin, receive, transmit) - agent derives clock offset
+    W--)A: obs frames (30 fps, capture and send time)
+    A->>W: action.submit(move_to_pose, basis, valid_until)
+    W-->>A: accepted (received, ts)
     W--)A: obs frames keep flowing
     W-->>A: status: executing (0.4)
     W-->>A: status: completed
+    W-->>A: session.telemetry (1 Hz latency stats)
 ```
 
 ## Why this is the crux
 
 <Warning>
-An agent written only for lockstep will silently misbehave in streaming mode: its observations are stale by the time it acts. Streaming worlds MUST report observation→action latency so agents can compensate, and agents SHOULD treat every observation as a snapshot of the past.
+An agent written only for lockstep will silently misbehave in streaming mode: its observations are stale by the time it acts. Streaming worlds stamp every frame with capture and send time and publish latency telemetry once a second; agents synchronize their clock to the session clock over the heartbeat, measure the staleness of every observation, and name the basis of every action so the world can refuse an intent built on old data.
 </Warning>
 
 Because both modes share identical manifests, schemas, and action lifecycles, the same agent code can train in lockstep against a simulator adapter and deploy in streaming against hardware — swapping only the session mode. That is the [sim-to-real](/guides/sim-to-real) story. Normative details: [spec/loop/time-models](/spec/loop/time-models).

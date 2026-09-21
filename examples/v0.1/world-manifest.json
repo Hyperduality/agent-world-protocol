@@ -13,7 +13,7 @@
       "kind": "manipulator",
       "shared_control": false,
       "action_types": ["move_to_pose", "gripper_set", "stop"],
-      "channels": ["rgb_wrist", "proprio", "events"]
+      "channels": ["rgb_wrist", "proprio"]
     }
   ],
   "observation_channels": [
@@ -31,13 +31,6 @@
       "loss_class": "latest-wins",
       "stale_after_ms": 50,
       "schema": { "joints": 7, "fields": ["q_rad", "dq_radps", "tau_nm"] }
-    },
-    {
-      "id": "events",
-      "modality": "text/event+json",
-      "rate_hz": null,
-      "loss_class": "reliable",
-      "schema": { "$ref": "https://agentworldprotocol.com/schemas/v0.1/world-event.schema.json" }
     }
   ],
   "action_schemas": [
@@ -83,6 +76,7 @@
       }
     ],
     "safe_state": { "behavior": "safe_stop", "watchdog_ms": 2000 },
+    "max_basis_age_ms": 200,
     "approval_timeout_ms": 60000,
     "audit": { "redact_paths": ["/task/content"] }
   },

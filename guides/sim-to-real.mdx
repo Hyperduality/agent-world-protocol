@@ -10,8 +10,10 @@ What changes between sim and real:
 | Aspect | Sim (lockstep) | Real (streaming) |
 |---|---|---|
 | Session mode | `lockstep` | `streaming` |
-| Observation delivery | pulled per tick | pushed, stale by latency |
+| Observation delivery | pulled per tick | pushed with capture and send time; staleness measured per frame |
+| Clock | session clock only | agent clock synchronized over the heartbeat (AWP-CLK-008) |
 | Deadlines | advisory | binding (AWP-ACT-004) |
+| Stale intents | advisory | `basis_ts_mono_ns` checked against `max_basis_age_ms` (AWP-SAF-013) |
 | Determinism | seeded, replayable | none |
 | Envelopes | often loose | enforced tight |
 

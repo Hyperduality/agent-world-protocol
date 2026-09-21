@@ -9,7 +9,15 @@ All three require the corresponding entry in `granted.admin` (AWP-PRM-005); othe
 
 **world.restore** — `{ snapshot_token }` → the world returns to the captured state. Effects on every session (AWP-PRM-006): `world.event: world_resetting` with `{ "initiator": "<session id>", "kind": "restore" }`; all non-terminal actions in all sessions → `cancelled` (`world_reset`); in lockstep, a fresh frame on every per-tick channel carrying the restored `tick`. Result `{ "tick": n }` in lockstep, `{}` in streaming.
 
-**world.reset** — `{ initial_state?: string, seed?: integer }` → return to a named initial state (default: the manifest's first `initial_states` entry); same cross-session effects as restore, with `"kind": "reset"`. `seed` requires `capabilities.seed`. Result as for restore.
+**world.reset** — `{ initial_state?, seed? }` → return to a named initial state (default: the manifest's first `initial_states` entry); same cross-session effects as restore, with `"kind": "reset"`. `seed` requires `capabilities.seed`. Result as for restore.
+
+```json awp:reset
+{ "jsonrpc": "2.0", "id": 21, "method": "world.reset", "params": { "initial_state": "empty_board", "seed": 7 } }
+```
+
+```json awp:reset-result
+{ "tick": 0 }
+```
 
 ```json awp:world-resetting-event
 { "jsonrpc": "2.0", "method": "world.event",

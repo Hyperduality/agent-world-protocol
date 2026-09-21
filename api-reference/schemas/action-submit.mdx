@@ -13,3 +13,5 @@ description: "Canonical schema for action.submit params."
 <ResponseField name="embodiment_id" type="identifier">Required in multi-bind sessions (AWP-EMB-005).</ResponseField>
 <ResponseField name="preempt" type="preemption_policy"> </ResponseField>
 <ResponseField name="deadline_ms" type="integer">From world receipt; covers approval and queue wait (AWP-ACT-004).</ResponseField>
+<ResponseField name="basis_ts_mono_ns" type="ts_mono_ns">Capture time of the newest observation this intent relies on (AWP-ACT-007).</ResponseField>
+<ResponseField name="valid_until_ns" type="ts_mono_ns">Session-clock instant after which the intent must not begin executing (AWP-ACT-007).</ResponseField>

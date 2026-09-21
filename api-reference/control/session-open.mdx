@@ -16,7 +16,7 @@ description: "Bind an embodiment, choose a time model, request grants. Agent →
 **Result — `session.ready`:**
 
 ```json awp:session-ready
-{ "session_token": "st_9f2a7c1e4b8d6f03", "reconnect_window_ms": 30000, "heartbeat_interval_ms": 5000,
+{ "session_id": "sess_01", "session_token": "st_9f2a7c1e4b8d6f03", "reconnect_window_ms": 30000, "heartbeat_interval_ms": 5000,
   "granted": { "channels": [ { "channel": "grid_view", "rate_hz": null, "channel_id": 1 } ],
                "action_types": ["move"], "admin": ["tick"], "envelopes": [] },
   "stream_endpoints": [ { "binding": "inline" } ],
@@ -25,6 +25,6 @@ description: "Bind an embodiment, choose a time model, request grants. Agent →
   "tick": 0 }
 ```
 
-`granted` enumerates exactly what was granted (AWP-NEG-001); `heartbeat_interval_ms` sets the liveness clock (AWP-SAF-001); `tick` is present in lockstep sessions and is followed immediately by one frame per subscribed per-tick channel (AWP-TIM-009). The `session_token` is a credential: never log it unredacted (AWP-AUD-006).
+`session_id` names the session everywhere it is referred to and is not a credential (AWP-SES-009); `granted` enumerates exactly what was granted (AWP-NEG-001); `heartbeat_interval_ms` sets the liveness clock (AWP-SAF-001); `tick` is present in lockstep sessions and is followed immediately by one frame per subscribed per-tick channel (AWP-TIM-009). The `session_token` is a credential: never log it unredacted (AWP-AUD-006).
 
 **Errors:** 2001, 2002, 2004 (`AWP_SESSION_EXISTS`: this connection already carries a session), 4001.

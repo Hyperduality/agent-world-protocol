@@ -4,25 +4,14 @@
   "title": "session.ready (result of session.open and session.resume)",
   "type": "object",
   "properties": {
+    "session_id": { "$ref": "common.schema.json#/$defs/session_id" },
     "session_token": { "type": "string", "minLength": 16, "description": "Credential; redacted in the audit log (AWP-SEC-003, AWP-AUD-006)." },
     "reconnect_window_ms": { "type": "integer", "minimum": 0, "default": 30000 },
     "heartbeat_interval_ms": { "type": "integer", "minimum": 100, "default": 5000, "description": "AWP-SAF-001." },
     "granted": {
       "type": "object",
       "properties": {
-        "channels": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "channel": { "$ref": "common.schema.json#/$defs/identifier" },
-              "rate_hz": { "oneOf": [{ "type": "number", "exclusiveMinimum": 0 }, { "type": "null" }] },
-              "channel_id": { "$ref": "common.schema.json#/$defs/channel_id" }
-            },
-            "required": ["channel", "rate_hz", "channel_id"],
-            "additionalProperties": false
-          }
-        },
+        "channels": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/channel_grant" } },
         "action_types": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/identifier" }, "uniqueItems": true },
         "admin": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/admin_operation" }, "uniqueItems": true, "default": [] },
         "envelopes": { "type": "array", "items": { "$ref": "safety-policy.schema.json#/$defs/envelope" } },
@@ -37,10 +26,11 @@
       "items": {
         "type": "object",
         "properties": {
-          "binding": { "type": "string", "enum": ["inline", "ws", "webrtc", "grpc", "shm"] },
+          "binding": { "type": "string", "enum": ["inline", "ws", "grpc", "webrtc", "webtransport", "shm"], "description": "Stream binding (AWP-TRN-003)." },
           "url": { "type": "string" },
           "signaling": { "type": "string" },
-          "channels": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/channel_id" } }
+          "channels": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/channel_id" } },
+          "max_frame_bytes": { "type": "integer", "minimum": 1024, "default": 16777216, "description": "Largest frame this endpoint carries (AWP-TRN-011)." }
         },
         "required": ["binding"],
         "additionalProperties": true
@@ -53,7 +43,7 @@
     "safe_state": { "type": "boolean", "description": "On session.resume: whether the embodiment is in safe state (AWP-SAF-008)." },
     "extensions": { "$ref": "common.schema.json#/$defs/extensions" }
   },
-  "required": ["session_token", "reconnect_window_ms", "heartbeat_interval_ms", "granted", "stream_endpoints"],
+  "required": ["session_id", "session_token", "reconnect_window_ms", "heartbeat_interval_ms", "granted", "stream_endpoints"],
   "patternProperties": { "^x-[a-z0-9]+\\.": {} },
   "additionalProperties": true
 }

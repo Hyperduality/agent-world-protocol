@@ -7,6 +7,7 @@ description: "Canonical schema for session.ready (result of session.open / sessi
 
 <Note>Generated from [`schemas/v0.1/session-ready.schema.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/schemas/v0.1/session-ready.schema.json) (`$id`: `https://agentworldprotocol.com/schemas/v0.1/session-ready.schema.json`). Normative text: [/spec/session/negotiation](/spec/session/negotiation). Every tagged example on this site is validated against this schema in CI.</Note>
 
+<ResponseField name="session_id" type="session_id" required> </ResponseField>
 <ResponseField name="session_token" type="string" required>Credential; redacted in the audit log (AWP-SEC-003, AWP-AUD-006).</ResponseField>
 <ResponseField name="reconnect_window_ms" type="integer" required>Default `30000`.</ResponseField>
 <ResponseField name="heartbeat_interval_ms" type="integer" required>AWP-SAF-001. Default `5000`.</ResponseField>
@@ -14,15 +15,7 @@ description: "Canonical schema for session.ready (result of session.open / sessi
   
 
   <Expandable title="fields">
-    <ResponseField name="channels" type="object[]" required>
-      
-
-      <Expandable title="fields">
-        <ResponseField name="channel" type="identifier" required> </ResponseField>
-        <ResponseField name="rate_hz" type="number | null" required> </ResponseField>
-        <ResponseField name="channel_id" type="channel_id" required> </ResponseField>
-      </Expandable>
-    </ResponseField>
+    <ResponseField name="channels" type="channel_grant[]" required> </ResponseField>
     <ResponseField name="action_types" type="identifier[]" required> </ResponseField>
     <ResponseField name="admin" type="admin_operation[]">Default `[]`.</ResponseField>
     <ResponseField name="envelopes" type="envelope[]" required> </ResponseField>
@@ -33,10 +26,11 @@ description: "Canonical schema for session.ready (result of session.open / sessi
   
 
   <Expandable title="fields">
-    <ResponseField name="binding" type="inline | ws | webrtc | grpc | shm" required> </ResponseField>
+    <ResponseField name="binding" type="inline | ws | grpc | webrtc | webtransport | shm" required>Stream binding (AWP-TRN-003).</ResponseField>
     <ResponseField name="url" type="string"> </ResponseField>
     <ResponseField name="signaling" type="string"> </ResponseField>
     <ResponseField name="channels" type="channel_id[]"> </ResponseField>
+    <ResponseField name="max_frame_bytes" type="integer">Largest frame this endpoint carries (AWP-TRN-011). Default `16777216`.</ResponseField>
   </Expandable>
 </ResponseField>
 <ResponseField name="frame_tree" type="frame-tree"> </ResponseField>

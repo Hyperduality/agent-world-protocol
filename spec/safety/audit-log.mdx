@@ -3,7 +3,7 @@ title: "Audit log"
 description: "The normative session record: format, hashing, redaction, and the three record classes it can serve."
 ---
 
-Worlds MUST record, per session, an append-only log of: manifests, granted subset, every control-plane message (both directions, after [redaction](#redaction)), every action status transition, every safety event and approval, and for each data-plane frame in either direction either the payload or its SHA-256 hash plus header. `[AWP-AUD-001]`
+Worlds MUST record, per session, an append-only log of: manifests, granted subset, every control-channel message (both directions, after [redaction](#redaction)), every action status transition, every safety event and approval, and for each frame on every other channel either the payload or its SHA-256 hash plus header. `[AWP-AUD-001]`
 
 - Records are JSON Lines; each record carries `ts_mono_ns`, `direction`, `kind`, and `body`. `[AWP-AUD-002]`
 - Worlds SHOULD hash-chain records (`prev_hash`) for tamper evidence. `[AWP-AUD-003]`
@@ -12,7 +12,7 @@ Worlds MUST record, per session, an append-only log of: manifests, granted subse
 
 ## Redaction
 
-- Before a control-plane message is written to the log, the world MUST replace the values of `session_token`, `transfer_token`, `snapshot_token`, any `Authorization` header or bearer credential, and every value addressed by a JSON pointer in `safety_policy.audit.redact_paths` (relative to `params` or `result`) with `"[redacted:sha256:<first 8 hex of the SHA-256 of the value>]"`, so that records can be correlated without exposing the value. Deployments use `redact_paths` for approval `params`/`note`, `task.content`, and any action parameters carrying personal data. Redaction applies to the log only, never to the wire; frame hashes are unaffected. See also AWP-APR-006, AWP-TSK-005. `[AWP-AUD-006]`
+- Before a control-channel message is written to the log, the world MUST replace the values of `session_token`, `transfer_token`, `snapshot_token`, any `Authorization` header or bearer credential, and every value addressed by a JSON pointer in `safety_policy.audit.redact_paths` (relative to `params` or `result`) with `"[redacted:sha256:<first 8 hex of the SHA-256 of the value>]"`, so that records can be correlated without exposing the value. Deployments use `redact_paths` for approval `params`/`note`, `task.content`, and any action parameters carrying personal data. Redaction applies to the log only, never to the wire; frame hashes are unaffected. See also AWP-APR-006, AWP-TSK-005. `[AWP-AUD-006]`
 
 ## Record classes
 

@@ -12,16 +12,19 @@ description: "Submission envelope, idempotency, validation."
   "type": "move_to_pose",
   "params": { "pose": { "frame": "base", "p_m": [0.4, 0.1, 0.3], "q": [0, 0, 0, 1] } },
   "preempt": "replace",
-  "deadline_ms": 5000
+  "deadline_ms": 5000,
+  "basis_ts_mono_ns": 913004112000,
+  "valid_until_ns": 913004612000
 }
 ```
 
-- `action_id` is client-generated and unique per session. A resubmission with the same `action_id` and identical `type`, `params`, `embodiment_id`, `preempt`, and `deadline_ms` MUST be idempotent: the world returns the action's current state and does not execute it again. A resubmission with the same `action_id` but different content MUST be rejected with `AWP_ACTION_ID_CONFLICT` and MUST NOT affect the original action. Concurrent duplicate submissions are serialized by the world: the first processed wins, later ones observe its state. `[AWP-ACT-001]`
+- `action_id` is client-generated and unique per session. A resubmission with the same `action_id` and identical `type`, `params`, `embodiment_id`, `preempt`, `deadline_ms`, `basis_ts_mono_ns`, and `valid_until_ns` MUST be idempotent: the world returns the action's current state and does not execute it again. A resubmission with the same `action_id` but different content MUST be rejected with `AWP_ACTION_ID_CONFLICT` and MUST NOT affect the original action. Concurrent duplicate submissions are serialized by the world: the first processed wins, later ones observe its state. `[AWP-ACT-001]`
 - Worlds MUST validate `params` against the type's `params_schema` and reject invalid submissions with `AWP_PARAMS_INVALID` before any execution side effect. `[AWP-ACT-002]`
 - Submissions naming ungranted types or embodiments MUST be rejected with `AWP_FORBIDDEN`. `[AWP-ACT-003]`
 - `deadline_ms` is measured from the world's receipt of the submission and covers approval and queue waiting as well as execution. It is advisory in lockstep and binding in streaming: on expiry before `executing` the world MUST reject the action with reason `deadline_exceeded`; on expiry during `executing` it MUST apply the type's safe-abort behavior and fail the action with reason `deadline_exceeded`. `[AWP-ACT-004]`
 - The `preempt` field MUST be one of the policies the type declares (see [preemption](/spec/loop/preemption)). `[AWP-ACT-005]`
 - Worlds MUST retain the `action_id` and terminal state of every action for at least `reconnect_window_ms` after its terminal transition, and of every non-terminal action for the life of the session, so that idempotent resubmission and status pulls remain correct across reconnection. `[AWP-ACT-006]`
+- **Basis and validity.** `basis_ts_mono_ns` is the capture time of the newest observation the intent relies on, copied from that frame's `ts_mono_ns`; `valid_until_ns` is the session-clock instant after which the intent MUST NOT begin executing, expressed through the agent's clock offset (AWP-CLK-009). Both are OPTIONAL in Core and enforced by the world per AWP-SAF-013; the [robotics profile](/spec/profiles/robotics) requires `basis_ts_mono_ns` on every submission (AWP-ROB-005). `[AWP-ACT-007]`
 
 ## Trajectory chunks (informative idiom)
 

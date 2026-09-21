@@ -36,6 +36,18 @@ Simulated time in nanoseconds (AWP-CLK-003).
 
 Type: `i53`
 
+### `ts_send_ns`
+
+Session-clock time at which a frame was handed to the transport (AWP-OBS-006).
+
+Type: `u53`
+
+### `agent_ns`
+
+Nanoseconds on the agent's monotonic clock (AWP-CLK-006).
+
+Type: `u53`
+
 ### `tick`
 
 Lockstep tick number.
@@ -50,15 +62,50 @@ Type: `u53`
 
 ### `status_seq`
 
-Per-session notification sequence shared by action.status and world.event (AWP-CTL-008).
+Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
 
 Type: `u53`
+
+### `session_id`
+
+World-assigned session identifier; not a credential (AWP-SES-009).
+
+Type: `string`
+
+### `session_state`
+
+
+
+Type: `negotiating | ready | active | suspended | closed`
 
 ### `channel_id`
 
 
 
 Type: `integer`, minimum 0, maximum 65535
+
+### `channel_grant`
+
+A granted channel subscription as enumerated in session.ready and obs.subscribe results (AWP-NEG-001).
+
+<ResponseField name="channel" type="identifier" required> </ResponseField>
+<ResponseField name="rate_hz" type="number | null" required> </ResponseField>
+<ResponseField name="channel_id" type="channel_id" required> </ResponseField>
+
+### `latency_stats`
+
+Distribution of a latency or staleness quantity over a measurement window, in nanoseconds. Present only when count > 0.
+
+<ResponseField name="count" type="u53" required>Samples in the window.</ResponseField>
+<ResponseField name="p50" type="u53" required> </ResponseField>
+<ResponseField name="p95" type="u53" required> </ResponseField>
+<ResponseField name="max" type="u53"> </ResponseField>
+
+### `per_channel`
+
+Object keyed by the decimal channel_id assigned in session.ready.
+
+Type: `object`
 
 ### `identifier`
 
@@ -145,7 +192,7 @@ Type: `rejected | completed | failed | preempted | cancelled`
 
 Status reason registry (spec/loop/events-and-errors#status-reasons) or a vendor reason.
 
-Type: `params_invalid | forbidden | envelope | approval_denied | approval_timeout | deadline_exceeded | cancelled_by_agent | superseded | e_stop | connection_lost | safe_state | session_closed | world_reset | watchdog | world_error | vendor_key`
+Type: `params_invalid | forbidden | envelope | approval_denied | approval_timeout | deadline_exceeded | stale_intent | cancelled_by_agent | superseded | e_stop | connection_lost | safe_state | session_closed | world_reset | watchdog | world_error | vendor_key`
 
 ### `preemption_policy`
 

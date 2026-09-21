@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentworldprotocol.com/schemas/v0.1/ping.schema.json",
+  "title": "ping params (heartbeat and clock synchronization, AWP-CLK-007)",
+  "type": "object",
+  "properties": {
+    "origin_ns": { "$ref": "common.schema.json#/$defs/u53", "description": "Sender's clock at transmission: the session clock from the world, the agent clock from the agent." }
+  },
+  "required": ["origin_ns"],
+  "additionalProperties": false
+}

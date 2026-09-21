@@ -1,14 +1,32 @@
 ---
-title: "Transport overview"
-description: "Two planes, transport independence, and required bindings."
+title: "Transport"
+description: "One session, one channel model: the control channel, frame channels and their classes, ordering, resumption, and the bindings that carry them."
 ---
 
-AWP separates a **control plane** (reliable, ordered, low-bandwidth) from a **data plane** (high-bandwidth, loss-tolerant per channel class).
+AWP has one unit of transmission: the **channel**. A session is a set of channels sharing one clock, one token, one sequence discipline, and one audit log. The protocol defines semantics per channel class; a binding decides how channels map onto connections.
 
-- The control plane carries JSON-RPC 2.0 messages ([control plane](/spec/transport/control-plane)). Worlds MUST offer at least the **WebSocket binding**. One control connection carries one session (AWP-CTL-007). `[AWP-TRN-001]`
-- Optional control-plane bindings: stdio (local child processes), gRPC. Bindings MUST preserve message ordering per direction. `[AWP-TRN-002]`
-- The data plane carries binary frames ([data plane](/spec/transport/data-plane)). Endpoints are negotiated at `session.open`; defined bindings: WebSocket (binary messages), WebRTC data channels, gRPC streams, POSIX shared memory (local). `[AWP-TRN-003]`
-- A world MAY serve data-plane frames inline over the control-plane socket (`inline` binding) — the default for lockstep sessions and REQUIRED as a fallback when no other binding is mutually supported. `[AWP-TRN-004]`
+| Channel | Direction | Carries | Class |
+|---|---|---|---|
+| `0` — the control channel | both | JSON-RPC 2.0 requests, results, and notifications | `control` |
+| observation channels | world → agent | binary frames of a declared modality | `reliable` or `latest-wins` |
+| command channels | agent → world | binary frames of a declared modality | `reliable` or `latest-wins` |
+
+## Channel model
+
+- Every message belongs to exactly one channel. Channel `0` is the [control channel](/spec/transport/control-channel), present in every session and carrying every JSON-RPC message; channels ≥ 1 are the observation and command channels declared in the manifest, assigned their `channel_id` in `session.ready`, and carried as [frames](/spec/transport/frames). `[AWP-TRN-005]`
+- **Classes.** `control`: no loss, in order, replayed on resume by `status_seq`, audited in full. `reliable`: no loss, in `seq` order, resumed from a keyframe, audited by hash. `latest-wins`: droppable, newest wins, audited by hash. A channel's class is fixed for the life of the manifest. `[AWP-TRN-006]`
+- **Ordering.** Order is guaranteed within a channel and never across channels; the only cross-channel relations are those the specification states explicitly — lockstep advance completion (AWP-TIM-003) and command-channel binding (AWP-CMD-003). `[AWP-TRN-007]`
+- **Resumption.** On `session.resume` the control channel replays per AWP-CTL-008; the agent re-establishes stream connections from the re-issued `stream_endpoints`; on every `reliable` channel the world's first frame after resumption MUST be a keyframe carrying the `resync` flag, and the `seq` gap it reveals is not a loss (AWP-DAT-009); `latest-wins` channels continue unchanged. `[AWP-TRN-008]`
+
+## Bindings
+
+- The control channel is carried on one **control connection** per session (AWP-CTL-007); worlds MUST offer the WebSocket binding for it. Optional control bindings: stdio (local child processes) and gRPC. `[AWP-TRN-001]`
+- Bindings MUST preserve the order of every channel they carry. `[AWP-TRN-002]`
+- Channels ≥ 1 are carried either **inline** on the control connection or on **stream connections** negotiated in `session.ready`. A stream binding either gives every channel independent flow control or it does not: `ws` (WebSocket binary messages) no; `grpc` (HTTP/2 streams) no; `webrtc` (data channels) yes; `webtransport` (QUIC streams and datagrams) yes; `shm` (POSIX shared memory, local) yes. `[AWP-TRN-003]`
+- The **inline** binding — frames as `obs.frame` and `cmd.frame` notifications on the control channel (AWP-DAT-004) — is REQUIRED as the fallback when no other binding is mutually supported and is the default for lockstep sessions. `[AWP-TRN-004]`
+- **Dependent streams.** On a binding without independent flow control, including inline, a `latest-wins` channel cannot drop in transit, so the sender MUST hold at most one undelivered frame per such channel and replace it when a newer frame is produced; a channel that stalls MUST NOT delay the control channel or any other channel by more than that one frame. `[AWP-TRN-009]`
+- **Stream reconnection.** If a stream connection is lost while the control connection remains, the agent MAY reconnect to the same endpoint with the session token at any time and the world MUST accept it; grants are unaffected, `reliable` channels restart with a resync keyframe (AWP-DAT-009), and the world reports the outage on affected `reliable` channels through `channel_degraded` (AWP-SAF-009). `[AWP-TRN-010]`
+- **Frame size.** Each stream endpoint MAY declare `max_frame_bytes` (default 16 MiB); senders MUST NOT emit a larger frame on it, and a world MUST NOT assign a channel to an endpoint that cannot carry that channel's largest declared frame. On `webtransport`, frames that exceed the datagram limit travel on a stream. `[AWP-TRN-011]`
 
 <Note>
 AWP assumes the agent and the world share a network environment — the same machine or a trusted local network (an agent client in a browser tab beside a world simulator, a policy process beside a robot controller). Rendezvous across the public internet is out of scope; deployments that separate the two front the world with their own tunnel or proxy presenting a dialable endpoint.

@@ -1,10 +1,12 @@
 ---
 title: "Observations (normative)"
-description: "Frame requirements: timestamps, sequencing, channel binding, staleness."
+description: "Frame requirements: timestamps, sequencing, channel binding, send time, and the receiver report."
 ---
 
 - Every frame MUST carry: channel id, per-channel monotonically increasing `seq`, `ts_mono_ns` (session monotonic clock, time of capture), and a payload valid for the channel's declared modality schema. `[AWP-OBS-001]`
-- In lockstep, per-tick channels additionally carry `tick` (u64) in the frame's [extension block](/spec/transport/data-plane#extension-block-present-only-when-flags-bit-2-is-set) (type `0x01`) or as the `tick` field in the inline JSON form — never inside the payload (AWP-DAT-007). `[AWP-OBS-002]`
+- In lockstep, per-tick channels additionally carry `tick` (u64) in the frame's [extension block](/spec/transport/frames#extension-block-present-only-when-flags-bit-2-is-set) (type `0x01`) or as the `tick` field in the inline JSON form — never inside the payload (AWP-DAT-007). `[AWP-OBS-002]`
 - Worlds MUST NOT reorder frames within a channel; agents MUST tolerate interleaving across channels. `[AWP-OBS-003]`
 - A world MAY mark a frame `keyframe` (self-contained) vs delta; every channel using deltas MUST emit a keyframe at subscription start and at least every `keyframe_interval` declared in the manifest. `[AWP-OBS-004]`
 - On subscription, the first frame MUST be a current snapshot, not a historical replay. `[AWP-OBS-005]`
+- **Send time.** In streaming sessions every observation frame MUST carry `ts_send_ns`, the session-clock time at which the world handed the frame to the transport, with `ts_send_ns ≥ ts_mono_ns`, in the extension block (type `0x03`) or as the `ts_send_ns` field in the inline JSON form. Lockstep frames and command frames do not carry it. `[AWP-OBS-006]`
+- **Receiver report.** In streaming sessions the agent SHOULD send an `obs.report` notification ([schema](/api-reference/schemas/obs-report)) at least every 5 s covering the preceding window: its clock-offset estimate and, per channel, frames received, `seq` gaps, jitter, and staleness at receipt, plus its decision latency ([definitions](/spec/semantics/timestamps-and-clocks#latency-and-staleness)). Worlds MUST accept the notification and MAY reduce a channel's delivery rate in response, never above the negotiated rate (AWP-DAT-003). `[AWP-OBS-007]`

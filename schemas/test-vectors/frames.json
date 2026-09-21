@@ -1,5 +1,5 @@
 {
-  "$comment": "AWP data-plane frame test vectors (AWP-DAT-008). Decode `hex`; compare to `expect`, or require the error in `expect_error`. Generated with scripts/frame-codec.mjs.",
+  "$comment": "AWP frame test vectors (AWP-DAT-008). Decode `hex`; compare to `expect`, or require the error in `expect_error`. Generated with scripts/frame-codec.mjs.",
   "version": 1,
   "vectors": [
     {
@@ -67,6 +67,22 @@
       }
     },
     {
+      "name": "streaming_ts_send",
+      "description": "Streaming observation frame: keyframe with ts_send_ns=913004120200 (extension 0x03), 8.2 ms after capture.",
+      "hex": "4157504601050100731000000000000080284993d4000000100000000a00030888484993d40000007b22617661746172223a5b322c335d7d",
+      "expect": {
+        "channel_id": 1,
+        "seq": 4211,
+        "ts_mono_ns": 913004112000,
+        "flags": 5,
+        "keyframe": true,
+        "end_of_burst": false,
+        "payload_len": 16,
+        "payload_hex": "7b22617661746172223a5b322c335d7d",
+        "ts_send_ns": 913004120200
+      }
+    },
+    {
       "name": "unknown_extension",
       "description": "Unknown registered-range type 0x3f (len 3) must be skipped; vendor type 0x9a (len 2) is surfaced.",
       "hex": "415750460104020009000000000000000500000000000000100000001300010801000000000000003f03aabbcc9a02dead7b22617661746172223a5b322c335d7d",
@@ -108,8 +124,8 @@
     },
     {
       "name": "reserved_bits_set",
-      "description": "Reserved flag bits 3-7 set by a newer sender; receiver ignores them (decoded flags mask to bits 0-2).",
-      "hex": "4157504601f9010002000000000000000300000000000000100000007b22617661746172223a5b322c335d7d",
+      "description": "Reserved flag bits 4-7 set by a newer sender; receiver ignores them (decoded flags mask to bits 0-3).",
+      "hex": "4157504601f1010002000000000000000300000000000000100000007b22617661746172223a5b322c335d7d",
       "expect": {
         "channel_id": 1,
         "seq": 2,
@@ -117,6 +133,22 @@
         "flags": 1,
         "keyframe": true,
         "end_of_burst": false,
+        "payload_len": 16,
+        "payload_hex": "7b22617661746172223a5b322c335d7d"
+      }
+    },
+    {
+      "name": "resync_keyframe",
+      "description": "First frame after resumption on a reliable channel: keyframe with resync (flag bit 3) and no extensions (AWP-DAT-009).",
+      "hex": "415750460109010003000000000000000400000000000000100000007b22617661746172223a5b322c335d7d",
+      "expect": {
+        "channel_id": 1,
+        "seq": 3,
+        "ts_mono_ns": 4,
+        "flags": 9,
+        "keyframe": true,
+        "end_of_burst": false,
+        "resync": true,
         "payload_len": 16,
         "payload_hex": "7b22617661746172223a5b322c335d7d"
       }
@@ -146,6 +178,12 @@
       "name": "wrong_registered_len",
       "description": "tick (0x01) declared with len 4; registered length is 8.",
       "hex": "415750460104010001000000000000000000000000000000000000000600010474100000",
+      "expect_error": "AWP_MALFORMED"
+    },
+    {
+      "name": "wrong_registered_len_ts_send",
+      "description": "ts_send_ns (0x03) declared with len 4; registered length is 8.",
+      "hex": "415750460104010001000000000000000000000000000000000000000600030401020304",
       "expect_error": "AWP_MALFORMED"
     },
     {

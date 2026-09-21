@@ -15,6 +15,11 @@ description: "Normative definitions used throughout the specification."
 | **Action** | A typed intent submitted by an agent, with a defined lifecycle. |
 | **Intent** | The submitted form of an action, prior to acceptance. |
 | **Tick** | One discrete world step in lockstep mode. |
+| **Session clock** | The world's monotonic nanosecond clock on which every `ts_mono_ns` is expressed; starts at session open. |
+| **Agent clock** | The agent's own monotonic nanosecond clock, related to the session clock by the offset estimated over heartbeat exchanges. |
+| **Clock offset** | `session clock − agent clock`, estimated from the four timestamps of a `ping` exchange; its error is bounded by half the round-trip time. |
+| **Basis** | The newest observation an intent relies on, named by its capture time in `basis_ts_mono_ns`. |
+| **Staleness** | The age of an observation at the moment it is used: session-clock now minus its capture time. |
 | **Time model** | Either `lockstep` or `streaming`; governs how the world advances relative to agent I/O. |
 | **Envelope** | A quantitative safety limit (spatial, velocity, force, rate) enforced by the world. |
 | **Grant** | An explicit permission attached to a session (action types, channels, embodiments). |

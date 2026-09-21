@@ -20,16 +20,14 @@ Returned by `initialize`. A complete, valid manifest (validated in CI against [`
       "kind": "manipulator",
       "shared_control": false,
       "action_types": ["move_to_pose", "gripper_set", "stop"],
-      "channels": ["rgb_wrist", "proprio", "events"]
+      "channels": ["rgb_wrist", "proprio"]
     }
   ],
   "observation_channels": [
     { "id": "rgb_wrist", "modality": "image/jpeg", "rate_hz": 30, "loss_class": "latest-wins",
       "schema": { "width": 1280, "height": 720, "color_space": "srgb" } },
     { "id": "proprio", "modality": "proprio/json", "rate_hz": 100, "loss_class": "latest-wins", "stale_after_ms": 50,
-      "schema": { "joints": 7, "fields": ["q_rad", "dq_radps", "tau_nm"] } },
-    { "id": "events", "modality": "text/event+json", "rate_hz": null, "loss_class": "reliable",
-      "schema": { "$ref": "https://agentworldprotocol.com/schemas/v0.1/world-event.schema.json" } }
+      "schema": { "joints": 7, "fields": ["q_rad", "dq_radps", "tau_nm"] } }
   ],
   "action_schemas": [
     { "type": "move_to_pose", "params_schema": { "$ref": "#/$defs/move_to_pose_params" },
@@ -50,6 +48,7 @@ Returned by `initialize`. A complete, valid manifest (validated in CI against [`
         "enforcement": "both", "on_violation": "clamp" }
     ],
     "safe_state": { "behavior": "safe_stop", "watchdog_ms": 2000 },
+    "max_basis_age_ms": 200,
     "approval_timeout_ms": 60000,
     "audit": { "redact_paths": ["/task/content"] }
   },
@@ -75,7 +74,7 @@ Local `$ref`s inside `params_schema` resolve against the manifest's own `$defs`;
 - Manifests MUST be stable for the life of the connection; changes require re-`initialize`. `[AWP-MAN-003]`
 - `capabilities` is an open map. v0.1 standard keys: `seed`, `snapshot`, `replay`, `command_channels`, `task`. Unknown keys MUST be ignored; vendor keys use `x-<vendor>.` naming. New standard keys arrive by RFD ([RFD process](/community/rfd-process)). `[AWP-MAN-004]`
 - Worlds declaring the `command_channels` capability additionally list `command_channels` — agent→world channels, same schema as observation channels — see [command channels](/spec/loop/command-channels). `[AWP-MAN-005]`
-- Worlds offering `lockstep` MUST declare `tick_policy` (`on_tick`) and `tick_authority` (`any_session` | `barrier`); worlds offering `streaming` MUST declare `safety_policy.safe_state` ([time models](/spec/loop/time-models), [safe state](/spec/safety/safe-state)). `[AWP-MAN-006]`
+- Worlds offering `lockstep` MUST declare `tick_policy` (`on_tick`) and `tick_authority` (`any_session` | `barrier`); worlds offering `streaming` MUST declare `safety_policy.safe_state` and MAY declare `safety_policy.max_basis_age_ms` ([time models](/spec/loop/time-models), [safe state](/spec/safety/safe-state)). `[AWP-MAN-006]`
 - Embodiments that may be bound together by one session share a `multi_bind_group`; `session.open` names them in `embodiments` and submissions then carry `embodiment_id` (AWP-EMB-005). `[AWP-MAN-007]`
 
 Canonical schema: [world-manifest](/api-reference/schemas/world-manifest).

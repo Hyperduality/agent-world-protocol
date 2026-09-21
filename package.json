@@ -11,8 +11,9 @@
     "gen:schema-docs": "node scripts/gen-schema-docs.mjs",
     "gen:types": "node scripts/gen-types.mjs",
     "gen:requirements": "node scripts/gen-requirements.mjs",
-    "gen": "npm run gen:schema-docs && npm run gen:types && npm run gen:requirements",
-    "check": "npm run validate && npm run gen:schema-docs -- --check && npm run gen:types -- --check && npm run gen:requirements -- --check"
+    "gen:traces": "node scripts/gen-traces.mjs",
+    "gen": "npm run gen:schema-docs && npm run gen:types && npm run gen:requirements && npm run gen:traces",
+    "check": "npm run validate && npm run gen:schema-docs -- --check && npm run gen:types -- --check && npm run gen:requirements -- --check && npm run gen:traces -- --check"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

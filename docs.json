@@ -82,6 +82,7 @@
                   "spec/terminology",
                   "spec/conformance",
                   "spec/requirements",
+                  "spec/wire-traces",
                   "spec/versioning-policy"
                 ]
               },
@@ -89,8 +90,8 @@
                 "group": "Layer 0 \u2014 Transport",
                 "pages": [
                   "spec/transport/overview",
-                  "spec/transport/control-plane",
-                  "spec/transport/data-plane",
+                  "spec/transport/control-channel",
+                  "spec/transport/frames",
                   "spec/transport/security"
                 ]
               },
@@ -165,7 +166,7 @@
             ]
           },
           {
-            "group": "Control plane (JSON-RPC)",
+            "group": "Control channel (JSON-RPC)",
             "pages": [
               "api-reference/control/initialize",
               "api-reference/control/manifest",
@@ -173,16 +174,19 @@
               "api-reference/control/session-close",
               "api-reference/control/task-update",
               "api-reference/control/subscribe",
+              "api-reference/control/obs-report",
+              "api-reference/control/session-telemetry",
               "api-reference/control/action-submit",
               "api-reference/control/action-cancel",
               "api-reference/control/action-status",
               "api-reference/control/tick",
               "api-reference/control/snapshot",
-              "api-reference/control/approval"
+              "api-reference/control/approval",
+              "api-reference/control/ping"
             ]
           },
           {
-            "group": "Data plane",
+            "group": "Frames",
             "pages": [
               "api-reference/data/frame-format",
               "api-reference/data/observation-frames",
@@ -208,7 +212,14 @@
               "api-reference/schemas/action-status",
               "api-reference/schemas/frame-inline",
               "api-reference/schemas/world-event",
-              "api-reference/schemas/telemetry-payload",
+              "api-reference/schemas/session-telemetry",
+              "api-reference/schemas/session-state",
+              "api-reference/schemas/tick",
+              "api-reference/schemas/subscribe",
+              "api-reference/schemas/reset",
+              "api-reference/schemas/action-ref",
+              "api-reference/schemas/obs-report",
+              "api-reference/schemas/ping",
               "api-reference/schemas/error"
             ]
           }
