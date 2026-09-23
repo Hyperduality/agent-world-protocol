@@ -4,8 +4,8 @@
   "title": "obs.subscribe params (AWP-NEG-004)",
   "type": "object",
   "properties": {
-    "channels": {"type": "array", "minItems": 1, "items": {"type": "object", "properties": {"channel": {"$ref": "common.schema.json#/$defs/identifier"}, "rate_hz": {"type": "number", "exclusiveMinimum": 0}}, "required": ["channel"], "additionalProperties": false}}
+    "channels": {"type": "array", "minItems": 1, "items": {"type": "object", "properties": {"channel": {"$ref": "common.schema.json#/$defs/identifier"}, "rate_hz": {"type": "number", "exclusiveMinimum": 0}}, "required": ["channel"], "x-awp-closed": true}}
   },
   "required": ["channels"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

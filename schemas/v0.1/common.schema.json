@@ -35,7 +35,7 @@
         "channel_id": { "$ref": "#/$defs/channel_id" }
       },
       "required": ["channel", "rate_hz", "channel_id"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "latency_stats": {
       "description": "Distribution of a latency or staleness quantity over a measurement window, in nanoseconds. Present only when count > 0.",
@@ -47,7 +47,7 @@
         "max": { "$ref": "#/$defs/u53" }
       },
       "required": ["count", "p50", "p95"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "per_channel": {
       "description": "Object keyed by the decimal channel_id assigned in session.ready.",
@@ -90,7 +90,7 @@
       "type": "object",
       "properties": { "p_m": { "$ref": "#/$defs/vec3_m" }, "q": { "$ref": "#/$defs/quaternion" } },
       "required": ["p_m", "q"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "pose": {
       "description": "A pose in a named frame (AWP-UNI-003).",
@@ -101,7 +101,7 @@
         "q": { "$ref": "#/$defs/quaternion" }
       },
       "required": ["frame", "p_m", "q"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "time_model": { "type": "string", "enum": ["lockstep", "streaming"] },
     "loss_class": { "type": "string", "enum": ["reliable", "latest-wins"] },
@@ -118,7 +118,7 @@
           "enum": [
             "params_invalid", "forbidden", "envelope", "approval_denied", "approval_timeout", "deadline_exceeded", "stale_intent",
             "cancelled_by_agent", "superseded", "e_stop", "connection_lost", "safe_state", "session_closed",
-            "world_reset", "watchdog", "world_error"
+            "world_reset", "transferred", "abort_failed", "watchdog", "world_error"
           ]
         },
         { "$ref": "#/$defs/vendor_key" }
@@ -140,7 +140,7 @@
         "content": { "type": "array", "items": { "$ref": "#/$defs/content_block" }, "minItems": 1 }
       },
       "required": ["content"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "json_schema": {
       "description": "An embedded JSON Schema 2020-12 document (AWP-MAN-002).",

@@ -22,7 +22,7 @@
           "rate_hz": { "type": "number", "exclusiveMinimum": 0 }
         },
         "required": ["channel"],
-        "additionalProperties": false
+        "x-awp-closed": true
       }
     },
     "action_types": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/identifier" }, "uniqueItems": true },

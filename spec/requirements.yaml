@@ -37,6 +37,21 @@ requirements:
     applies: all
     gate: core
     test: AWP-ACT-007
+  - id: AWP-ACT-008
+    side: world
+    applies: streaming
+    gate: feature:max_duration_ms declared
+    test: AWP-ACT-008
+  - id: AWP-ACT-009
+    side: world
+    applies: all
+    gate: core
+    test: AWP-ACT-009
+  - id: AWP-ACT-010
+    side: both
+    applies: all
+    gate: core
+    test: AWP-ACT-010
   - id: AWP-AGM-001
     side: world
     applies: all
@@ -327,6 +342,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-CTL-009
+  - id: AWP-CTL-010
+    side: world
+    applies: all
+    gate: core
+    test: AWP-CTL-010
   - id: AWP-DAT-001
     side: both
     applies: all
@@ -752,6 +772,11 @@ requirements:
     applies: streaming
     gate: profile:robotics
     test: AWP-ROB-006
+  - id: AWP-ROB-007
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: AWP-ROB-007
   - id: AWP-SAF-001
     side: both
     applies: all
@@ -852,6 +877,16 @@ requirements:
     applies: all
     gate: core (non-loopback)
     test: AWP-SEC-004
+  - id: AWP-SEC-005
+    side: both
+    applies: all
+    gate: core (non-loopback)
+    test: AWP-SEC-005
+  - id: AWP-SEC-006
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SEC-006
   - id: AWP-SES-001
     side: world
     applies: all
@@ -897,6 +932,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-SES-009
+  - id: AWP-SES-010
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-010
   - id: AWP-SIM-001
     side: world
     applies: lockstep
@@ -1097,3 +1137,13 @@ requirements:
     applies: all
     gate: core
     test: AWP-VER-007
+  - id: AWP-VER-008
+    side: both
+    applies: all
+    gate: core
+    test: AWP-VER-008
+  - id: AWP-VER-009
+    side: both
+    applies: all
+    gate: core
+    test: "manual: the implementation's documentation and the conformance report name the draft revision"

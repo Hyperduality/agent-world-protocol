@@ -37,7 +37,7 @@ Actions are **typed**. The world's manifest declares each action type as a JSON 
 Key properties:
 
 - **Idempotency** — every submission carries a client-generated `action_id`; resubmission after reconnect with the same content is safe, and the same id with different content is refused.
-- **Exactly one outcome** — every action reaches one terminal state; its notification may be redelivered after a reconnect, so agents deduplicate on `(action_id, status_seq)`.
+- **Exactly one outcome** — every action reaches one terminal state; its notification may be redelivered after a reconnect, so agents deduplicate on `status_seq`, which is unique within the session.
 - **Validation** — worlds MUST validate params against the schema and reject out-of-range values before execution.
 - **Preemption policy** — each type declares what a new action does to a running one: `queue`, `replace`, `blend`, or `reject`. See [preemption](/spec/loop/preemption).
 - **Approval** — types marked `requires_approval` pause at the boundary for a human or supervisor. See [approval](/spec/safety/approval).

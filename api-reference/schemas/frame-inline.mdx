@@ -12,7 +12,7 @@ The frame header and extension fields as JSON, payload base64-encoded.
 <ResponseField name="channel_id" type="channel_id" required> </ResponseField>
 <ResponseField name="seq" type="seq" required> </ResponseField>
 <ResponseField name="ts_mono_ns" type="ts_mono_ns" required> </ResponseField>
-<ResponseField name="flags" type="0 | 1 | 2 | 3 | 8 | 9 | 10 | 11" required>Bits 0, 1, and 3 only (keyframe, end-of-burst, resync); bit 2 must be 0 in JSON.</ResponseField>
+<ResponseField name="flags" type="integer" required>Bit 0 keyframe, bit 1 end-of-burst, bit 3 resync. Senders set bit 2 (extensions are explicit fields in JSON) and bits 4-7 to 0 and never set resync without keyframe (AWP-DAT-004/005/009); receivers ignore bits 4-7.</ResponseField>
 <ResponseField name="tick" type="tick"> </ResponseField>
 <ResponseField name="ts_sim_ns" type="ts_sim_ns"> </ResponseField>
 <ResponseField name="ts_send_ns" type="ts_send_ns">Required on observation frames in streaming sessions (AWP-OBS-006).</ResponseField>

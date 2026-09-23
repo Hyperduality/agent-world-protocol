@@ -65,6 +65,10 @@ export type ActionSchema = {
    * Upper bound on the cancelling state for this type (AWP-LIF-010).
    */
   max_abort_ms?: number;
+  /**
+   * Extended types: longest execution the world permits; applies as a deadline when the submission's deadline_ms is absent or longer (AWP-ACT-008). Required for extended types in the robotics profile (AWP-ROB-007).
+   */
+  max_duration_ms?: number;
   description?: string;
   [k: string]: unknown;
 };
@@ -122,6 +126,8 @@ export type ActionStatus = {
         | "safe_state"
         | "session_closed"
         | "world_reset"
+        | "transferred"
+        | "abort_failed"
         | "watchdog"
         | "world_error"
       )
@@ -153,9 +159,22 @@ export type ActionStatus = {
 
 export interface ActionSubmitResult {
   action_id: string;
-  state: "pending_approval" | "queued" | "accepted";
   /**
-   * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
+   * A first submission reports pending_approval, queued, or accepted. An idempotent resubmission reports the action's current state (AWP-ACT-001).
+   */
+  state:
+    | "pending_approval"
+    | "queued"
+    | "accepted"
+    | "executing"
+    | "cancelling"
+    | "rejected"
+    | "completed"
+    | "failed"
+    | "preempted"
+    | "cancelled";
+  /**
+   * The transition this result reports; for an idempotent resubmission, the action's most recent transition (no new status_seq is consumed).
    */
   status_seq: number;
   /**
@@ -166,6 +185,31 @@ export interface ActionSubmitResult {
    * Time of the reported transition.
    */
   ts_mono_ns: number;
+  /**
+   * Present when an idempotent resubmission reports a rejected, failed, or cancelled action.
+   */
+  reason?:
+    | (
+        | "params_invalid"
+        | "forbidden"
+        | "envelope"
+        | "approval_denied"
+        | "approval_timeout"
+        | "deadline_exceeded"
+        | "stale_intent"
+        | "cancelled_by_agent"
+        | "superseded"
+        | "e_stop"
+        | "connection_lost"
+        | "safe_state"
+        | "session_closed"
+        | "world_reset"
+        | "transferred"
+        | "abort_failed"
+        | "watchdog"
+        | "world_error"
+      )
+    | string;
   [k: string]: unknown;
 }
 
@@ -339,10 +383,14 @@ export interface Embodiment {
 
 export interface EmptyResult {}
 
+/**
+ * AWP errors (codes 1000-4999) carry data.retryable; JSON-RPC reserved errors (-32768..-32000) MAY omit data (AWP-ERR-001).
+ */
+
 export interface Error {
   code: number;
   message: string;
-  data: {
+  data?: {
     retryable: boolean;
     retry_after_ms?: number;
     detail?: string;
@@ -365,9 +413,9 @@ export interface FrameInline {
    */
   ts_mono_ns: number;
   /**
-   * Bits 0, 1, and 3 only (keyframe, end-of-burst, resync); bit 2 must be 0 in JSON.
+   * Bit 0 keyframe, bit 1 end-of-burst, bit 3 resync. Senders set bit 2 (extensions are explicit fields in JSON) and bits 4-7 to 0 and never set resync without keyframe (AWP-DAT-004/005/009); receivers ignore bits 4-7.
    */
-  flags: 0 | 1 | 2 | 3 | 8 | 9 | 10 | 11;
+  flags: number;
   /**
    * Lockstep tick number.
    */
@@ -612,6 +660,18 @@ export interface Ping {
    * Sender's clock at transmission: the session clock from the world, the agent clock from the agent.
    */
   origin_ns: number;
+  /**
+   * Agent pings in a session: highest status_seq the agent has processed, acknowledging delivery (AWP-CTL-010).
+   */
+  last_status_seq?: number;
+}
+
+/**
+ * Normative params_schema for the five required GUI action types. Coordinates are viewport-relative pixels; _px is the documented exception to AWP-UNI-001.
+ */
+
+export interface ProfilesGuiActions {
+  [k: string]: unknown;
 }
 
 export interface ResetResult {
@@ -776,6 +836,10 @@ export interface SessionReady {
   session_token: string;
   reconnect_window_ms: number;
   /**
+   * session.resume result only: the highest status_seq assigned before resumption. Replay ends with this notification; later ones are live (AWP-CTL-008).
+   */
+  replay_to_status_seq?: number;
+  /**
    * AWP-SAF-001.
    */
   heartbeat_interval_ms: number;
@@ -889,7 +953,8 @@ export interface SessionState {
     | "session_closed"
     | "window_expired"
     | "world_shutdown"
-    | "transferred";
+    | "transferred"
+    | "connection_replaced";
 }
 
 /**

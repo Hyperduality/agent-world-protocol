@@ -41,6 +41,7 @@
       "preemption": ["replace", "queue"],
       "concurrency_group": "arm_motion",
       "max_queue": 4,
+      "max_duration_ms": 8000,
       "requires_approval": false
     },
     {
@@ -53,7 +54,8 @@
       },
       "duration": "extended",
       "preemption": "replace",
-      "concurrency_group": "gripper"
+      "concurrency_group": "gripper",
+      "max_duration_ms": 2000
     },
     {
       "type": "stop",

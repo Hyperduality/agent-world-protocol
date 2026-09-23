@@ -27,7 +27,8 @@ stateDiagram-v2
 | Connecting | `initialize` succeeds | Negotiating | `[AWP-SES-001]` |
 | Negotiating | `session.open` accepted | Ready | `[AWP-SES-002]` |
 | Ready/Active | control connection lost (AWP-SAF-002) | Suspended; the watchdog (AWP-SAF-003) keeps running independently | `[AWP-SES-003]` |
-| Suspended | `session.resume` with valid token and `last_status_seq` within window | Active; statuses replayed (AWP-CTL-008); embodiment stays in safe state until a new action executes (AWP-SAF-008) | `[AWP-SES-004]` |
+| Suspended | `session.resume` with valid token and `last_status_seq` within window | Active; statuses replayed (AWP-CTL-008); an embodiment in safe state stays there until a new action executes (AWP-SAF-008); actions still executing continue | `[AWP-SES-004]` |
+| Ready/Active | `session.resume` with a valid token on a new connection before the old connection's loss is detected | The world closes the old connection, emits `session.state: suspended` (reason `connection_replaced`) and resumes as in AWP-SES-004 on the new connection. The watchdog is unaffected: it measures agent traffic, not connections | `[AWP-SES-010]` |
 | Suspended | window expires | Closed; world MUST apply safe state if not already entered, then release embodiments (AWP-EMB-002) | `[AWP-SES-005]` |
 | any | `session.close` | Closed; pre-execution actions → `cancelled` (`session_closed`), `executing` actions → `cancelling` → `cancelled` (`session_closed`) after safe abort; embodiment released after safe state | `[AWP-SES-006]` |
 

@@ -19,13 +19,13 @@ Call after reconnecting and completing `initialize`, within `reconnect_window_ms
   "params": { "session_token": "st_9f2…", "last_status_seq": 41 } }
 ```
 
-**Result:** the same `session.ready` object as the original open, with the current `tick` (lockstep) and `safe_state: true|false` indicating whether the embodiment is in safe state (AWP-SAF-008). The world then replays every `action.status` and `world.event` with `status_seq > last_status_seq`, in order, before any live notification. Nothing that was executing resumes; submit new actions to move again.
+**Result:** the same `session.ready` object as the original open, with the current `tick` (lockstep), `safe_state: true|false` indicating whether the embodiment is in safe state (AWP-SAF-008), and `replay_to_status_seq`, the highest `status_seq` assigned before resumption. The world then replays every `action.status`, `world.event`, and `session.state` with `status_seq > last_status_seq`, in order, before any live notification; a transition first reported in an `action.submit` or `action.cancel` result is replayed as an `action.status` with the same `status_seq` (AWP-CTL-008). The replay is complete once the agent has processed `replay_to_status_seq`. Nothing that was executing resumes; submit new actions to move again.
 
 **Errors:** 2003 (`AWP_SESSION_EXPIRED`: window passed or token invalid), 2005 (`AWP_SESSION_UNKNOWN`: the world no longer holds this session, e.g. it restarted; treat the session as closed, AWP-SES-008), 2004 (`AWP_SESSION_EXISTS`: this connection already carries a session).
 
 ## session.transfer
 
-Current holder calls `session.transfer` with optional `{ expires_in_ms }` (default 30000) and receives `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). In-flight actions of the previous holder end `preempted`. Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
+Current holder calls `session.transfer` with optional `{ expires_in_ms }` (default 30000) and receives `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). The previous holder's executing actions end `preempted` and its pre-execution actions `cancelled`, reason `transferred` (AWP-EMB-003). Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
 
 ```json awp:session-transfer-result
 { "transfer_token": "tt_4c1…", "expires_in_ms": 30000 }
@@ -38,7 +38,7 @@ World → Agent on every transition from `Ready` onward (AWP-SES-007). Shares th
 <ParamField body="state" type="string" required>`ready`, `active`, `suspended`, or `closed`.</ParamField>
 <ParamField body="status_seq" type="integer" required>Shared per-session sequence (AWP-CTL-008).</ParamField>
 <ParamField body="ts_mono_ns" type="integer" required>Time of the transition.</ParamField>
-<ParamField body="reason" type="string">`opened`, `first_activity`, `connection_lost`, `resumed`, `session_closed`, `window_expired`, `world_shutdown`, or `transferred`.</ParamField>
+<ParamField body="reason" type="string">`opened`, `first_activity`, `connection_lost`, `resumed`, `session_closed`, `window_expired`, `world_shutdown`, `transferred`, or `connection_replaced` (AWP-SES-010).</ParamField>
 
 ```json awp:session-state
 { "jsonrpc": "2.0", "method": "session.state",

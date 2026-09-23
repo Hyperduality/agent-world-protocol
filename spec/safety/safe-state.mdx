@@ -3,12 +3,13 @@ title: "Liveness and safe state"
 description: "Connection liveness, the world-side watchdog, safe-state entry, session retention, channel degradation, and stale-intent enforcement, each on its own clock."
 ---
 
-A responsive connection does not prove that the agent is still driving; a retained session token does not mean stale motion may continue; a fresh intent may rest on an old observation. This page separates the mechanisms that guard each case and fixes which clock governs each.
+A responsive connection does not prove that the agent is still driving; a live agent process does not prove that its policy is still deciding; a retained session token does not mean stale motion may continue; a fresh intent may rest on an old observation. This page separates the mechanisms that guard each case and fixes which clock governs each.
 
 | Mechanism | Owner | Clock | Effect |
 |---|---|---|---|
 | Connection liveness | both sides | `heartbeat_interval_ms` × 3 | Session → `Suspended`; reconnection begins |
-| Watchdog | world | `safe_state.watchdog_ms` since the last control message from the agent | Embodiment enters safe state; motion stops |
+| Watchdog | world | `safe_state.watchdog_ms` since the last message the agent originated (answers to the world's pings do not count) | Embodiment enters safe state; motion stops |
+| Command freshness | world | command channel `watchdog_ms` per frame; extended actions `deadline_ms` / `max_duration_ms` | Streaming action fails `watchdog`; extended action fails `deadline_exceeded` |
 | Session retention | world | `reconnect_window_ms` since suspension | Session → `Closed`; embodiment released |
 | Channel degradation | world detects, agent reacts | per-channel `stale_after_ms` | Agent stops submitting; world emits an event |
 | Stream-connection loss, control alive | agent | none | Agent reconnects the stream endpoint; reliable channels resync (AWP-TRN-010) |
@@ -19,7 +20,7 @@ sequenceDiagram
     participant A as Agent
     participant W as World
     Note over A,W: streaming, robotics defaults
-    A-xW: last control message (t0)
+    A-xW: last message the agent originated (t0)
     W->>W: t0 + watchdog_ms (2 s): enter safe state
     W-->>W: executing → failed(connection_lost); queue → cancelled(safe_state)
     W->>W: t0 + 3 × heartbeat_interval_ms (15 s): Suspended
@@ -35,21 +36,21 @@ sequenceDiagram
 
 ## Watchdog and safe-state entry
 
-- Every world with a streaming time model MUST declare `safety_policy.safe_state` with `behavior` (`hold`, `safe_stop`, `park`, or a vendor value) and `watchdog_ms`. The watchdog measures time since the last control-channel message received from the agent on this session (any request, notification, or `pong`). `watchdog_ms` MUST be ≤ `reconnect_window_ms`; the robotics profile default is 2000 and the maximum permitted there is 5000. `[AWP-SAF-003]`
+- Every world with a streaming time model MUST declare `safety_policy.safe_state` with `behavior` (`hold`, `safe_stop`, `park`, or a vendor value) and `watchdog_ms`. The watchdog measures time since the last control-channel message the agent *originated* on this session: any request or notification from the agent, including its own `ping`. Responses to the world's requests — including the pong answering the world's `ping` — do not reset it, so a connection kept alive only by a transport library that answers pings trips the watchdog. `watchdog_ms` MUST be ≤ `reconnect_window_ms`; the robotics profile default is 2000 and the maximum permitted there is 5000. `[AWP-SAF-003]`
 - When the watchdog expires, the world MUST, in order: (1) begin the declared `behavior` on every embodiment bound to the session; (2) transition every `executing` action to `failed` (reason `connection_lost`) and every `pending_approval`, `queued`, or `accepted` action to `cancelled` (reason `safe_state`); (3) emit `world.event: safe_state_entered`. Safe-state entry does not depend on whether the session is `Active` or `Suspended`. `[AWP-SAF-004]`
-- Safe-state entry is independent of the [heartbeat](#connection-liveness): a connection that answers pings but carries no agent traffic still trips the watchdog once `watchdog_ms` elapses. Agents in streaming sessions SHOULD send `ping` (or any control message) at least every `watchdog_ms / 2` while they intend to remain in control. `[AWP-SAF-005]`
+- Safe-state entry is independent of the [heartbeat](#connection-liveness): a connection that answers the world's pings but originates no agent traffic still trips the watchdog once `watchdog_ms` elapses. Agents in streaming sessions SHOULD originate a message (a `ping` suffices) at least every `watchdog_ms / 2` while they intend to remain in control, and SHOULD send it from the loop that produces intents rather than from an independent timer, so that a stalled policy also stops the heartbeat that holds the watchdog off. `[AWP-SAF-005]`
 - Streaming command channels have their own, tighter, per-action watchdog (`watchdog_ms` on the action type, AWP-CMD-005). Both apply; the action-level watchdog fires first by construction. `[AWP-SAF-006]`
 
 ## Session retention and resumption
 
-- `reconnect_window_ms` governs only how long the world retains the session (token, grants, undelivered statuses, `action_id` history) after suspension. It does not govern motion; motion is governed by the watchdog. On window expiry the session is `Closed` and the embodiment released after safe state (AWP-SES-005, AWP-EMB-002). `[AWP-SAF-007]`
-- On `session.resume` the embodiment remains in its safe state. The world MUST NOT resume any action terminated by safe-state entry, and MUST NOT interpret a valid session token as permission to continue motion. The agent regains control by submitting new actions; the world emits `world.event: safe_state_exited` when the first post-resume action begins executing. `[AWP-SAF-008]`
+- `reconnect_window_ms` governs only how long the world retains the session (token, grants, unacknowledged notifications, `action_id` history) after suspension. It does not govern motion; motion is governed by the watchdog. On window expiry the session is `Closed` and the embodiment released after safe state (AWP-SES-005, AWP-EMB-002). `[AWP-SAF-007]`
+- On `session.resume` the embodiment remains in its safe state. The world MUST NOT resume any action terminated by safe-state entry, and MUST NOT interpret a valid session token as permission to continue motion. The agent regains control by submitting new actions; the world emits `world.event: safe_state_exited` when the first action admitted after safe-state entry begins executing, whether or not the session was suspended in between. `[AWP-SAF-008]`
 
 ## Channel degradation, stale intents, and stalled inference
 
 - If the world cannot deliver frames on a `reliable` observation channel for longer than that channel's `stale_after_ms` (manifest, default 2 × the channel period), it MUST emit `world.event: channel_degraded` naming the channel. Loss on `latest-wins` channels is expected and not an event. `[AWP-SAF-009]`
 - Agents SHOULD NOT submit an action whose basis observation is stale — its [staleness](/spec/semantics/timestamps-and-clocks#latency-and-staleness) at the moment of use exceeding the channel's `stale_after_ms` — and SHOULD carry `basis_ts_mono_ns` on every submission so that the world can enforce AWP-SAF-013. `[AWP-SAF-010]`
-- A stalled agent (alive connection, no new intents) is not a fault the watchdog is designed to catch: an `executing` extended action continues to its goal or its `deadline_ms`. Bound the blast radius of a stalled policy with `deadline_ms`, not with the watchdog. `[AWP-SAF-011]`
+- **Stalled inference.** The protocol cannot observe a policy directly; it bounds how long motion continues without fresh intent. A streaming-duration action stops when its command frames stop (AWP-CMD-005). An extended action is a commitment to one motion and continues to its goal or to its effective deadline — the smaller of `deadline_ms` and the type's `max_duration_ms` (AWP-ACT-008) — even if the policy stalls meanwhile; the watchdog catches a stalled policy only when the agent follows AWP-SAF-005 and its heartbeat stalls with it. Worlds that actuate SHOULD declare `max_duration_ms` on every extended type; the robotics profile requires it (AWP-ROB-007). `[AWP-SAF-011]`
 - **Stale-intent enforcement.** When the manifest declares `safety_policy.max_basis_age_ms`, the world MUST reject with `AWP_STALE_INTENT` any `action.submit` whose `received_ts_mono_ns − basis_ts_mono_ns` exceeds it or whose `valid_until_ns` has already passed, and MUST transition to `rejected` (reason `stale_intent`) any `pending_approval` or `queued` action for which either bound is exceeded — basis age measured against the current session time — at the moment it would become `accepted`. A world that declares `max_basis_age_ms` MAY additionally require `basis_ts_mono_ns` on every submission, rejecting its absence with `AWP_STALE_INTENT`. Like `deadline_ms`, these bounds are binding in streaming and advisory in lockstep. `[AWP-SAF-013]`
 
 ## Testing the bound

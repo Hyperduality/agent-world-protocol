@@ -5,5 +5,5 @@
   "type": "object",
   "properties": { "tick": { "$ref": "common.schema.json#/$defs/tick" } },
   "required": ["tick"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

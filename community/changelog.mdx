@@ -1,12 +1,70 @@
 ---
 title: "Changelog"
-description: "Spec and SDK releases, newest first."
+description: "Specification draft revisions, newest first."
 ---
 
-<Update label="2026-08" description="licensing & ecosystem">
-Reference-code license set to Apache-2.0 with a no-CLA contribution policy. Ecosystem directory pages (worlds, agents) and the ACP comparison added.
+Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
+
+<Update label="2026-09-22" description="0.1-draft.4">
+Contradictions that blocked a first implementation resolved; traces checked for meaning, not only shape.
+
+**Wire-visible changes**
+
+- **Unknown fields.** The canonical schemas are now receiver schemas and accept unknown fields, as AWP-VER-003 always required; the stricter sender rules (only declared and `x-<vendor>.` fields, sender-only value constraints) are annotations (`x-awp-closed`, `x-awp-lint`) applied by CI. JSON-RPC reserved errors (e.g. `-32601`) MAY omit `data` (AWP-ERR-001).
+- **Watchdog.** Only messages the agent *originates* reset the watchdog; answering the world's `ping` no longer does (AWP-SAF-003/005). A Core world that offers streaming runs the watchdog (Core profile). New `max_duration_ms` on extended action types bounds execution without fresh intent (AWP-ACT-008), required by the robotics profile (AWP-ROB-007).
+- **Idempotency and replay.** An idempotent `action.submit` reports the action's current state, any state, with its latest `status_seq` and consumes none (AWP-ACT-001); "identical content" is defined (AWP-ACT-009); a submission rejected with a JSON-RPC error creates no action and its `action_id` may be retried (AWP-ACT-010). Transitions first reported in a result are replayed as `action.status` (AWP-CTL-008). `session.resume` results carry `replay_to_status_seq`; agents acknowledge delivery with `last_status_seq` on `ping`, and worlds retain what is unacknowledged (AWP-CTL-010). Receivers deduplicate on `status_seq`. Resuming a session whose old connection is still open replaces it (`connection_replaced`, AWP-SES-010).
+- **Lifecycle.** The normative transition table is [`spec/action-lifecycle.yaml`](https://github.com/Hyperduality/agent-world-protocol/blob/main/spec/action-lifecycle.yaml). New edges `accepted → rejected` and `cancelling → failed`; new reasons `abort_failed` (AWP-LIF-010) and `transferred` (AWP-EMB-003); "coincide" defined for precedence, which now ranks reset, close, and transfer (AWP-LIF-008).
+- **Credentials.** Bearer credentials travel in `Authorization` or the `awp.bearer.<token>` WebSocket subprotocol, never in URLs (AWP-SEC-005/006); audit redaction covers the subprotocol.
+- **Frames.** The inline `flags` schema accepts reserved bits 4–7 as receivers must (AWP-DAT-005); senders are held to keyframe-with-resync by CI.
+- **Tick authority.** Under `barrier`, every non-observer lockstep session may tick without an admin grant; the `tick` grant is required only under `any_session` on a world that may bind several lockstep sessions (AWP-TIM-012, AWP-MA-005).
+
+**Versioning.** Draft revisions and a pre-1.0 policy (AWP-VER-008/009); claims name the draft revision (AWP-CNF-005).
+
+**Artifacts.** `schemas/v0.1/profiles/` is compiled and typed in CI. Trace validation checks every action against the transition table, idempotency and conflicts, replay from `last_status_seq` + 1, loss-class-aware frame sequences, and watchdog timing; CI also fails if the lifecycle diagram and table disagree. New traces: lost acknowledgement and resubmission, e-stop during a safe abort, approval, and a quiet agent on a live connection. Timestamps in the streaming, cancel, and disconnect traces corrected: several intervals were written in microseconds.
 </Update>
 
-<Update label="2026-08" description="spec v0.1 draft">
-Initial public draft of the Agent World Protocol: four-layer architecture, lockstep and streaming time models, action lifecycle, command channels, first-class task instruction, safety model (grants, envelopes, approval, audit log), six profiles, and error registry. The relay-transport, command-channel, task, follow_trajectory, elicitation, and capabilities proposals were folded into the draft specification text.
+<Update label="2026-09-21" description="0.1-draft.3">
+One channel model, clock synchronization, and validated wire traces.
+
+**Wire-visible changes**
+
+- **Channel model.** The control/data-plane split is replaced by channels: channel `0` is the control channel (all JSON-RPC); channels ≥ 1 are observation and command channels with class `reliable` or `latest-wins` (AWP-TRN-005..011). Stream bindings are `ws`, `grpc`, `webrtc`, `webtransport`, `shm`, classified by independent flow control; endpoints MAY declare `max_frame_bytes`; a lost stream connection can reconnect while the control connection stays up. Pages renamed: *Control plane* → [Control channel](/spec/transport/control-channel), *Data plane* → [Frames](/spec/transport/frames).
+- **Clock sync over the heartbeat.** [`ping`](/api-reference/control/ping) now carries `{ origin_ns }` and its result — the pong — `{ origin_ns, receive_ns, transmit_ns }` (was param-less). Agents keep a clock-offset estimate and map agent-originated session-clock values through it (AWP-CLK-006..009, AWP-AGT-008).
+- **Frames.** New extension `0x03` `ts_send_ns`, required on streaming observation frames (AWP-OBS-006). Flags bit 3 is `resync`; reserved bits are now 4–7 (AWP-DAT-005, AWP-DAT-009). Inline form gains `ts_send_ns`.
+- **Telemetry.** The `awp.telemetry` channel and `telemetry-payload` schema are removed; the world sends the [`session.telemetry`](/api-reference/control/session-telemetry) notification on the control channel at ≥ 1 Hz (AWP-TIM-006). New agent notification [`obs.report`](/api-reference/control/obs-report) (AWP-OBS-007).
+- **Events.** `world.event` travels only on the control channel; `text/event+json` observation channels MUST NOT carry registry events (AWP-EVT-003). `data_plane_degraded` renamed `channel_degraded`.
+- **Actions.** `action.submit` gains `basis_ts_mono_ns` and `valid_until_ns` (AWP-ACT-007); its result gains `received_ts_mono_ns` (AWP-LIF-002). `safety_policy.max_basis_age_ms`, reason `stale_intent`, and `AWP_STALE_INTENT` (3007) (AWP-SAF-013). Optional `max_abort_ms` per action type and `AWP_ACTION_UNKNOWN` (3008) (AWP-LIF-010). `action.submit` and `action.cancel` results consume `status_seq` from the shared sequence.
+- **Lockstep.** `world.tick` requires `expected_tick`; a mismatch fails with `AWP_TICK_MISMATCH` (3009) and nothing advances (AWP-TIM-011). Advance completion is defined per channel (AWP-TIM-003).
+- **Session.** `session.ready` carries `session_id` (AWP-SES-009). [`session.state`](/api-reference/schemas/session-state) is specified as `{ state, status_seq, ts_mono_ns, reason? }` and shares `status_seq` (AWP-SES-007). `session.transfer` takes `{ expires_in_ms? }`.
+- **Subscriptions.** `obs.subscribe` and `obs.unsubscribe` return the complete grant list; undeclared channels fail with `AWP_CHANNEL_UNKNOWN` (2007) (AWP-NEG-004).
+- **Profiles.** Robotics: `max_basis_age_ms` ≤ 500 and `basis_ts_mono_ns` on every submission (AWP-ROB-005); an independent-flow-control binding for every `latest-wins` channel (AWP-ROB-006). Core Agent: explicit `world.tick`, no implicit advancing (AWP-AGT-009).
+
+**Artifacts.** Four wire traces (`examples/v0.1/traces/*.jsonl`: core lockstep, core streaming, cancel, disconnect), validated in CI and rendered at [Wire traces](/spec/wire-traces). New schemas: `ping`, `ping-result`, `obs-report`, `session-telemetry`, `session-state`, `tick`, `subscribe`, `unsubscribe`, `reset`, `restore`, `action-ref`, and the result schemas they need.
+</Update>
+
+<Update label="2026-09-18" description="0.1-draft.2">
+Lifecycle, liveness, and lockstep rules tightened; RFDs folded into the text; canonical schemas and the requirement matrix.
+
+**Wire-visible changes**
+
+- **Action lifecycle.** New states `pending_approval`, `queued`, `cancelling`. The `action.submit` result is the admission acknowledgement and reports the post-validation state (AWP-LIF-002). Terminal statuses carry a `reason` from the [status reason registry](/spec/loop/events-and-errors#status-reasons); cause precedence and deadline origin are fixed (AWP-LIF-001..009). `action_id` resubmission is idempotent; conflicting content fails with `AWP_ACTION_ID_CONFLICT` (3004).
+- **Delivery.** Every `action.status` and `world.event` carries `status_seq`; `session.resume` carries `last_status_seq` and the world replays what follows (AWP-CTL-008). One session per connection (`AWP_SESSION_EXISTS`, 2004); `AWP_SESSION_UNKNOWN` (2005) after a world restart; 64-bit JSON integers bounded by 2^53 − 1 (`AWP_INTEGER_RANGE`, 2006).
+- **Lockstep.** `tick_policy` is `on_tick` only (`on_action`, `on_both` removed). Staging, initial observations, `world.tick { count }`, and `tick_authority` (`any_session` | `barrier`), with `AWP_TICK_NOT_AUTHORIZED` (3006) (AWP-TIM-002..012).
+- **Liveness and safe state.** `session.ready` declares `heartbeat_interval_ms`; three silent intervals is loss (AWP-SAF-001/002). `safety_policy.safe_state { behavior, watchdog_ms }` replaces `safety_policy.on_disconnect` ([safe state](/spec/safety/safe-state)). New events `grant_expired`, `safe_state_entered`, `safe_state_exited`, `data_plane_degraded`; per-channel `stale_after_ms`. `e_stop_engaged` cancels pre-execution actions; `AWP_ESTOP_ACTIVE` (3005).
+- **Grants.** Fourth grant class `admin` (`snapshot`, `restore`, `reset`, `tick`) requested in `session.open` and enumerated in `session.ready`; `world_resetting` and cross-session reset effects (AWP-PRM-005/006).
+- **Frame extension block.** Flags bit 2 `has_extensions` and a TLV block after the 28-byte header: `0x01` `tick`, `0x02` `ts_sim_ns`, `0x80`–`0xFF` vendor. `tick` and `ts_sim_ns` never travel in the payload (AWP-DAT-005..008). The inline form is `obs.frame` / `cmd.frame` with named JSON fields.
+- **Command channels and task (from RFD-002, RFD-003).** Capability `command_channels`, manifest `command_channels`, `duration: "streaming"` action types with `watchdog_ms`, `cmd.frame`, modality `servo/json`, reason `watchdog` ([command channels](/spec/loop/command-channels)). Capability `task`, `task` on `session.open`, `task.update`, namespace `task.*` ([task](/spec/session/task)).
+- **Manifest.** `tick_policy`, `tick_authority`, `initial_states`, `concurrency_group`, `max_queue`, `multi_bind_group` (with `embodiments` in `session.open` and `embodiment_id` on submissions), envelope `enforcement`, `safety_policy.audit.redact_paths`; `safety_policy` is a concrete object, never a reference.
+- **Telemetry.** `awp.telemetry` payload given a schema (`telemetry-payload`).
+- **Security.** Plaintext permitted on loopback and stdio; authentication required on every non-loopback connection (AWP-SEC-001/002).
+
+**Other normative changes.** Audit-log redaction and record classes (AWP-AUD-006/007); robotics conformance marked experimental with enforcement-mode claim wording (AWP-CNF-006, AWP-ROB-001..004); conformance claims labelled self-assessed (AWP-CNF-005). RFD-001 (relay transport) closed — internet rendezvous is out of scope — and RFD-005 (elicitation) withdrawn; RFD-004's `follow_trajectory` remains an informative idiom. The RFD pages are removed.
+
+**Artifacts.** Canonical JSON Schemas in `schemas/v0.1/`; CI validation of `examples/v0.1/*.json` and of every `json awp:<schema>`-tagged block in the docs; frame test vectors (`schemas/test-vectors/frames.json`) and a reference codec; TypeScript types generated from the schemas; the [requirement matrix](/spec/requirements) generated from `spec/requirements.yaml`.
+</Update>
+
+<Update label="2026-08-22" description="0.1-draft.1">
+Initial public draft of the Agent World Protocol: four-layer architecture, lockstep and streaming time models, action lifecycle, safety model (grants, envelopes, approval, audit log), six profiles, and error registry. Six draft RFDs published alongside it: brokered relay transport, command channels, first-class task instruction, `follow_trajectory`, generalized elicitation, and capabilities generalization.
+
+Reference-code license set to Apache-2.0 with a no-CLA contribution policy. ACP comparison added. Pages for unpublished software — SDKs, adapters, `awp-sim`, quickstarts, the conformance suite and registry, and the worlds and agents directories — reduced to "Not published yet" stubs the same day.
 </Update>

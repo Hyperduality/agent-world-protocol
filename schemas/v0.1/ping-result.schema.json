@@ -9,5 +9,5 @@
     "transmit_ns": { "$ref": "common.schema.json#/$defs/u53", "description": "Responder's clock when this result was transmitted." }
   },
   "required": ["origin_ns", "receive_ns", "transmit_ns"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

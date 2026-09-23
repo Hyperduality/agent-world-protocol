@@ -7,15 +7,15 @@ description: "Conformance classes, the requirement matrix, and how normative req
 
 - **Core World** — implements every MUST in the Core profile on the world side. `[AWP-CNF-001]`
 - **Core Agent** — implements every MUST in the Core profile on the agent side. `[AWP-CNF-002]`
-- **Profile conformance** — a Core-conformant implementation additionally satisfying all MUSTs of a named [profile](/spec/profiles/core). Claims are per-profile (e.g. "Core World + sim + robotics (no force monitoring)"). `[AWP-CNF-003]`
+- **Profile conformance** — a Core-conformant implementation additionally satisfying all MUSTs of a named [profile](/spec/profiles/core). Claims are per-profile and name the draft revision (e.g. "Core World + sim + robotics (experimental; no force monitoring), self-assessed against 0.1-draft.4"). `[AWP-CNF-003]`
 
 ## Requirement mapping
 
-Every requirement ID has a row in the [requirement matrix](/spec/requirements) giving its side (world / agent / both), applicability (all / lockstep / streaming), feature gate (profile or capability key), and the assertion that tests it — or `manual` / `untestable` with the reason. Each MUST/MUST NOT maps to at least one assertion in the [conformance suite](/conformance/test-suite); assertions are named after requirement IDs. SHOULD items generate warnings, not failures. The matrix is generated from `spec/requirements.yaml` and CI fails if a bracketed ID in the specification is missing from it. `[AWP-CNF-004]`
+Every requirement ID has a row in the [requirement matrix](/spec/requirements) giving its side (world / agent / both), applicability (all / lockstep / streaming), feature gate (profile or capability key), and the assertion that tests it — or `manual` / `untestable` with the reason. Each MUST/MUST NOT maps to at least one assertion, named after its requirement ID; SHOULD items generate warnings, not failures. The [conformance suite](/conformance/test-suite) is not published yet, so the matrix's Test column names the planned assertion ID. The matrix is generated from `spec/requirements.yaml` and CI fails if a bracketed ID in the specification is missing from it. `[AWP-CNF-004]`
 
 ## Claiming conformance
 
-Implementations MUST NOT claim "AWP-conformant" without passing the current suite for the claimed classes; while the suite is unpublished, any claim MUST be labelled "self-assessed against v0.1 draft". "AWP-compatible" carries no normative meaning. `[AWP-CNF-005]` See [badges](/conformance/badges).
+Implementations MUST NOT claim "AWP-conformant" without passing the current suite for the claimed classes; while the suite is unpublished, any claim MUST be labelled "self-assessed against 0.1-draft.N", naming the draft revision (AWP-VER-009). "AWP-compatible" carries no normative meaning. `[AWP-CNF-005]` See [badges](/conformance/badges).
 
 ## Experimental profiles
 

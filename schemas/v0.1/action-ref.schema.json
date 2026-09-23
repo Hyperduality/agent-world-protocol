@@ -7,5 +7,5 @@
     "action_id": {"$ref": "common.schema.json#/$defs/action_id"}
   },
   "required": ["action_id"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }
