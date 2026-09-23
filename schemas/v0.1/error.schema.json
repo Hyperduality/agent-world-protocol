@@ -17,6 +17,9 @@
       "additionalProperties": true
     }
   },
-  "required": ["code", "message", "data"],
-  "additionalProperties": false
+  "required": ["code", "message"],
+  "if": { "properties": { "code": { "minimum": -32768, "maximum": -32000 } } },
+  "else": { "required": ["data"] },
+  "description": "AWP errors (codes 1000-4999) carry data.retryable; JSON-RPC reserved errors (-32768..-32000) MAY omit data (AWP-ERR-001).",
+  "x-awp-closed": true
 }

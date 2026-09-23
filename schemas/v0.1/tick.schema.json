@@ -8,5 +8,5 @@
     "count": {"type": "integer", "minimum": 1, "default": 1, "description": "Advances to perform."}
   },
   "required": ["expected_tick"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

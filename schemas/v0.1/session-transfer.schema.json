@@ -7,5 +7,5 @@
     "expires_in_ms": {"type": "integer", "minimum": 1000, "default": 30000}
   },
   "required": [],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

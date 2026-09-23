@@ -11,7 +11,7 @@
         "y_px": { "type": "number", "minimum": 0 }
       },
       "required": ["x_px", "y_px"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "pointer_move": { "$ref": "#/$defs/point_px" },
     "pointer_click": {
@@ -23,7 +23,7 @@
         "clicks": { "type": "integer", "minimum": 1, "maximum": 3, "default": 1 }
       },
       "required": ["x_px", "y_px"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "key_input": {
       "type": "object",
@@ -32,7 +32,7 @@
         "keys": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "Key chord, e.g. [\"Control\", \"a\"]." }
       },
       "oneOf": [{ "required": ["text"] }, { "required": ["keys"] }],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "scroll": {
       "type": "object",
@@ -43,7 +43,7 @@
         "dy_px": { "type": "number" }
       },
       "required": ["dx_px", "dy_px"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "navigate": {
       "type": "object",
@@ -51,7 +51,7 @@
         "url": { "type": "string", "format": "uri" }
       },
       "required": ["url"],
-      "additionalProperties": false
+      "x-awp-closed": true
     }
   }
 }

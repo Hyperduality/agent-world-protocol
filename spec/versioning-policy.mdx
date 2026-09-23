@@ -3,15 +3,24 @@ title: "Versioning policy"
 description: "Protocol semver, version negotiation, and deprecation."
 ---
 
-- The protocol uses **semver** (`MAJOR.MINOR.PATCH`). Wire-visible breaking changes bump MAJOR; additive capabilities bump MINOR. `[AWP-VER-001]`
+- The protocol uses **semver** (`MAJOR.MINOR.PATCH`). From 1.0, wire-visible breaking changes bump MAJOR and additive capabilities bump MINOR; PATCH releases are editorial. Versions below 1.0 follow [Before 1.0](#before-1-0). `[AWP-VER-001]`
 - Agents send the list of protocol versions they support in `initialize`; the world MUST select the highest mutually supported version and echo it, or reject with `AWP_VERSION_UNSUPPORTED`. `[AWP-VER-002]`
 - Unknown fields in any message MUST be ignored, never treated as errors (forward compatibility). `[AWP-VER-003]`
 - Extension fields and modalities MUST use the `x-<vendor>.` prefix. `[AWP-VER-004]`
 - Deprecated features remain functional for at least one MINOR release after the deprecation notice appears in the [changelog](/community/changelog). `[AWP-VER-005]`
 
+## Before 1.0
+
+- While MAJOR is `0`, a MINOR bump may contain wire-visible breaking changes.
+- The version negotiated in `initialize` (`protocol_versions`, `protocol_version`) is the string `MAJOR.MINOR`, e.g. `"0.1"`. PATCH releases never change the wire, so PATCH is not negotiated. Worlds and agents MUST send and compare protocol versions as `MAJOR.MINOR` only, with no PATCH component or draft suffix. `[AWP-VER-008]`
+- Within 0.1 the text is published as numbered **draft revisions**, `0.1-draft.N`. Each is recorded in the [changelog](/community/changelog) and tagged `spec-v0.1-draft.N` in git. Every draft revision negotiates `"0.1"`; draft revisions are not guaranteed wire-compatible with each other.
+- Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.4"); `"0.1"` alone does not identify a contract. `[AWP-VER-009]`
+- Adding a MUST or MUST NOT to Core or to a profile is a breaking change for conformance claims even when no wire field changes: an implementation conformant to one revision need not be conformant to the next.
+- Profiles have no versions of their own. Profile text is versioned with the specification, so citing the draft revision pins every profile a claim names.
+
 ## Wire version vs. artifact versions
 
-The negotiated protocol version alone determines wire compatibility. Schema artifact releases and SDK package versions describe those artifacts — type organization, codegen structure, APIs — and MAY change without any wire change. Consumers MUST NOT infer wire compatibility from artifact versions. `[AWP-VER-006]`
+The negotiated protocol version alone determines wire compatibility; before 1.0 it is qualified by the draft revision (AWP-VER-009). Schema artifact releases and SDK package versions describe those artifacts — type organization, codegen structure, APIs — and MAY change without any wire change. Consumers MUST NOT infer wire compatibility from artifact versions. `[AWP-VER-006]`
 
 ## Capabilities gate optional features
 

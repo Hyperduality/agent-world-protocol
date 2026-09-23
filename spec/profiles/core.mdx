@@ -3,19 +3,20 @@ title: "Core profile"
 description: "The minimal conformance bar every AWP implementation meets."
 ---
 
-Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action lifecycle, grants, and a log. It contains the safety mechanisms every world needs (grants, audit) and leaves the physical ones (envelopes, approval, safe-state watchdog) to the profiles that actuate something.
+Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action lifecycle, grants, and a log. It contains the safety mechanisms every world needs — grants, audit, and, for a world that offers streaming, the safe-state watchdog — and leaves the physical ones (envelopes, approval, measured watchdog bounds) to the profiles that actuate something.
 
 **A Core World MUST provide:**
 
 | Requirement | Refs |
 |---|---|
-| Channel model, WebSocket control connection, JSON-RPC framing, one session per connection, heartbeats, status sequencing, JSON integer bounds | AWP-TRN-001..011, AWP-CTL-001..009, AWP-SAF-001..002 |
+| Channel model, WebSocket control connection, JSON-RPC framing, one session per connection, heartbeats, status sequencing, JSON integer bounds | AWP-TRN-001..011, AWP-CTL-001..010, AWP-SAF-001..002 |
 | Session clock, wall anchor, and the clock-synchronization exchange on the heartbeat | AWP-CLK-001..009 |
 | `initialize` with a valid world manifest | AWP-MAN-001..007 |
 | At least one embodiment, one observation channel, one action type | AWP-MAN-001 |
 | One time model (either) with its full semantics; when streaming, send timestamps and telemetry | AWP-TIM-001..012, AWP-OBS-006 |
-| Complete action lifecycle with status notifications | AWP-LIF-001..010, AWP-ACT-001..007, AWP-PRE-001..006 |
-| Session lifecycle, identity, resumption, and recovery scope | AWP-SES-001..009 |
+| When streaming: the safe-state watchdog, session retention without motion, channel degradation, and stale-intent enforcement when declared | AWP-SAF-003..011, AWP-SAF-013 |
+| Complete action lifecycle with status notifications | AWP-LIF-001..010, AWP-ACT-001..010, AWP-PRE-001..006 |
+| Session lifecycle, identity, resumption, and recovery scope | AWP-SES-001..010 |
 | Default-deny grants (incl. admin class) and exact `session.ready` enumeration | AWP-PRM-001..006, AWP-NEG-001..004 |
 | Error taxonomy, `retryable` marking, control-channel events | AWP-ERR-001, AWP-EVT-001..003 |
 | Audit log with redaction and record class labelling | AWP-AUD-001..007 |
@@ -26,11 +27,11 @@ Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action li
 - Negotiate the protocol version and tolerate unknown fields (AWP-VER-002..003). `[AWP-AGT-001]`
 - Parse the world manifest and refuse to open a session against a manifest it cannot validate against the canonical schema. `[AWP-AGT-002]`
 - Submit only granted action types on granted embodiments and subscribe only to granted channels (AWP-PRM-001). `[AWP-AGT-003]`
-- Generate unique `action_id`s and resubmit only with identical content (AWP-ACT-001). `[AWP-AGT-004]`
-- Handle every lifecycle state, including `pending_approval`, `queued`, `cancelling`, and `preempted`, and deduplicate redelivered statuses on `(action_id, status_seq)` (AWP-LIF-009). `[AWP-AGT-005]`
+- Generate unique `action_id`s, resubmit only with identical content, and never reuse an admitted `action_id` (AWP-ACT-001, AWP-ACT-009, AWP-ACT-010). `[AWP-AGT-004]`
+- Handle every lifecycle state, including `pending_approval`, `queued`, `cancelling`, and `preempted`, and deduplicate redelivered statuses on `status_seq` (AWP-LIF-009). `[AWP-AGT-005]`
 - Send heartbeats at the negotiated interval carrying `origin_ns`, answer the world's pings with `receive_ns` and `transmit_ns`, and in lockstep call `world.tick` rather than waiting for completion (AWP-SAF-001, AWP-CLK-007, AWP-TIM-002). `[AWP-AGT-006]`
 - On `session.resume`, pass `last_status_seq` and treat the embodiment as being in safe state until a new action executes (AWP-CTL-008, AWP-SAF-008). `[AWP-AGT-007]`
 - Maintain the clock-offset estimate from heartbeat exchanges and express every agent-originated session-clock value through it (AWP-CLK-008, AWP-CLK-009). `[AWP-AGT-008]`
 - Expose `world.tick` as an explicit call and never advance time as a side effect of any other operation; an SDK helper that submits and ticks in one step MUST be a distinct, lockstep-only entry point that fails in a streaming session. `[AWP-AGT-009]`
 
-Stream bindings beyond `inline`, snapshots, approval, envelopes, and the safe-state watchdog are **not** required by Core; they arrive with profiles. A Core world that offers streaming does still declare `safe_state` (AWP-MAN-006), stamps `ts_send_ns` on every observation frame (AWP-OBS-006), and sends `session.telemetry` (AWP-TIM-006), because those are part of the streaming time model itself.
+Stream bindings beyond `inline`, snapshots, approval, envelopes, and the measured watchdog test (AWP-SAF-012) are **not** required by Core; they arrive with profiles. A Core world that offers streaming does declare `safe_state` and run its watchdog (AWP-MAN-006, AWP-SAF-003..008), stamps `ts_send_ns` on every observation frame (AWP-OBS-006), and sends `session.telemetry` (AWP-TIM-006), because those are part of the streaming time model itself: a streaming world without a watchdog would keep executing an absent agent's last intent.

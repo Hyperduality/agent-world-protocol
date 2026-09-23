@@ -22,7 +22,7 @@
         "watchdog_ms": { "type": "integer", "minimum": 1, "description": "Time since the last agent control message before safe state is entered. MUST be ≤ reconnect_window_ms." }
       },
       "required": ["behavior", "watchdog_ms"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "max_basis_age_ms": { "type": "integer", "minimum": 1, "description": "Maximum age of an intent's basis observation when execution begins (AWP-SAF-013). Required by the robotics profile (AWP-ROB-005)." },
     "approval_timeout_ms": { "type": "integer", "minimum": 1, "default": 60000, "description": "AWP-APR-003." },
@@ -36,7 +36,7 @@
           "description": "JSON pointers (relative to params or result) redacted in the audit log (AWP-AUD-006)."
         }
       },
-      "additionalProperties": false
+      "x-awp-closed": true
     }
   },
   "required": ["envelopes"],
@@ -60,7 +60,7 @@
             }
           },
           "required": ["frame", "aabb_m"],
-          "additionalProperties": false
+          "x-awp-closed": true
         },
         "max_velocity_mps": { "type": "number", "exclusiveMinimum": 0 },
         "max_force_n": { "type": "number", "exclusiveMinimum": 0, "description": "Declare only if the world can measure force (AWP-ROB-002)." },

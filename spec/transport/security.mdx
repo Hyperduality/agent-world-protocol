@@ -4,8 +4,13 @@ description: "TLS, authentication, session tokens, and the threat model."
 ---
 
 - Connections on loopback or stdio — the common deployment — MAY be plaintext; any connection that leaves the machine MUST use TLS (`wss://`, gRPC over TLS). `[AWP-SEC-001]`
-- Worlds MUST authenticate agents before `initialize` completes on any non-loopback connection; defined schemes: bearer token (`Authorization: Bearer`), mutual TLS. On stdio, process ownership stands in for authentication. On loopback, worlds SHOULD still require a bearer token — a local WebSocket port is reachable by every page in every browser on the machine, not just the intended agent tab. `[AWP-SEC-002]`
+- Worlds MUST authenticate agents before `initialize` completes on any non-loopback connection; defined schemes: bearer token and mutual TLS. A bearer credential is presented as defined in [presenting credentials](#presenting-credentials). On stdio, process ownership stands in for authentication. On loopback, worlds SHOULD still require a bearer token — a local WebSocket port is reachable by every page in every browser on the machine, not just the intended agent tab. `[AWP-SEC-002]`
 - `session.ready` returns an unguessable **session token** used for `session.resume` and for binding stream connections to the session. Tokens MUST be scoped to one session. `[AWP-SEC-003]`
-- Stream endpoints MUST reject connections that do not present a valid session token. `[AWP-SEC-004]`
+- Stream endpoints MUST reject connections that do not present a valid session token, presented as defined in [presenting credentials](#presenting-credentials). `[AWP-SEC-004]`
+
+## Presenting credentials
+
+- A bearer credential — an agent credential on the control connection or the session token on a stream connection — is presented in the `Authorization: Bearer <credential>` header of the connection's opening HTTP request. A client that cannot set request headers (a browser WebSocket) instead offers the WebSocket subprotocol `awp.bearer.<credential>` alongside `awp`; the world authenticates from the offered list and MUST select `awp`, never echoing the credential back. On `webrtc`, the credential is presented on the signaling connection in the same way. Session tokens are therefore restricted to the RFC 6455 token characters; worlds SHOULD mint them as unpadded base64url. `[AWP-SEC-005]`
+- Credentials MUST NOT appear in URLs. `stream_endpoints` URLs MUST NOT carry a token, and worlds MUST reject a connection whose URL carries one, because request lines are routinely written to server, proxy, and browser logs that the audit log's redaction (AWP-AUD-006) never sees. `[AWP-SEC-006]`
 
 **Threat model (informative).** AWP assumes a potentially adversarial agent and a trusted world: all safety enforcement is world-side. A compromised world can feed false observations; agents operating in high-stakes settings SHOULD verify world identity (TLS pinning) and MAY cross-check observations against independent sensors.

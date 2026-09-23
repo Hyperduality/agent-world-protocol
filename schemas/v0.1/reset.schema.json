@@ -8,5 +8,5 @@
     "seed": {"$ref": "common.schema.json#/$defs/u53", "description": "Requires capabilities.seed."}
   },
   "required": [],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

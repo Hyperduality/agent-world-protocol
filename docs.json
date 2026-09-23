@@ -289,7 +289,7 @@
         },
         {
           "anchor": "Website",
-          "href": "https://agentworldprotocol.com",
+          "href": "https://www.agentworldprotocol.com",
           "icon": "globe"
         }
       ]
@@ -304,8 +304,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Quickstart",
-      "href": "/quickstart-agent"
+      "label": "Wire traces",
+      "href": "/spec/wire-traces"
     }
   },
   "footer": {

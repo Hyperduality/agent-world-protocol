@@ -8,5 +8,5 @@
     "expires_in_ms": { "type": "integer", "minimum": 1 }
   },
   "required": ["transfer_token", "expires_in_ms"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

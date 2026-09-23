@@ -2,7 +2,7 @@
 
 An open protocol for how AI agents perceive and act in worlds — virtual or physical.
 
-This repository is the public documentation and v0.1 draft specification for **[agentworldprotocol.com](https://agentworldprotocol.com)**, built with [Mintlify](https://mintlify.com).
+This repository is the public documentation and v0.1 draft specification for **[www.agentworldprotocol.com](https://www.agentworldprotocol.com)**, built with [Mintlify](https://mintlify.com).
 
 ## Local preview
 

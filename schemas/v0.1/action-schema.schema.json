@@ -21,6 +21,7 @@
     "command_channel": { "$ref": "common.schema.json#/$defs/identifier", "description": "Command channel this streaming type opens (AWP-CMD-002)." },
     "watchdog_ms": { "type": "integer", "minimum": 1, "description": "Per-stream watchdog for streaming types (AWP-CMD-005)." },
     "max_abort_ms": { "type": "integer", "minimum": 1, "description": "Upper bound on the cancelling state for this type (AWP-LIF-010)." },
+    "max_duration_ms": { "type": "integer", "minimum": 1, "description": "Extended types: longest execution the world permits; applies as a deadline when the submission's deadline_ms is absent or longer (AWP-ACT-008). Required for extended types in the robotics profile (AWP-ROB-007)." },
     "description": { "type": "string" }
   },
   "required": ["type", "params_schema", "duration", "preemption"],

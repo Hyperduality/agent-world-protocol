@@ -17,10 +17,10 @@
           "transform": { "$ref": "common.schema.json#/$defs/transform" }
         },
         "required": ["id", "parent"],
-        "additionalProperties": false
+        "x-awp-closed": true
       }
     }
   },
   "required": ["frames"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

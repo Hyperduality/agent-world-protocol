@@ -4,5 +4,5 @@
   "title": "Empty params or result",
   "description": "Used by session.close, world.manifest, world.snapshot params, task.update result, and safety.approval.respond result.",
   "type": "object",
-  "additionalProperties": false
+  "x-awp-closed": true
 }

@@ -13,7 +13,7 @@ Worlds emit `world.event` notifications for state changes not tied to a specific
 
 ## Status reasons
 
-Terminal `action.status` notifications in `rejected`, `failed`, or `cancelled` carry a `reason` from this registry (AWP-LIF-004). Vendor reasons use `x-<vendor>.` names.
+Terminal `action.status` notifications in `rejected`, `failed`, or `cancelled` carry a `reason`, and `preempted` MAY carry one, from this registry (AWP-LIF-004). Vendor reasons use `x-<vendor>.` names.
 
 | Reason | Terminal states | Cause |
 |---|---|---|
@@ -26,11 +26,13 @@ Terminal `action.status` notifications in `rejected`, `failed`, or `cancelled` c
 | `stale_intent` | rejected | `valid_until_ns` passed, or the basis observation exceeded `max_basis_age_ms`, before execution began (AWP-SAF-013) |
 | `cancelled_by_agent` | cancelled | `action.cancel` (AWP-LIF-005) |
 | `superseded` | cancelled | A newer `replace`/`blend` submission arrived before execution (AWP-PRE-003) |
-| `e_stop` | failed, cancelled | `e_stop_engaged` (AWP-EVT-002) |
-| `connection_lost` | failed | Safe-state entry terminated execution (AWP-SAF-003) |
+| `e_stop` | failed, cancelled | `e_stop_engaged` (AWP-EVT-002); `failed` from `executing` or `cancelling` |
+| `connection_lost` | failed | Safe-state entry terminated execution or an abort (AWP-SAF-004) |
 | `safe_state` | cancelled | Safe-state entry cancelled a pre-execution action (AWP-SAF-003) |
 | `session_closed` | cancelled | `session.close` or reconnect-window expiry (AWP-SES-006) |
 | `world_reset` | cancelled | `world.reset` or `world.restore` (AWP-PRM-006) |
+| `transferred` | cancelled, preempted | The embodiment was transferred to another session (AWP-EMB-003) |
+| `abort_failed` | failed | The safe abort of a `cancelling` action could not complete, or exceeded `max_abort_ms` (AWP-LIF-010) |
 | `watchdog` | failed | No valid command frame within `watchdog_ms` (AWP-CMD-005) |
 | `world_error` | failed | World-internal failure; `detail` explains |
 
@@ -45,4 +47,4 @@ Errors surface as JSON-RPC error objects with AWP codes (see [error codes](/api-
 | 3xxx | Action | `AWP_PARAMS_INVALID` (3001), `AWP_BUSY` (3002), `AWP_QUEUE_FULL` (3003), `AWP_ACTION_ID_CONFLICT` (3004), `AWP_ESTOP_ACTIVE` (3005), `AWP_TICK_NOT_AUTHORIZED` (3006), `AWP_STALE_INTENT` (3007), `AWP_ACTION_UNKNOWN` (3008), `AWP_TICK_MISMATCH` (3009) |
 | 4xxx | Safety | `AWP_FORBIDDEN` (4001), `AWP_ENVELOPE_EXCEEDED` (4002), `AWP_APPROVAL_DENIED` (4003), `AWP_APPROVAL_TIMEOUT` (4004) |
 
-Every error object marks `retryable: true|false` in `data`. Agents MUST NOT retry non-retryable errors with identical parameters. `[AWP-ERR-001]`
+Every AWP error object (codes 1000–4999) marks `retryable: true|false` in `data`. JSON-RPC reserved errors (−32768 to −32000, e.g. `-32601` for an unknown method, AWP-CTL-002) MAY omit `data` and are non-retryable unless `data` says otherwise. Agents MUST NOT retry non-retryable errors with identical parameters. `[AWP-ERR-001]`

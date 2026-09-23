@@ -160,7 +160,7 @@ description: "Every normative requirement with its side, applicability, feature 
 ${rows.size} requirements: ${counts.world} world-side, ${counts.agent} agent-side, ${counts.both} both. ${counts.MUST} MUST, ${counts.SHOULD} SHOULD, ${counts.MAY} MAY. ${counts.manual} require manual evidence; ${counts.untestable} are process or deployment policy and are not tested by the suite. CI fails if a bracketed ID in the specification has no row here, or a row names an ID the specification no longer defines.
 </Note>
 
-**Columns.** *Side*: who must implement it. *Applies*: time model(s) it applies to. *Gate*: \`core\` (every conformant implementation), \`core (streaming)\` / \`core (non-loopback)\` (Core when that mode is offered), \`profile:<name>\`, \`capability:<key>\` (only when the manifest advertises the key, AWP-VER-007), or \`feature:<condition>\`. *Test*: the conformance-suite assertion (named after the ID, AWP-CNF-004), \`(warning)\` for SHOULD, \`manual:\` for evidence attached to the report, \`untestable:\` for process rules.
+**Columns.** *Side*: who must implement it. *Applies*: time model(s) it applies to. *Gate*: \`core\` (every conformant implementation), \`core (streaming)\` / \`core (non-loopback)\` (Core when that mode is offered), \`profile:<name>\`, \`capability:<key>\` (only when the manifest advertises the key, AWP-VER-007), or \`feature:<condition>\`. *Test*: the planned conformance-suite assertion, named after the ID (AWP-CNF-004) — the [suite](/conformance/test-suite) is not published yet, so no assertion runs today; \`(warning)\` for SHOULD, \`manual:\` for evidence attached to the report, \`untestable:\` for process rules.
 
 `;
 for (const [area, list] of byArea) {

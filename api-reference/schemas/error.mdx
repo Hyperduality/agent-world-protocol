@@ -7,9 +7,11 @@ description: "Canonical schema for JSON-RPC error objects with AWP data."
 
 <Note>Generated from [`schemas/v0.1/error.schema.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/schemas/v0.1/error.schema.json) (`$id`: `https://agentworldprotocol.com/schemas/v0.1/error.schema.json`). Normative text: [/spec/loop/events-and-errors](/spec/loop/events-and-errors). Every tagged example on this site is validated against this schema in CI.</Note>
 
+AWP errors (codes 1000-4999) carry data.retryable; JSON-RPC reserved errors (-32768..-32000) MAY omit data (AWP-ERR-001).
+
 <ResponseField name="code" type="integer" required> </ResponseField>
 <ResponseField name="message" type="string" required> </ResponseField>
-<ResponseField name="data" type="object" required>
+<ResponseField name="data" type="object">
   
 
   <Expandable title="fields">

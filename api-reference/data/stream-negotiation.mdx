@@ -9,11 +9,11 @@ description: "How frame channels are mapped onto connections."
 { "stream_endpoints": [
   { "binding": "webtransport", "url": "https://127.0.0.1:8711/stream", "channels": [1, 2] },
   { "binding": "webrtc", "signaling": "ws://127.0.0.1:8710/rtc", "channels": [1, 2] },
-  { "binding": "ws", "url": "ws://127.0.0.1:8710/stream?token=…", "channels": [1, 2, 3] },
+  { "binding": "ws", "url": "ws://127.0.0.1:8710/stream", "channels": [1, 2, 3] },
   { "binding": "inline" } ] }
 ```
 
-The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Stream connections authenticate with the session token (AWP-SEC-004) and are re-established from the re-issued endpoints after `session.resume` (AWP-TRN-008).
+The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Stream connections authenticate with the session token in the `Authorization` header or the `awp.bearer.<token>` WebSocket subprotocol, never in the URL (AWP-SEC-004..006), and are re-established from the re-issued endpoints after `session.resume` (AWP-TRN-008).
 
 | Binding | Transport | Independent flow control per channel |
 |---|---|---|

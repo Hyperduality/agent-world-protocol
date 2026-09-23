@@ -5,6 +5,10 @@ description: "Render the world manifest into an LLM context and drive the percep
 
 The pattern: **manifest → context → loop**.
 
+<Note>
+The code on this page is illustrative pseudocode for a planned SDK; no SDK is published yet. The [wire traces](/spec/wire-traces) are the normative reference for the messages each call stands for.
+</Note>
+
 <Steps>
   <Step title="Render the manifest as capabilities">
     Turn each granted action schema into a tool-like description the model can select from, and each channel into a described percept source. This mirrors how MCP clients render tools.
@@ -30,7 +34,7 @@ The pattern: **manifest → context → loop**.
     In lockstep, `await action.terminal()` without a preceding `tick()` never resolves — the world does not advance on its own (AWP-TIM-002). Extended actions may need several ticks; loop on `tick()` until the status is terminal. In streaming mode drop the `tick()` call: the world advances on its own and statuses arrive as they happen.
   </Step>
   <Step title="Handle the lifecycle honestly">
-    Feed `failed`, `preempted`, and `clamped` statuses back into context — they are the world teaching the model its limits. Never retry non-retryable errors with identical params (AWP-ERR-001).
+    Feed `failed` and `preempted` statuses, and statuses marked `clamped: true`, back into context — they are the world teaching the model its limits. Never retry non-retryable errors with identical params (AWP-ERR-001).
   </Step>
 </Steps>
 
@@ -38,4 +42,4 @@ The pattern: **manifest → context → loop**.
 Prefer subscribing to a [scene-graph channel](/spec/semantics/scene-graphs) when the world offers one — structured entities and affordances beat raw pixels for LLM planning, and you can add pixels later for grounding checks.
 </Tip>
 
-For streaming worlds, run observation ingestion and decision-making concurrently, always stamping decisions with the `seq`/`ts_mono_ns` they were based on.
+For streaming worlds, run observation ingestion and decision-making concurrently, carrying on every submission the `basis_ts_mono_ns` of the observation it was based on (AWP-ACT-007), and send heartbeats from the decision loop rather than a separate timer, so a stalled policy trips the world's watchdog (AWP-SAF-005).

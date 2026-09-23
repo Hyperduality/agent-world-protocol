@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { ROOT, SCHEMA_BASE, loadSchemas, walk, rel } from "./lib.mjs";
+import YAML from "yaml";
+import { ROOT, SCHEMA_BASE, loadSchemas, lintSchema, walk, rel } from "./lib.mjs";
 import { decodeFrame, unhex, hex } from "./frame-codec.mjs";
 
 let failures = 0;
@@ -13,13 +14,17 @@ const fail = (msg) => { failures++; console.error(`FAIL ${msg}`); };
 const ok = (msg) => console.log(`ok   ${msg}`);
 
 // ---------------------------------------------------------------- schemas
-const ajv = new Ajv2020({ strict: false, allErrors: true, allowUnionTypes: true });
-addFormats(ajv);
+// `receiver` holds the canonical schemas, which accept unknown fields (AWP-VER-003). `ajv` holds
+// their sender (lint) form (lib.mjs lintSchema); everything this repo emits is validated against it.
+const newAjv = () => { const a = new Ajv2020({ strict: false, allErrors: true, allowUnionTypes: true }); addFormats(a); return a; };
+const receiver = newAjv();
+const ajv = newAjv();
 const schemas = loadSchemas();
-for (const { schema } of schemas) ajv.addSchema(schema);
+for (const { schema } of schemas) { receiver.addSchema(schema); ajv.addSchema(lintSchema(schema)); }
 for (const { file, schema } of schemas) {
   try {
-    ajv.compile(schema);
+    receiver.compile(schema);
+    ajv.getSchema(schema.$id);
     ok(`schema ${file} compiles`);
   } catch (e) {
     fail(`schema ${file}: ${e.message}`);
@@ -66,6 +71,9 @@ for (const p of walk(join(ROOT, "examples"), (f) => f.endsWith(".json"))) {
   if (!v) { fail(`${rel(p)}: missing or unknown $schema`); continue; }
   const { $schema, ...body } = inst;
   if (v(body)) ok(`example ${rel(p)}`); else report(rel(p), v);
+  // Receiver tolerance: the canonical schema accepts a field from a later version and a vendor field.
+  const r = receiver.getSchema(id);
+  if (!r({ ...body, future_field_v0_2: { any: "value" }, "x-acme.note": 1 })) fail(`${rel(p)}: canonical schema rejects unknown fields (AWP-VER-003): ${receiver.errorsText(r.errors)}`);
 }
 
 // ---------------------------------------------------------------- tagged doc blocks
@@ -149,58 +157,190 @@ const schemaFor = (name) => ajv.getSchema(SCHEMA_BASE + name + ".schema.json");
 for (const name of new Set(Object.values(METHODS).flatMap((m) => Object.values(m)))) {
   if (!schemaFor(name)) fail(`METHODS map names missing schema ${name}`);
 }
+// ---------------------------------------------------------------- action lifecycle table
+// spec/action-lifecycle.yaml is normative; the diagram on the lifecycle page must draw exactly its edges.
+const LIFECYCLE = YAML.parse(readFileSync(join(ROOT, "spec", "action-lifecycle.yaml"), "utf8"));
+const EDGES = new Map(LIFECYCLE.transitions.map((t) => [`${t.from}>${t.to}`, t]));
+const TERMINAL = new Set(Object.entries(LIFECYCLE.states).filter(([, c]) => c === "terminal").map(([s]) => s));
+{
+  const page = readFileSync(join(ROOT, "spec", "loop", "action-lifecycle.mdx"), "utf8");
+  const drawn = new Set([...(page.match(/```mermaid\n([\s\S]*?)```/)?.[1] ?? "").matchAll(/^\s*(\w+) --> (\w+)/gm)].map((m) => `${m[1]}>${m[2]}`));
+  const missing = [...EDGES.keys()].filter((e) => !drawn.has(e));
+  const extra = [...drawn].filter((e) => !EDGES.has(e));
+  if (missing.length || extra.length) fail(`action-lifecycle.mdx diagram disagrees with spec/action-lifecycle.yaml — missing ${missing.join(", ") || "none"}; extra ${extra.join(", ") || "none"}`);
+  else ok(`lifecycle diagram matches spec/action-lifecycle.yaml (${EDGES.size} transitions)`);
+}
+
+// ---------------------------------------------------------------- wire traces
+// Beyond schemas, each trace is checked for meaning: every action follows the lifecycle table with a permitted
+// reason and reaches at most one terminal state; resubmissions are idempotent or conflicts (AWP-ACT-001/009/010);
+// status_seq is gapless, and after session.resume replay starts at last_status_seq + 1 with redelivered values
+// matching what was first reported (AWP-CTL-008, AWP-LIF-009); frame seq is checked per channel with its loss
+// class; and a trace that declares t0_ns checks the watchdog (AWP-SAF-003/004). A marker may carry `given`:
+// { status_seq, actions: { id: { state, status_seq, content? } } } for a trace that continues another. A line
+// with delivered: false was sent but lost with its connection; it still changes world state.
+const SUBMIT_FIELDS = ["type", "params", "embodiment_id", "preempt", "deadline_ms", "basis_ts_mono_ns", "valid_until_ns"];
+const canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v;
+const identical = (a, b) => SUBMIT_FIELDS.every((f) => (f in a) === (f in b) && JSON.stringify(canon(a[f])) === JSON.stringify(canon(b[f])));
+
 const traceFiles = walk(join(ROOT, "examples", "v0.1", "traces"), (f) => f.endsWith(".jsonl")).sort();
 for (const p of traceFiles) {
   const lines = readFileSync(p, "utf8").split("\n").filter((l) => l.trim());
-  const pending = new Map(); // `${from}:${id}` -> method
-  let nextStatusSeq = null, bad = 0; // first status_seq seen sets the baseline; then +1 per notification
-  const seqs = new Map(); // channel_id -> last seq
+  const pending = new Map(); // `${from}:${id}` -> { method, params }
+  let bad = 0;
   const problem = (n, msg) => { bad++; fail(`${rel(p)}:${n}: ${msg}`); };
+  // status_seq discipline
+  let nextSeq = null, highest = 0, replayTo = 0;
+  const reported = new Map(); // status_seq -> identity of what it reported
+  // lifecycle
+  const actions = new Map(); // action_id -> { state, seq, content }
+  // frames
+  const seqs = new Map(), lossByName = new Map(), lossById = new Map(), needResync = new Set();
+  // watchdog
+  let watchdogMs = null, t0 = null, originatedAfterT0 = false;
+
+  const identity = (kind, x) => kind === "action" ? `action:${x.action_id}:${x.state}` : kind === "world.event" ? `event:${x.event}` : `session:${x.state}`;
+  /** A world-assigned status_seq. Returns false for a redelivery (already reported), true for a new transition. */
+  function seqArrived(n, seq, id) {
+    if (nextSeq !== null && seq !== nextSeq) problem(n, `status_seq ${seq}, expected ${nextSeq} (AWP-CTL-008)`);
+    nextSeq = seq + 1;
+    if (seq <= highest) {
+      if (reported.has(seq) && reported.get(seq) !== id) problem(n, `status_seq ${seq} redelivered as ${id}, first reported as ${reported.get(seq)} (AWP-LIF-009)`);
+      if (seq > replayTo) problem(n, `status_seq ${seq} repeated outside a replay`);
+      return false;
+    }
+    highest = seq; reported.set(seq, id);
+    return true;
+  }
+  function transition(n, actionId, state, reason, seq) {
+    const a = actions.get(actionId) ?? { state: "submitted", seq: 0 };
+    if (TERMINAL.has(a.state)) return problem(n, `${actionId}: ${a.state} → ${state} after a terminal state (AWP-LIF-001)`);
+    if (a.state === state) {
+      if (!["executing", "cancelling"].includes(state)) problem(n, `${actionId}: repeated ${state} (only executing and cancelling carry updates)`);
+    } else {
+      const edge = EDGES.get(`${a.state}>${state}`);
+      if (!edge) problem(n, `${actionId}: ${a.state} → ${state} is not in spec/action-lifecycle.yaml`);
+      else if (edge.wire === "error") problem(n, `${actionId}: ${a.state} → ${state} is reported as a JSON-RPC error, not a status`);
+      else if (reason && edge.reasons && !reason.startsWith("x-") && !edge.reasons.includes(reason)) problem(n, `${actionId}: reason ${reason} not permitted on ${a.state} → ${state}`);
+    }
+    actions.set(actionId, { ...a, state, seq });
+  }
+
   lines.forEach((line, i) => {
     const n = i + 1;
     let entry;
     try { entry = JSON.parse(line); } catch (e) { return problem(n, `not valid JSON — ${e.message}`); }
-    if (entry.marker) return;
+    if (entry.marker) {
+      const g = entry.given;
+      if (g) {
+        nextSeq = g.status_seq + 1; highest = g.status_seq;
+        for (const [id, a] of Object.entries(g.actions ?? {})) actions.set(id, { state: a.state, seq: a.status_seq, content: a.content ?? null });
+        if (g.watchdog_ms) watchdogMs = g.watchdog_ms;
+        for (const [id, lc] of Object.entries(g.channels ?? {})) lossById.set(Number(id), lc);
+      }
+      if (entry.t0_ns !== undefined) { t0 = entry.t0_ns; originatedAfterT0 = false; }
+      return;
+    }
     const { from, msg } = entry;
     if (!["agent", "world"].includes(from) || !msg) return problem(n, `expected { from, msg } or { marker }`);
     if (msg.jsonrpc !== "2.0") return problem(n, `jsonrpc must be "2.0"`);
     const check = (name, value, what) => { const v = schemaFor(name); if (!v(value)) problem(n, `${what} invalid against ${name}: ${ajv.errorsText(v.errors, { separator: "; " })}`); };
+    if (from === "agent" && msg.method !== undefined && t0 !== null) originatedAfterT0 = true;
+
     if (msg.method !== undefined) {
       const spec = METHODS[msg.method];
       if (!spec) return problem(n, `unknown method ${msg.method}`);
       if (msg.id !== undefined) {
         if (!spec.params) return problem(n, `${msg.method} is notification-only`);
         check(spec.params, msg.params ?? {}, `${msg.method} params`);
-        pending.set(`${from}:${msg.id}`, msg.method);
-      } else {
-        if (!spec.notification) return problem(n, `${msg.method} is not a notification`);
-        check(spec.notification, msg.params ?? {}, `${msg.method} notification`);
-        if (msg.method === "obs.frame" || msg.method === "cmd.frame") {
-          const { channel_id, seq, flags } = msg.params;
-          const last = seqs.get(`${from}:${channel_id}`);
-          if (last !== undefined && seq <= last) problem(n, `channel ${channel_id} seq ${seq} not increasing (last ${last})`);
-          if (last !== undefined && seq !== last + 1 && !(flags & 0x08)) problem(n, `channel ${channel_id} seq gap without resync`);
-          seqs.set(`${from}:${channel_id}`, seq);
+        pending.set(`${from}:${msg.id}`, { method: msg.method, params: msg.params ?? {} });
+        return;
+      }
+      if (!spec.notification) return problem(n, `${msg.method} is not a notification`);
+      const params = msg.params ?? {};
+      check(spec.notification, params, `${msg.method} notification`);
+      if (msg.method === "obs.frame" || msg.method === "cmd.frame") {
+        const { channel_id, seq, flags } = params;
+        const key = `${from}:${channel_id}`, last = seqs.get(key);
+        const reliable = (lossById.get(channel_id) ?? "reliable") === "reliable";
+        if (last !== undefined && seq <= last) problem(n, `channel ${channel_id} seq ${seq} not increasing (last ${last})`);
+        if (reliable && last !== undefined && seq !== last + 1 && !(flags & 0x08)) problem(n, `reliable channel ${channel_id}: seq gap without resync (AWP-DAT-001)`);
+        if (needResync.has(key)) {
+          if (reliable && (flags & 0x09) !== 0x09) problem(n, `reliable channel ${channel_id}: first frame after resumption must be a resync keyframe (AWP-TRN-008)`);
+          needResync.delete(key);
+        }
+        seqs.set(key, seq);
+      }
+      if (from === "world" && ["action.status", "world.event", "session.state"].includes(msg.method)) {
+        const kind = msg.method === "action.status" ? "action" : msg.method;
+        const fresh = seqArrived(n, params.status_seq, identity(kind, params));
+        if (fresh && kind === "action") transition(n, params.action_id, params.state, params.reason, params.status_seq);
+        if (fresh && params.event === "safe_state_entered" && t0 !== null && watchdogMs !== null) {
+          const dt = (params.ts_mono_ns - t0) / 1e6;
+          // A replayed event was emitted during the gap, so file order says nothing about what the agent sent before it.
+          if (originatedAfterT0 && params.status_seq > replayTo) problem(n, `watchdog tripped although the agent originated a message after t0 (AWP-SAF-003)`);
+          if (dt < watchdogMs || dt > watchdogMs + 100) problem(n, `safe state entered ${dt} ms after t0; expected watchdog_ms (${watchdogMs}) to +100 ms (AWP-SAF-004, AWP-SAF-012)`);
+          t0 = null;
         }
       }
-    } else if (msg.result !== undefined || msg.error !== undefined) {
-      const other = from === "agent" ? "world" : "agent";
-      const method = pending.get(`${other}:${msg.id}`);
-      if (!method) return problem(n, `response to unknown request id ${msg.id}`);
-      pending.delete(`${other}:${msg.id}`);
-      if (msg.error !== undefined) check("error", msg.error, `${method} error`);
-      else check(METHODS[method].result, msg.result, `${method} result`);
-      if (from === "world" && msg.result && ["action.submit", "action.cancel"].includes(method) && msg.result.status_seq !== undefined) {
-        if (nextStatusSeq !== null && msg.result.status_seq !== nextStatusSeq) problem(n, `status_seq ${msg.result.status_seq}, expected ${nextStatusSeq} (AWP-CTL-008)`);
-        nextStatusSeq = msg.result.status_seq + 1;
+      return;
+    }
+
+    if (msg.result === undefined && msg.error === undefined) return problem(n, `neither request, notification, nor response`);
+    const other = from === "agent" ? "world" : "agent";
+    const req = pending.get(`${other}:${msg.id}`);
+    if (!req) return problem(n, `response to unknown request id ${msg.id}`);
+    pending.delete(`${other}:${msg.id}`);
+    const { method, params } = req;
+    if (msg.error !== undefined) check("error", msg.error, `${method} error`);
+    else check(METHODS[method].result, msg.result, `${method} result`);
+    if (from !== "world") return;
+    const r = msg.result;
+
+    if (method === "initialize" && r) {
+      for (const c of r.observation_channels ?? []) lossByName.set(c.id, c.loss_class);
+      if (r.safety_policy?.safe_state?.watchdog_ms) watchdogMs = r.safety_policy.safe_state.watchdog_ms;
+    }
+    if ((method === "session.open" || method === "session.resume") && r) {
+      for (const c of r.granted?.channels ?? []) if (c.channel_id !== undefined && lossByName.has(c.channel)) lossById.set(c.channel_id, lossByName.get(c.channel));
+    }
+    if (method === "session.resume" && r) {
+      if (r.replay_to_status_seq === undefined) problem(n, `session.resume result lacks replay_to_status_seq (AWP-CTL-008)`);
+      else if (r.replay_to_status_seq < highest) problem(n, `replay_to_status_seq ${r.replay_to_status_seq} is below the highest status_seq already reported (${highest})`);
+      else replayTo = r.replay_to_status_seq;
+      nextSeq = params.last_status_seq + 1;
+      for (const [id, lc] of lossById) if (lc === "reliable") needResync.add(`world:${id}`);
+    }
+    if (method === "action.submit") {
+      const known = actions.get(params.action_id);
+      if (msg.error) {
+        if (msg.error.code === 3004 && (!known || (known.content && identical(known.content, params)))) problem(n, `AWP_ACTION_ID_CONFLICT without a conflicting admitted action (AWP-ACT-001)`);
+        if (known && known.content && !identical(known.content, params) && msg.error.code !== 3004) problem(n, `resubmission of ${params.action_id} with different content must fail AWP_ACTION_ID_CONFLICT (AWP-ACT-001)`);
+        if (known && known.content && identical(known.content, params)) problem(n, `identical resubmission of ${params.action_id} must be idempotent, not an error (AWP-ACT-001)`);
+        return; // a failed admission creates no action (AWP-ACT-010)
       }
-    } else return problem(n, `neither request, notification, nor response`);
-    if (from === "world" && msg.method && ["action.status", "world.event", "session.state"].includes(msg.method) && msg.id === undefined) {
-      if (nextStatusSeq !== null && msg.params.status_seq !== nextStatusSeq) problem(n, `status_seq ${msg.params.status_seq}, expected ${nextStatusSeq} (AWP-CTL-008)`);
-      nextStatusSeq = msg.params.status_seq + 1;
+      if (known) {
+        if (known.content && !identical(known.content, params)) problem(n, `resubmission of ${params.action_id} with different content was admitted (AWP-ACT-001)`);
+        if (r.state !== known.state || r.status_seq !== known.seq) problem(n, `idempotent resubmission of ${params.action_id} must report its current state ${known.state} at status_seq ${known.seq}, got ${r.state} at ${r.status_seq} (AWP-ACT-001)`);
+        return; // no new status_seq
+      }
+      if (!["pending_approval", "queued", "accepted"].includes(r.state)) problem(n, `first admission of ${params.action_id} reports ${r.state} (AWP-LIF-002)`);
+      if (seqArrived(n, r.status_seq, identity("action", r))) transition(n, r.action_id, r.state, undefined, r.status_seq);
+      actions.get(r.action_id).content = params;
+    }
+    if (method === "action.cancel") {
+      if (msg.error) { if (msg.error.code === 3008 && actions.has(params.action_id)) problem(n, `AWP_ACTION_UNKNOWN for a known action`); return; }
+      const known = actions.get(params.action_id);
+      if (!known) return problem(n, `cancel result for unknown action ${params.action_id} (expected AWP_ACTION_UNKNOWN)`);
+      if (TERMINAL.has(known.state)) { if (r.state !== known.state || r.status_seq !== known.seq) problem(n, `cancel of terminal ${params.action_id} must report its terminal state`); return; }
+      if (seqArrived(n, r.status_seq, identity("action", r))) transition(n, r.action_id, r.state, r.reason, r.status_seq);
+    }
+    if (method === "action.status" && r) {
+      const known = actions.get(params.action_id);
+      if (known && (r.state !== known.state || r.status_seq !== known.seq)) problem(n, `status pull reports ${r.state}@${r.status_seq}, current is ${known.state}@${known.seq}`);
     }
   });
-  for (const [k, m] of pending) problem(lines.length, `request ${k} (${m}) never answered`);
+  for (const [k, { method }] of pending) problem(lines.length, `request ${k} (${method}) never answered`);
   if (!bad) ok(`trace ${rel(p)} (${lines.length} lines)`);
 }
 

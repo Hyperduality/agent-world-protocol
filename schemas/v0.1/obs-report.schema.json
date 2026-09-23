@@ -15,7 +15,7 @@
         "samples": { "$ref": "common.schema.json#/$defs/u53", "description": "Exchanges completed so far in the session." }
       },
       "required": ["offset_ns", "rtt_ns"],
-      "additionalProperties": false
+      "x-awp-closed": true
     },
     "channels": {
       "$ref": "common.schema.json#/$defs/per_channel",
@@ -29,12 +29,12 @@
           "staleness_ns": { "$ref": "common.schema.json#/$defs/latency_stats", "description": "Staleness at receipt: (agent receipt + offset_ns) − ts_mono_ns." }
         },
         "required": ["frames", "gaps"],
-        "additionalProperties": false
+        "x-awp-closed": true
       }
     },
     "decision_latency_ns": { "$ref": "common.schema.json#/$defs/latency_stats", "description": "Agent receipt of the basis frame → action.submit transmitted, over submissions in the window." }
   },
   "required": ["window_ms", "sync", "channels"],
   "patternProperties": { "^x-[a-z0-9]+\\.": {} },
-  "additionalProperties": false
+  "x-awp-closed": true
 }

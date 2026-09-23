@@ -7,5 +7,5 @@
     "snapshot_token": {"type": "string", "minLength": 8}
   },
   "required": ["snapshot_token"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

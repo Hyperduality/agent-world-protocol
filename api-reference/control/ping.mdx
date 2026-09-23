@@ -4,6 +4,7 @@ description: "Heartbeat and clock-synchronization exchange. Either direction."
 ---
 
 <ParamField body="origin_ns" type="integer" required>The sender's clock at transmission: the session clock when the world sends, the agent clock when the agent sends (AWP-CLK-007).</ParamField>
+<ParamField body="last_status_seq" type="integer">Agent → world, in a session: the highest `status_seq` the agent has processed. Acknowledges delivery so the world may discard older notifications (AWP-CTL-010). Only the agent's own pings reset the world's watchdog; answering the world's ping does not (AWP-SAF-003).</ParamField>
 
 **Result — the pong:**
 
@@ -14,5 +15,5 @@ description: "Heartbeat and clock-synchronization exchange. Either direction."
 `receive_ns` and `transmit_ns` are the responder's clock at receipt of the ping and at transmission of the result, stamped as close to the transport as the runtime permits. The initiator records its own clock at receipt as `destination_ns` and derives `rtt_ns = (destination_ns − origin_ns) − (transmit_ns − receive_ns)` and `offset_ns = ((receive_ns − origin_ns) + (transmit_ns − destination_ns)) / 2`; the agent keeps the minimum-RTT sample of its last eight exchanges as its estimate (AWP-CLK-008). Cadence and loss detection follow AWP-SAF-001/002.
 
 ```json awp:ping
-{ "jsonrpc": "2.0", "id": 12, "method": "ping", "params": { "origin_ns": 5000000 } }
+{ "jsonrpc": "2.0", "id": 12, "method": "ping", "params": { "origin_ns": 5000000, "last_status_seq": 41 } }
 ```

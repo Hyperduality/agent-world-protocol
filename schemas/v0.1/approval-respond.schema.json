@@ -18,14 +18,14 @@
             "predicate": { "type": "object", "description": "JSON Schema the params must satisfy." }
           },
           "required": ["type"],
-          "additionalProperties": false
+          "x-awp-closed": true
         },
         "expires_at": { "$ref": "common.schema.json#/$defs/ts_mono_ns" }
       },
       "required": ["scope", "expires_at"],
-      "additionalProperties": false
+      "x-awp-closed": true
     }
   },
   "required": ["approval_id", "decision"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

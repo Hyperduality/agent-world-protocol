@@ -7,8 +7,8 @@
     "state": {"$ref": "common.schema.json#/$defs/session_state"},
     "status_seq": {"$ref": "common.schema.json#/$defs/status_seq"},
     "ts_mono_ns": {"$ref": "common.schema.json#/$defs/ts_mono_ns"},
-    "reason": {"type": "string", "enum": ["opened", "first_activity", "connection_lost", "resumed", "session_closed", "window_expired", "world_shutdown", "transferred"], "description": "Cause of the transition."}
+    "reason": {"type": "string", "enum": ["opened", "first_activity", "connection_lost", "resumed", "session_closed", "window_expired", "world_shutdown", "transferred", "connection_replaced"], "description": "Cause of the transition."}
   },
   "required": ["state", "status_seq", "ts_mono_ns"],
-  "additionalProperties": false
+  "x-awp-closed": true
 }

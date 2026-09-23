@@ -17,4 +17,4 @@ description: "Request cancellation of a pre-execution or executing action. Agent
 
 **Errors:** 3008 (`AWP_ACTION_UNKNOWN`). The type MAY bound the abort with `max_abort_ms` (AWP-LIF-010).
 
-If an e-stop or safe-state entry coincides with the cancel, the e-stop or safe-state outcome wins (AWP-LIF-008) and the action ends `failed`, not `cancelled`.
+If an e-stop or safe-state entry coincides with the cancel (AWP-LIF-008), that outcome wins: a pre-execution action ends `cancelled` with reason `e_stop` or `safe_state`; an executing or `cancelling` action ends `failed` with reason `e_stop` or `connection_lost`. A safe abort that cannot complete within `max_abort_ms` ends `failed`, reason `abort_failed`.

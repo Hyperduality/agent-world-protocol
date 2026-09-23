@@ -16,7 +16,7 @@ Only valid in lockstep sessions. For each advance the world sends, before starti
 { "tick": 4212 }
 ```
 
-Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance (AWP-TIM-012). A call retried after a lost result carries a stale `expected_tick` and is rejected, so time never advances twice:
+Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound non-observer lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance, and no admin grant is needed. Under `any_session` on a world that may bind several lockstep sessions, the caller needs the `tick` admin grant (AWP-TIM-012, AWP-MA-005). A call retried after a lost result carries a stale `expected_tick` and is rejected, so time never advances twice:
 
 ```json awp:error
 { "code": 3009, "message": "AWP_TICK_MISMATCH", "data": { "retryable": false, "tick": 4212, "detail": "expected_tick 4211, current 4212" } }

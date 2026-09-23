@@ -16,8 +16,8 @@ Adds to Core:
 - E-stop events with mandatory termination of all non-terminal actions — AWP-EVT-002
 - Approval flow available for at least one action class — AWP-APR-001..003
 - Frame tree with dynamic transforms on `awp.tf` — AWP-UNI-003..004
-- Watchdog and safe state declared, enforced, and measured (`watchdog_ms` ≤ 5000, default 2000) — AWP-SAF-001..012, AWP-EMB-002
-- Bearer-token authentication mandatory even on loopback; TLS on any connection that leaves the machine — AWP-SEC-001..004
+- Watchdog and safe state declared, enforced, and measured (`watchdog_ms` ≤ 5000, default 2000); every extended type bounded by `max_duration_ms` — AWP-SAF-001..012, AWP-EMB-002, AWP-ROB-007 (below)
+- Bearer-token authentication mandatory even on loopback; TLS on any connection that leaves the machine — AWP-SEC-001..006
 
 ## Envelope enforcement and hardware capability
 
@@ -25,7 +25,7 @@ Checking a *requested command* against a limit and monitoring *executed motion* 
 
 - **Command-side checking** (`enforcement: command_check` or `both`) is REQUIRED for every envelope the world declares: spatial, velocity, force, and rate limits MUST be applied to each `action.submit` and each command frame before actuation (AWP-ENV-001/002, AWP-CMD-006). `[AWP-ROB-001]`
 - **Measured monitoring** (`enforcement: measured` or `both`) is REQUIRED for `spatial` and `max_velocity_mps` — the world MUST observe executed motion and fail the action on violation (AWP-ENV-003). For `max_force_n`, measured monitoring is REQUIRED if and only if the envelope is declared; a world whose hardware cannot measure force MUST NOT declare `max_force_n`, and its safety policy then provides no force guarantee. `[AWP-ROB-002]`
-- **Claim wording.** A robotics-profile claim MUST enumerate which limits are enforced under `both` and which under `command_check` only. A world without a `max_force_n` envelope MUST word its claim "robotics (no force monitoring)". `[AWP-ROB-003]`
+- **Claim wording.** A robotics-profile claim MUST enumerate which limits are enforced under `both` and which under `command_check` only. A world without a `max_force_n` envelope MUST include "no force monitoring" in the parenthetical that qualifies its robotics claim, e.g. "robotics (experimental; no force monitoring)" (AWP-CNF-006). `[AWP-ROB-003]`
 - **Evidence.** The conformance report MUST record, per declared limit: the sensor or estimator used for measured monitoring, its sampling rate, the measured reaction time from violation to `failed` status, and the watchdog measurement of AWP-SAF-012. Limits without evidence are treated as `command_check` only. `[AWP-ROB-004]`
 
 ## Stale intents
@@ -33,6 +33,10 @@ Checking a *requested command* against a limit and monitoring *executed motion* 
 Physical actuation on an observation the agent made too long ago is a safety fault, not a performance issue. The profile therefore makes the basis of every intent explicit and bounds its age world-side.
 
 - A robotics-profile world MUST declare `safety_policy.max_basis_age_ms` ≤ 500 and MUST reject with `AWP_STALE_INTENT` every `action.submit` that omits `basis_ts_mono_ns`; enforcement follows AWP-SAF-013. `[AWP-ROB-005]`
+
+## Bounded execution
+
+- Every `extended` action type a robotics-profile world declares MUST declare `max_duration_ms` (AWP-ACT-008), so that no extended motion outlives a stalled policy by more than a declared bound (AWP-SAF-011). `[AWP-ROB-007]`
 
 ## Stream bindings
 
