@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm i -g mint
+      - run: npm i -g mint@4.2.930
       - run: mint broken-links
 
   schemas:
