@@ -1,6 +1,97 @@
 ---
 title: "Python SDK"
-description: "Not published yet."
+description: "awp-python: the agent side of AWP as a sans-IO state machine, with an asyncio WebSocket client."
 ---
 
-Not published yet.
+[`awp-python`](https://github.com/Hyperduality/awp-python) provides two packages: `awp`, the client protocol layer described here, and `awp_sim`, the [reference world](/adapters/awp-sim). It targets **0.1-draft.5** and requires Python 3.11+.
+
+<Warning>
+Alpha. The API changes with each draft revision, and the package is not yet on PyPI. The client is intended to satisfy Core Agent for both time models on the inline binding, self-assessed against 0.1-draft.5 (AWP-CNF-005).
+</Warning>
+
+```bash
+pip install "awp-python @ git+https://github.com/Hyperduality/awp-python"
+```
+
+## Two layers
+
+- **`awp.ClientConnection`** is the protocol as a sans-IO state machine: it never opens a socket or reads a timer. Request methods queue messages and return the JSON-RPC id they used; `receive(message)` takes a decoded message and returns typed events; `outgoing()` drains what to send. Use it directly to run AWP over any transport, or inside a simulator loop.
+- **`awp.aio.AsyncClient`** drives a `ClientConnection` over the WebSocket binding (AWP-TRN-001) with asyncio. It adds transport, heartbeats, and awaiting; protocol behavior stays in the connection.
+
+## Streaming
+
+```python
+import asyncio
+from awp import ClientConnection
+from awp.aio import AsyncClient
+
+async def main() -> None:
+    conn = ClientConnection(
+        {"name": "my-agent", "version": "0.1.0", "vendor": "me"},
+        consumes_modalities=["proprio/json", "text/event+json"],
+    )
+    async with AsyncClient(conn, "ws://127.0.0.1:8710", token=None) as client:
+        manifest = await client.initialize()
+        await client.open_session("streaming", embodiment="arm_01", subscribe=["proprio"])
+        await client.wait_for(lambda e: "proprio" in client.latest)
+        record = await client.submit(
+            "move_to_pose",
+            {"pose": {"frame": "base", "p_m": [0.3, 0.2, 0.5], "q": [0, 0, 0, 1]}},
+            basis=client.latest["proprio"].frame,  # AWP-ACT-007
+            valid_for_ms=200,                      # mapped through the clock offset (AWP-CLK-009)
+        )
+        done = await client.wait_terminal(record.action_id)
+        print(done.state, done.reason)
+        await client.close_session()
+
+asyncio.run(main())
+```
+
+`open_session` takes the four clock samples AWP-CLK-008 asks for before returning. `submit` returns once the world admits the action, raising `AwpError` if it refuses; the returned `ActionRecord` then follows every status the world reports.
+
+## Lockstep
+
+Time moves only when the agent calls `advance` (`world.tick`), and never as a side effect of anything else (AWP-AGT-009):
+
+```python
+await client.open_session("lockstep", embodiment="arm_01", subscribe=["proprio"])
+record = await client.submit("move_to_pose", params)   # admitted and staged (AWP-TIM-010)
+while not record.terminal:
+    tick = await client.advance(5)                     # five advances, then the result
+    frame = client.latest["proprio"].frame             # carries frame.tick == tick
+```
+
+## Heartbeats
+
+`AsyncClient(heartbeat=True)`, the default, pings from a timer at the smaller of `heartbeat_interval_ms` and half the watchdog. An agent that actuates something should pass `heartbeat=False` and call `await client.ping()` from the loop that produces its intents, so that a stalled policy also stops the heartbeat holding off the world's watchdog (AWP-SAF-005).
+
+## What the connection tracks
+
+| Concern | Behavior |
+|---|---|
+| Action lifecycle | Every status is checked against the [transition table](/spec/loop/action-lifecycle); `conn.actions` maps `action_id` to its `ActionRecord` (`state`, `reason`, `progress`, `status`) |
+| Delivery | Redelivered statuses are dropped on `status_seq` (AWP-LIF-009); a gap is reported and not acknowledged, so a resume replays what is missing |
+| Resumption | `resume()` sends `last_status_seq`; replayed events carry `replayed=True`, and `ReplayCompleted` marks the end of the replay. `AsyncClient.reconnect()` does the whole sequence |
+| Idempotency | `submit` records the exact content; `resubmit(action_id)` retries it byte-for-byte (AWP-ACT-001) |
+| Clock | `conn.clock` keeps the minimum-RTT sample of the last eight exchanges on streaming sessions (AWP-CLK-008) |
+| Receiver report | `report()` builds `obs.report` from per-channel frames, gaps, jitter, staleness, and decision latency (AWP-OBS-007); `AsyncClient` sends one every 2 s in streaming |
+| World errors | A message that breaks the specification becomes a `ProtocolViolation` event rather than an exception; a manifest that fails its schema raises `ProtocolError` (AWP-AGT-002) |
+
+## Events
+
+`receive()` and `AsyncClient.events()` yield: `Initialized`, `SessionOpened`, `SessionStateChanged`, `ActionUpdated`, `WorldEvent`, `FrameReceived`, `Telemetry`, `TickCompleted`, `ReplayCompleted`, `Response`, `ErrorResponse`, and `ProtocolViolation`.
+
+## Without asyncio
+
+```python
+events = conn.receive(message)      # typed events for one decoded message
+for out in conn.outgoing():         # messages to send, in order
+    transport.send(json.dumps(out))
+```
+
+## Other modules
+
+- `awp.frames` — the binary [frame](/spec/transport/frames) codec (every vector in `frames.json`) and the inline JSON form.
+- `awp.schema` — validation against the canonical schemas bundled from the pinned revision, in receiver and sender form.
+- `awp.lifecycle` — `ActionState` and the transition table.
+- `awp.errors` — `ErrorCode` and `AwpError`, which carries `retryable` and `data`.

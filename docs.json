@@ -14,7 +14,7 @@
   },
   "favicon": "/favicon.svg",
   "banner": {
-    "content": "v0.1 draft — specification only. SDKs and adapters are not published.",
+    "content": "v0.1 draft. The Python SDK and the awp-sim reference world are in alpha; other SDKs and adapters are not published.",
     "dismissible": true
   },
   "navigation": {

@@ -3,35 +3,45 @@ title: "Build an LLM agent"
 description: "Render the world manifest into an LLM context and drive the perception–action loop."
 ---
 
-The pattern: **manifest → context → loop**.
-
-<Note>
-The code on this page is illustrative pseudocode for a planned SDK; no SDK is published yet. The [wire traces](/spec/wire-traces) are the normative reference for the messages each call stands for.
-</Note>
+The pattern: **manifest → context → loop**. The code uses the [Python SDK](/sdks/python); `llm.decide` and `feed_back` stand for your model calls. The [wire traces](/spec/wire-traces) are the normative reference for the messages each call stands for.
 
 <Steps>
   <Step title="Render the manifest as capabilities">
     Turn each granted action schema into a tool-like description the model can select from, and each channel into a described percept source. This mirrors how MCP clients render tools.
     ```python
-    def render_capabilities(session):
-        lines = ["You control embodiment '%s'. Available actions:" % session.embodiment]
-        for a in session.granted_actions:
-            lines.append(f"- {a.type}: params {a.params_schema}")
+    import json
+
+    def render_capabilities(manifest: dict, ready: dict, embodiment: str) -> str:
+        granted = set(ready["granted"]["action_types"])
+        lines = [f"You control embodiment '{embodiment}'. Available actions:"]
+        for decl in manifest["action_schemas"]:
+            if decl["type"] in granted:
+                schema = json.dumps(decl["params_schema"])
+                lines.append(f"- {decl['type']}: {decl.get('description', '')} params {schema}")
         return "\n".join(lines)
     ```
   </Step>
   <Step title="Loop: observe, decide, submit, tick, read">
     ```python
+    from awp import AwpError
+
+    manifest = await client.initialize()
+    ready = await client.open_session("lockstep", embodiment="arm_01", subscribe=["proprio"])
+    context = render_capabilities(manifest, ready, "arm_01")
+
     while not done:
-        obs = await session.observe()                     # frame for the current tick
-        decision = llm.decide(render_capabilities(session), summarize(obs))
-        action = await session.submit(type=decision.type, params=decision.params)
-        # `action` is admitted and staged; nothing happens until the world advances.
-        await session.tick()                              # world.tick — delivers statuses + next frame
-        status = await action.terminal()                  # resolves from statuses delivered by the tick
-        feed_back(llm, status)                            # failures are information
+        obs = {name: json.loads(f.frame.payload) for name, f in client.latest.items()}
+        decision = llm.decide(context, obs)
+        try:
+            record = await client.submit(decision.type, decision.params)  # admitted and staged
+        except AwpError as err:                  # refused: no action exists (AWP-ACT-010)
+            feed_back(llm, err.message, err.detail, err.retryable)
+            continue
+        while not record.terminal:
+            await client.advance()               # world.tick: statuses, then the next frame
+        feed_back(llm, record.state, record.reason)   # failures are information
     ```
-    In lockstep, `await action.terminal()` without a preceding `tick()` never resolves — the world does not advance on its own (AWP-TIM-002). Extended actions may need several ticks; loop on `tick()` until the status is terminal. In streaming mode drop the `tick()` call: the world advances on its own and statuses arrive as they happen.
+    In lockstep nothing happens until the agent advances — without `advance()` the record never becomes terminal (AWP-TIM-002). Extended actions may need several ticks. In streaming mode drop the `advance()` loop and `await client.wait_terminal(record.action_id)` instead: the world advances on its own and statuses arrive as they happen.
   </Step>
   <Step title="Handle the lifecycle honestly">
     Feed `failed` and `preempted` statuses, and statuses marked `clamped: true`, back into context — they are the world teaching the model its limits. Never retry non-retryable errors with identical params (AWP-ERR-001).
@@ -42,4 +52,4 @@ The code on this page is illustrative pseudocode for a planned SDK; no SDK is pu
 Prefer subscribing to a [scene-graph channel](/spec/semantics/scene-graphs) when the world offers one — structured entities and affordances beat raw pixels for LLM planning, and you can add pixels later for grounding checks.
 </Tip>
 
-For streaming worlds, run observation ingestion and decision-making concurrently, carrying on every submission the `basis_ts_mono_ns` of the observation it was based on (AWP-ACT-007), and send heartbeats from the decision loop rather than a separate timer, so a stalled policy trips the world's watchdog (AWP-SAF-005).
+For streaming worlds, run observation ingestion and decision-making concurrently, carrying on every submission the `basis_ts_mono_ns` of the observation it was based on (`basis=` in the SDK, AWP-ACT-007), and send heartbeats from the decision loop rather than a separate timer (`AsyncClient(heartbeat=False)` and `await client.ping()`), so a stalled policy trips the world's watchdog (AWP-SAF-005).

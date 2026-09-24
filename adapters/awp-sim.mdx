@@ -1,6 +1,65 @@
 ---
 title: "awp-sim"
-description: "Not published yet."
+description: "The reference world: a simulated arm served over WebSocket, in either time model, with scripted failure scenarios."
 ---
 
-Not published yet.
+`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.5**.
+
+<Warning>
+Alpha. The world is intended to satisfy Core World for both time models on the inline binding, self-assessed against 0.1-draft.5 (AWP-CNF-005). A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+</Warning>
+
+```bash
+pip install "awp-python @ git+https://github.com/Hyperduality/awp-python"
+awp-sim serve                      # streaming world on ws://127.0.0.1:8710
+awp-sim serve --mode lockstep      # lockstep world
+awp-sim demo                       # scripted agent against a running world
+awp-sim manifest                   # print the world manifest
+```
+
+## The world
+
+| | |
+|---|---|
+| Embodiment | `arm_01`, a manipulator whose end effector moves in straight lines with bounded speed and acceleration |
+| Channels | `proprio` (`proprio/json`, 100 Hz, `latest-wins`): position and velocity. `arm_state` (`text/event+json`, 10 Hz, `reliable`): phase, target, running action. Both are per-tick in lockstep |
+| Action types | `move_to_pose` (extended; `replace`, `queue`, or `reject`; queue of 4; `max_abort_ms` 1500, `max_duration_ms` 10000) and `stop` (instant, `replace`), sharing the `arm_motion` group |
+| Envelope | Axis-aligned box in `base`, `max_velocity_mps` 0.5, `max_action_rate_hz` 20, `command_check` with `on_violation: reject` |
+| Streaming | Watchdog 2000 ms with `safe_stop`; `max_basis_age_ms` 500; `session.telemetry` every second |
+| Lockstep | `tick_policy: on_tick`, `tick_authority: any_session`, 20 ms per tick; the arm binds to one session at a time, and observer sessions may watch |
+| Reset | `world.reset` to `home`, granted to at most one session |
+
+## Serving
+
+- **Authentication.** On a non-loopback address the server refuses to start without `--token` (or `$AWP_SIM_TOKEN`) and TLS (`--tls-cert`, `--tls-key`), unless `--insecure` is given. It accepts the token in `Authorization` or as the `awp.bearer.<token>` subprotocol and rejects any URL that carries one (AWP-SEC-001..006).
+- **Audit log.** One JSON Lines file per session in `./awp-audit` (`--audit-dir`): credentials redacted, frames recorded as header plus payload hash, records hash-chained (AWP-AUD-001..007). `--record-dir` additionally writes each session's wire trace in the [trace format](/spec/wire-traces).
+- **E-stop.** `kill -USR1` engages it and `kill -USR2` releases it (AWP-EVT-002).
+- **Timing.** `--watchdog-ms`, `--heartbeat-ms`, `--reconnect-window-ms`, and `--tick-ms` override the defaults.
+- **Latest-wins delivery.** On the inline binding a frame not yet sent on a `latest-wins` channel is replaced by a newer one rather than queued behind it (AWP-TRN-009).
+
+## Scenarios
+
+`awp-sim scenarios` runs real clients against the world on a virtual clock and checks the outcome; `--out DIR` writes one trace per agent and a `report.json`. Every recorded trace passes the specification's own trace checker.
+
+| Scenario | Exercises |
+|---|---|
+| `core-lockstep` | Discovery, staging, explicit ticks, one frame per advance, close |
+| `core-streaming` | Clock sync, basis and validity, progress, telemetry, receiver report |
+| `duplicate-and-conflict` | Idempotent resubmission; `AWP_ACTION_ID_CONFLICT` |
+| `lost-acknowledgement` | A lost admission result recovered by resume and replay |
+| `cancel-during-motion` | `cancelling` → `cancelled` within `max_abort_ms` |
+| `estop-during-abort` | E-stop precedence over an abort in progress |
+| `limit-exceeded` | Envelope refusal with no motion |
+| `replace-race` | Preemption of the running move and supersession of the queue |
+| `disconnect-and-resume` | Safe state at `watchdog_ms`, full replay, resync of reliable channels |
+| `quiet-agent` | A live connection whose agent originates nothing trips the watchdog |
+| `stale-observation` | `AWP_STALE_INTENT` for an old basis or an expired validity |
+| `window-expiry` | Safe state, then close and `AWP_SESSION_EXPIRED` for the old token |
+
+## Using it in tests
+
+The world is a sans-IO engine: `awp_sim.world.World` takes messages and the current time and returns what to send. `awp_sim.loopback.Loopback` connects it in-process to real `ClientConnection`s on a virtual clock, with fault injection for dropped, half-open, and lossy connections, so agent code can be tested deterministically without a socket.
+
+## Not implemented
+
+Approval, command channels, and `task`; stream bindings other than inline; `blend` preemption; seeding, snapshots, restore, and replay; multi-bind, transfer, and shared control.

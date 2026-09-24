@@ -25,7 +25,7 @@ Each of these has asynchrony, introspection, or security of its own. None of the
 
 **Self-describing worlds.** A world advertises its observation channels, action schemas, time models, and safety policy in a manifest. A generic agent can enter a world it has never seen and discover: *here I have two arms, a camera at 30 fps, and these 14 action types.*
 
-**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary can train against a simulator adapter and deploy against a robot adapter (the planned `awp-sim` and ROS 2 bridge are the reference designs). See [Sim-to-real](/guides/sim-to-real).
+**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary can train against a simulator adapter and deploy against a robot adapter ([`awp-sim`](/adapters/awp-sim) is the reference simulator world; the planned ROS 2 bridge is the reference design for robots). See [Sim-to-real](/guides/sim-to-real).
 
 **Safety at the boundary.** Scoped grants, server-side envelopes, approval hooks, and a normative audit log live in the protocol itself, not in each integration. See the [safety model](/concepts/safety-model).
 

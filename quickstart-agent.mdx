@@ -1,8 +1,78 @@
 ---
 title: "Quickstart: connect an agent"
 sidebarTitle: "Quickstart: agent"
-description: "Not published yet."
+description: "Run the reference world and drive its arm from a Python agent in a few minutes."
 icon: "plug"
 ---
 
-Not published yet. Until it is, the [wire traces](/spec/wire-traces) are the complete reference flow: discovery, session opening, observation, action, progress, completion, cancellation, disconnection, and closure, every message validated against the canonical schemas.
+This connects an agent written with the [Python SDK](/sdks/python) to [awp-sim](/adapters/awp-sim), the reference world. Both come from one package and need Python 3.11+.
+
+<Steps>
+  <Step title="Install">
+    ```bash
+    pip install "awp-python @ git+https://github.com/Hyperduality/awp-python"
+    ```
+  </Step>
+  <Step title="Start a world">
+    ```bash
+    awp-sim serve
+    ```
+    A streaming world now listens on `ws://127.0.0.1:8710`. `awp-sim manifest` prints what it offers: one arm, `arm_01`, two observation channels, and the action types `move_to_pose` and `stop`.
+  </Step>
+  <Step title="Write the agent">
+    ```python agent.py
+    import asyncio
+    from awp import ClientConnection
+    from awp.aio import AsyncClient
+
+    async def main() -> None:
+        conn = ClientConnection(
+            {"name": "quickstart", "version": "0.1.0", "vendor": "me"},
+            consumes_modalities=["proprio/json"],
+        )
+        async with AsyncClient(conn, "ws://127.0.0.1:8710") as client:
+            manifest = await client.initialize()                  # the world manifest
+            await client.open_session("streaming", embodiment="arm_01", subscribe=["proprio"])
+            await client.wait_for(lambda e: "proprio" in client.latest)
+
+            record = await client.submit(
+                "move_to_pose",
+                {"pose": {"frame": "base", "p_m": [0.3, 0.2, 0.5], "q": [0, 0, 0, 1]}},
+                basis=client.latest["proprio"].frame,             # what the decision rests on
+                valid_for_ms=200,
+            )
+            print("admitted:", record.action_id)          # the record tracks every later status
+            done = await client.wait_terminal(record.action_id)
+            print("finished:", done.state)
+            await client.close_session()
+
+    asyncio.run(main())
+    ```
+  </Step>
+  <Step title="Run it">
+    ```bash
+    python agent.py
+    ```
+    ```text
+    admitted: a-3f9c1e0b7d2a4c58
+    finished: completed
+    ```
+    The world reports every transition — `accepted`, `executing` with progress, `completed` — as `action.status` notifications, and writes the whole session to `./awp-audit`.
+  </Step>
+</Steps>
+
+## Lockstep
+
+Restart the world with `awp-sim serve --mode lockstep` and open the session with `"lockstep"`. Nothing moves until the agent advances time, so the loop becomes observe, submit, tick:
+
+```python
+record = await client.submit("move_to_pose", params)   # staged until the next advance
+while not record.terminal:
+    await client.advance(5)                            # world.tick, five advances
+```
+
+## Next
+
+- Try failure paths: `awp-sim scenarios` runs twelve of them, from a dropped connection to an e-stop mid-abort.
+- Read the [wire traces](/spec/wire-traces) for the exact messages each call stands for.
+- [Build an LLM agent](/guides/build-an-agent) renders the manifest into a model's context.
