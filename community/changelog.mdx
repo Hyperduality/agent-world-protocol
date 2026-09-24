@@ -5,6 +5,20 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-24" description="0.1-draft.5">
+Choices a first implementation had to make on its own, now written into the text.
+
+**Wire-visible changes**
+
+- **Lockstep clock.** The session clock in lockstep is simulated time: it moves only with advances, by the same amount each time, and every timing bound on it measures simulated time (AWP-TIM-013). Clock synchronization applies to streaming sessions only (AWP-CLK-008/009).
+- **Replace in lockstep.** A replacing submission cancels the group's pre-execution actions at admission; the executing action is preempted at the start of the next advance, not at admission (AWP-PRE-007).
+- **Rate limits.** `max_action_rate_hz` and `retry_after_ms` are measured on the session clock; in lockstep an agent clears the limit by advancing (AWP-ENV-004).
+- **Closing.** `session.close` is answered only after every action has ended and `session.state: closed` has been sent. While closing, new work, cancellation, subscription changes, advances, resets, and resumption fail with `AWP_SESSION_EXPIRED`; in lockstep the abort completes without an advance (AWP-SES-011).
+- **Connections without a session.** Worlds MAY close a silent connection that has no session, after at least 15 s; pongs on such a connection do not feed the clock estimate (AWP-SES-012).
+
+**Artifacts.** New traces: close during motion, and replace in lockstep. Trace validation checks the closing rules. Fixed a broken link from preemption to the lifecycle terminal rules.
+</Update>
+
 <Update label="2026-09-22" description="0.1-draft.4">
 Contradictions that blocked a first implementation resolved; traces checked for meaning, not only shape.
 

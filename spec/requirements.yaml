@@ -219,12 +219,12 @@ requirements:
     test: AWP-CLK-007
   - id: AWP-CLK-008
     side: agent
-    applies: all
+    applies: streaming
     gate: core
     test: AWP-CLK-008
   - id: AWP-CLK-009
     side: agent
-    applies: all
+    applies: streaming
     gate: core
     test: AWP-CLK-009
   - id: AWP-CMD-001
@@ -697,6 +697,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-PRE-006 (only if implemented)
+  - id: AWP-PRE-007
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-PRE-007
   - id: AWP-PRM-001
     side: world
     applies: all
@@ -937,6 +942,16 @@ requirements:
     applies: all
     gate: core
     test: AWP-SES-010
+  - id: AWP-SES-011
+    side: world
+    applies: all
+    gate: core
+    test: AWP-SES-011
+  - id: AWP-SES-012
+    side: both
+    applies: all
+    gate: core
+    test: AWP-SES-012
   - id: AWP-SIM-001
     side: world
     applies: lockstep
@@ -1002,6 +1017,11 @@ requirements:
     applies: lockstep
     gate: core
     test: AWP-TIM-012
+  - id: AWP-TIM-013
+    side: world
+    applies: lockstep
+    gate: core
+    test: AWP-TIM-013
   - id: AWP-TRN-001
     side: both
     applies: all

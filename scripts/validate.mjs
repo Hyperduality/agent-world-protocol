@@ -178,9 +178,11 @@ const TERMINAL = new Set(Object.entries(LIFECYCLE.states).filter(([, c]) => c ==
 // matching what was first reported (AWP-CTL-008, AWP-LIF-009); frame seq is checked per channel with its loss
 // class; and a trace that declares t0_ns checks the watchdog (AWP-SAF-003/004). A marker may carry `given`:
 // { status_seq, actions: { id: { state, status_seq, content? } } } for a trace that continues another. A line
-// with delivered: false was sent but lost with its connection; it still changes world state.
+// with delivered: false was sent but lost with its connection; it still changes world state. While a session is
+// closing, the world refuses what AWP-SES-011 lists and answers session.close only after every action has ended.
 const SUBMIT_FIELDS = ["type", "params", "embodiment_id", "preempt", "deadline_ms", "basis_ts_mono_ns", "valid_until_ns"];
 const canon = (v) => Array.isArray(v) ? v.map(canon) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])])) : v;
+const REFUSED_WHILE_CLOSING = new Set(["action.submit", "action.cancel", "obs.subscribe", "obs.unsubscribe", "world.tick", "world.reset", "session.resume"]);
 const identical = (a, b) => SUBMIT_FIELDS.every((f) => (f in a) === (f in b) && JSON.stringify(canon(a[f])) === JSON.stringify(canon(b[f])));
 
 const traceFiles = walk(join(ROOT, "examples", "v0.1", "traces"), (f) => f.endsWith(".jsonl")).sort();
@@ -198,6 +200,8 @@ for (const p of traceFiles) {
   const seqs = new Map(), lossByName = new Map(), lossById = new Map(), needResync = new Set();
   // watchdog
   let watchdogMs = null, t0 = null, originatedAfterT0 = false;
+  // closing
+  let closing = false, closedReported = false;
 
   const identity = (kind, x) => kind === "action" ? `action:${x.action_id}:${x.state}` : kind === "world.event" ? `event:${x.event}` : `session:${x.state}`;
   /** A world-assigned status_seq. Returns false for a redelivery (already reported), true for a new transition. */
@@ -253,7 +257,8 @@ for (const p of traceFiles) {
       if (msg.id !== undefined) {
         if (!spec.params) return problem(n, `${msg.method} is notification-only`);
         check(spec.params, msg.params ?? {}, `${msg.method} params`);
-        pending.set(`${from}:${msg.id}`, { method: msg.method, params: msg.params ?? {} });
+        pending.set(`${from}:${msg.id}`, { method: msg.method, params: msg.params ?? {}, closing });
+        if (from === "agent" && msg.method === "session.close") closing = true;
         return;
       }
       if (!spec.notification) return problem(n, `${msg.method} is not a notification`);
@@ -274,6 +279,7 @@ for (const p of traceFiles) {
       if (from === "world" && ["action.status", "world.event", "session.state"].includes(msg.method)) {
         const kind = msg.method === "action.status" ? "action" : msg.method;
         const fresh = seqArrived(n, params.status_seq, identity(kind, params));
+        if (fresh && kind === "session.state" && params.state === "closed") closedReported = true;
         if (fresh && kind === "action") transition(n, params.action_id, params.state, params.reason, params.status_seq);
         if (fresh && params.event === "safe_state_entered" && t0 !== null && watchdogMs !== null) {
           const dt = (params.ts_mono_ns - t0) / 1e6;
@@ -296,6 +302,13 @@ for (const p of traceFiles) {
     else check(METHODS[method].result, msg.result, `${method} result`);
     if (from !== "world") return;
     const r = msg.result;
+    if (req.closing && REFUSED_WHILE_CLOSING.has(method) && msg.error?.code !== 2003) problem(n, `${method} while the session is closing must fail AWP_SESSION_EXPIRED (AWP-SES-011)`);
+    if (method === "session.close" && r) {
+      const open = [...actions].filter(([, a]) => !TERMINAL.has(a.state)).map(([id]) => id);
+      if (open.length) problem(n, `session.close answered while ${open.join(", ")} not terminal (AWP-SES-011)`);
+      if (!closedReported) problem(n, `session.close answered before session.state: closed (AWP-SES-011)`);
+      closing = false;
+    }
 
     if (method === "initialize" && r) {
       for (const c of r.observation_channels ?? []) lossByName.set(c.id, c.loss_class);

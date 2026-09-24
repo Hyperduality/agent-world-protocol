@@ -7,9 +7,11 @@ Each action type declares its preemption policy in the manifest; the submitter s
 
 | Policy | Semantics |
 |---|---|
-| `queue` | New action enters the `queued` state and becomes `accepted` when the group frees, in submission order. Queue depth bounded by `max_queue` (manifest); overflow → `AWP_QUEUE_FULL`. Queued actions terminate per the [pre-execution rules](/spec/loop/action-lifecycle#terminal-rules-for-pre-execution-actions): cancel, e-stop, session close, safe-state entry, world reset → `cancelled`; deadline expiry → `rejected`. `[AWP-PRE-002]` |
+| `queue` | New action enters the `queued` state and becomes `accepted` when the group frees, in submission order. Queue depth bounded by `max_queue` (manifest); overflow → `AWP_QUEUE_FULL`. Queued actions terminate per the [pre-execution rules](/spec/loop/action-lifecycle#terminal-rules): cancel, e-stop, session close, safe-state entry, world reset → `cancelled`; deadline expiry → `rejected`. `[AWP-PRE-002]` |
 | `replace` | Current `executing` action → `preempted` (after safe transition); current pre-execution actions in the group → `cancelled` (reason `superseded`); new action starts. `[AWP-PRE-003]` |
 | `blend` | World merges trajectories (continuous control); both actions report status, the replaced one ends `preempted` with `blended: true`. `[AWP-PRE-004]` |
 | `reject` | New submission is rejected with `AWP_BUSY` while one is `executing` or pre-execution in the group. `[AWP-PRE-005]` |
+
+**Replace in lockstep.** A staged action does nothing before the next advance (AWP-TIM-010), so neither does its preemption. At admission, a `replace` submission cancels the group's pre-execution actions (reason `superseded`), which has no side effects; the group's `executing` action is unaffected until the start of the next advance, when it is `preempted` and the new action becomes `executing`, both reported among the advance's statuses. If the new action is cancelled before that advance, the executing action continues. `[AWP-PRE-007]`
 
 **Concurrency groups.** Each action type MAY name a `concurrency_group` (string) in its schema. Types sharing a group name preempt one another; types in different groups run concurrently (e.g. `base_motion` vs `gripper`). Types with no group form an implicit group per embodiment. `[AWP-PRE-006]`
