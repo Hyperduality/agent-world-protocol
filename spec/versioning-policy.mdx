@@ -14,7 +14,7 @@ description: "Protocol semver, version negotiation, and deprecation."
 - While MAJOR is `0`, a MINOR bump may contain wire-visible breaking changes.
 - The version negotiated in `initialize` (`protocol_versions`, `protocol_version`) is the string `MAJOR.MINOR`, e.g. `"0.1"`. PATCH releases never change the wire, so PATCH is not negotiated. Worlds and agents MUST send and compare protocol versions as `MAJOR.MINOR` only, with no PATCH component or draft suffix. `[AWP-VER-008]`
 - Within 0.1 the text is published as numbered **draft revisions**, `0.1-draft.N`. Each is recorded in the [changelog](/community/changelog) and tagged `spec-v0.1-draft.N` in git. Every draft revision negotiates `"0.1"`; draft revisions are not guaranteed wire-compatible with each other.
-- Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.5"); `"0.1"` alone does not identify a contract. `[AWP-VER-009]`
+- Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.6"); `"0.1"` alone does not identify a contract. `[AWP-VER-009]`
 - Adding a MUST or MUST NOT to Core or to a profile is a breaking change for conformance claims even when no wire field changes: an implementation conformant to one revision need not be conformant to the next.
 - Profiles have no versions of their own. Profile text is versioned with the specification, so citing the draft revision pins every profile a claim names.
 

@@ -1,6 +1,54 @@
 ---
 title: "Conformance test suite"
-description: "Not published yet."
+description: "awp-conformance: tests a world at a URL, or an agent against a harness world, against the requirement matrix."
 ---
 
-Not published yet.
+[`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.6** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
+
+<Warning>
+Alpha. Coverage grows release by release; a requirement the suite does not yet exercise is reported `untested`, and a claim with any untested requirement in scope is self-assessed (AWP-CNF-005).
+</Warning>
+
+```bash
+pip install "awp-conformance @ git+https://github.com/Hyperduality/awp-conformance"
+```
+
+## Testing a world
+
+```bash
+awp-conformance world ws://127.0.0.1:8710 --fixture my-world.json --out report/
+```
+
+The suite connects as one or more agents. It checks everything the world sends — schemas in receiver and sender form, `status_seq` sequencing and replay, every action transition against the lifecycle table, frame sequencing per channel, closing, integer bounds — and runs active tests named after the requirements they cover: version negotiation, grants and subscriptions, idempotency and conflicts, preemption, deadlines, closing during motion, lockstep advancement and its clock, streaming delivery and telemetry, the watchdog, stale intents, resumption from a partial acknowledgement, half-open connections, reconnect-window expiry, heartbeat loss, resets, session isolation, the e-stop, and the audit log. `awp-conformance tests` lists them; `awp-conformance requirements` shows which cover each ID.
+
+A manifest declares action types but not which parameters make an action run long enough to interrupt, so the world supplies a **fixture**: three or more extended moves in one concurrency group, and optionally params that fail validation or leave an envelope, operator commands that engage and release the e-stop, and the directory of the audit log. The fixture for the reference world is [`fixtures/awp-sim.json`](https://github.com/Hyperduality/awp-conformance/blob/main/fixtures/awp-sim.json).
+
+Timing-bound tests — the watchdog, heartbeat loss, reconnect-window expiry — wait as long as the world declares. `max_wait_s` in the fixture bounds a single wait (default 45 s); `--slow` lifts it.
+
+## Testing an agent
+
+```bash
+awp-conformance agent --manifest manifest.json --frames frames.json -- python my_agent.py --url {url}
+```
+
+The suite serves the manifest from a harness world that behaves as a minimal conformant world for it, launches the agent once per episode (`{url}` and `{token}` in the command, or `$AWP_URL` and `$AWP_TOKEN` in its environment), and checks what the agent sends. The episodes supply the stimuli agent requirements need: unknown fields on every message, reserved frame flag bits, a redelivered terminal status, an unknown world request, a dropped connection, a world that falls silent, an invalid manifest, a session without action grants, and a refused submission.
+
+## The report
+
+Every requirement receives one outcome:
+
+| Outcome | Meaning |
+|---|---|
+| `pass` | Exercised; nothing violated it |
+| `fail` | Violated; the report quotes what was seen |
+| `warn` | A SHOULD not met |
+| `untested` | In scope, not exercised by this run or suite release |
+| `n/a` | Outside the side, time models, gates, or declared features |
+| `manual` | Needs evidence attached to the report |
+| `untestable` | Process or deployment policy |
+
+The report states the claim its outcomes support (AWP-CNF-005): **AWP-conformant** with no failure and nothing untested in scope, **self-assessed** when nothing failed but something went untested, and **not conformant** otherwise. `--out` writes `report.json` and a wire trace per connection in the [trace format](/spec/wire-traces).
+
+## Not yet covered
+
+The first release covers Core on the inline binding. Stream bindings, command channels, approval, `task`, snapshots, replay, multi-bind, and transfer are reported `n/a` when a world does not offer them and `untested` when it does.

@@ -14,7 +14,7 @@ description: "A lockstep adapter over an existing sim, with seeding, snapshot, a
     Wire `seed` into your RNGs, implement `world.snapshot`/`restore` over your sim's serialization, and verify AWP-REP-003 by replaying a recorded log in CI.
   </Step>
   <Step title="Conformance">
-    Map each requirement you implement to its ID in the [requirement matrix](/spec/requirements) and keep that mapping in your repo. The conformance suite that will automate this check is not published yet; until it is, a claim of conformance is self-assessed and MUST say so (AWP-CNF-005).
+    Run the [conformance suite](/conformance/test-suite) against your world with a fixture naming three moves: `awp-conformance world ws://… --fixture world.json`. Its report gives a verdict per [requirement](/spec/requirements) and the claim wording the verdicts support (AWP-CNF-005).
   </Step>
 </Steps>
 

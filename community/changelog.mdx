@@ -5,6 +5,18 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-24" description="0.1-draft.6">
+The conformance suite is published, and the claim rules say what its report must show.
+
+**Wire-visible changes.** None.
+
+**Conformance.** [`awp-conformance`](/conformance/test-suite) runs the matrix's assertions against a world at a URL, or against an agent launched beside a harness world (AWP-CNF-004). "AWP-conformant" now requires a suite report for the named revision with no failure and nothing untested in scope, plus the evidence for every `manual` row; everything else is "self-assessed against 0.1-draft.N" (AWP-CNF-005).
+
+**Requirement matrix.** Rows the suite cannot observe on the wire are relabelled: transport backpressure (AWP-DAT-002, AWP-TRN-009), the frame test vectors, which exercise an implementation's own decoder (AWP-DAT-008), and unit naming (AWP-UNI-001) need manual evidence; semver policy (AWP-VER-001) and artifact versions (AWP-VER-006) are process rules. AWP-SAF-005 is an agent requirement, and AWP-AUD-005 applies only with `capability:replay`.
+
+**Artifacts.** Conformance test suite, badges, and registry pages; the reference implementation's pages.
+</Update>
+
 <Update label="2026-09-24" description="0.1-draft.5">
 Choices a first implementation had to make on its own, now written into the text.
 

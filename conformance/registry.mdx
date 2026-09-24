@@ -1,6 +1,13 @@
 ---
 title: "Registry"
-description: "Not published yet."
+description: "Implementations and the claims their suite reports support."
 ---
 
-Not published yet.
+| Implementation | Side | Time models | Claim | Suite |
+|---|---|---|---|---|
+| [awp-sim](/adapters/awp-sim) | world | streaming, lockstep | Core World, self-assessed against 0.1-draft.6 | awp-conformance 0.1.0a1: no failures |
+| [awp-python](/sdks/python) (`awp-sim demo`) | agent | streaming, lockstep | Core Agent, self-assessed against 0.1-draft.6 | awp-conformance 0.1.0a1: no failures |
+
+Both are self-assessed: their reports pass every assertion the suite ran and leave some requirements untested, so neither may yet claim "AWP-conformant" (AWP-CNF-005).
+
+To add an implementation, open a pull request against this page with its `report.json` from a suite release that targets the claimed revision.

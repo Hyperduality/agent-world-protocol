@@ -160,7 +160,7 @@ requirements:
   - id: AWP-AUD-005
     side: world
     applies: all
-    gate: core
+    gate: capability:replay
     test: AWP-AUD-005 (replay bundle drives AWP-REP-003)
   - id: AWP-AUD-006
     side: world
@@ -356,7 +356,7 @@ requirements:
     side: both
     applies: all
     gate: core
-    test: AWP-DAT-002 (warning)
+    test: "manual: needs control of transport backpressure; attach the sender's drop policy and a stalled-receiver test"
   - id: AWP-DAT-003
     side: both
     applies: all
@@ -386,7 +386,7 @@ requirements:
     side: both
     applies: all
     gate: core
-    test: AWP-DAT-008 (schemas/test-vectors/frames.json)
+    test: "manual: run the implementation's decoder over schemas/test-vectors/frames.json and attach the result"
   - id: AWP-DAT-009
     side: both
     applies: all
@@ -803,7 +803,7 @@ requirements:
     gate: core (streaming)
     test: AWP-SAF-004
   - id: AWP-SAF-005
-    side: world
+    side: agent
     applies: streaming
     gate: core (streaming)
     test: AWP-SAF-005 (warning)
@@ -1066,7 +1066,7 @@ requirements:
     side: world
     applies: streaming
     gate: core (streaming)
-    test: AWP-TRN-009
+    test: "manual: needs control of transport backpressure; attach a stalled-receiver test showing at most one undelivered frame per latest-wins channel"
   - id: AWP-TRN-010
     side: both
     applies: streaming
@@ -1106,7 +1106,7 @@ requirements:
     side: world
     applies: all
     gate: core
-    test: AWP-UNI-001
+    test: "manual: review of field names and units in the manifest and payload schemas"
   - id: AWP-UNI-002
     side: world
     applies: all
@@ -1126,7 +1126,7 @@ requirements:
     side: both
     applies: all
     gate: core
-    test: AWP-VER-001
+    test: "untestable: process or deployment policy"
   - id: AWP-VER-002
     side: both
     applies: all
@@ -1151,7 +1151,7 @@ requirements:
     side: both
     applies: all
     gate: core
-    test: AWP-VER-006
+    test: "untestable: process or deployment policy"
   - id: AWP-VER-007
     side: both
     applies: all
