@@ -1,0 +1,8 @@
+{"marker":"Continues the lockstep trace after tick 1: a-1 (walk_to [2,0]) is executing and the avatar stands at [1,0].","given":{"status_seq":4,"actions":{"a-1":{"state":"executing","status_seq":4}},"channels":{"1":"reliable"}}}
+{"from":"agent","step":"Replace the walk with one toward [0,2]","msg":{"jsonrpc":"2.0","id":7,"method":"action.submit","params":{"action_id":"a-2","type":"walk_to","params":{"cell":[0,2]},"preempt":"replace"}}}
+{"from":"world","step":"Admitted and staged; a-1 keeps executing, since nothing moves before the next advance (AWP-PRE-007)","msg":{"jsonrpc":"2.0","id":7,"result":{"action_id":"a-2","state":"accepted","status_seq":5,"received_ts_mono_ns":1000000,"ts_mono_ns":1000000}}}
+{"from":"agent","step":"Advance one tick from tick 1","msg":{"jsonrpc":"2.0","id":8,"method":"world.tick","params":{"expected_tick":1}}}
+{"from":"world","step":"At the start of the advance a-1 is preempted","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-1","state":"preempted","status_seq":6,"ts_mono_ns":2000000,"tick":2}}}
+{"from":"world","step":"and a-2 begins executing","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-2","state":"executing","status_seq":7,"ts_mono_ns":2000000,"tick":2}}}
+{"from":"world","step":"Frame for tick 2: the avatar has turned back toward [0,2]","msg":{"jsonrpc":"2.0","method":"obs.frame","params":{"channel_id":1,"seq":3,"ts_mono_ns":2000000,"flags":1,"tick":2,"payload_b64":"eyJhdmF0YXIiOlswLDBdLCJnb2FsIjpbMiwwXX0="}}}
+{"from":"world","step":"Tick result after statuses and frames","msg":{"jsonrpc":"2.0","id":8,"result":{"tick":2}}}

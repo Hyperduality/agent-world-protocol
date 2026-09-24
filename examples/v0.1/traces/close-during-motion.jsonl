@@ -1,0 +1,8 @@
+{"marker":"Continues the streaming trace after a-7 began executing (status_seq 4).","given":{"status_seq":4,"actions":{"a-7":{"state":"executing","status_seq":4}}}}
+{"from":"agent","step":"Close while a-7 is still moving","msg":{"jsonrpc":"2.0","id":10,"method":"session.close"}}
+{"from":"world","step":"The session is closing: a-7 enters cancelling while its safe abort runs (AWP-SES-006)","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-7","state":"cancelling","status_seq":5,"ts_mono_ns":913436900000,"reason":"session_closed"}}}
+{"from":"agent","step":"A submission while closing","msg":{"jsonrpc":"2.0","id":11,"method":"action.submit","params":{"action_id":"a-8","type":"stop","params":{}}}}
+{"from":"world","step":"Refused; the error creates no action (AWP-SES-011)","msg":{"jsonrpc":"2.0","id":11,"error":{"code":2003,"message":"AWP_SESSION_EXPIRED","data":{"retryable":false,"detail":"the session is closing"}}}}
+{"from":"world","step":"Safe abort complete","msg":{"jsonrpc":"2.0","method":"action.status","params":{"action_id":"a-7","state":"cancelled","status_seq":6,"ts_mono_ns":914244000000,"reason":"session_closed","aborted_at_progress":0.4}}}
+{"from":"world","step":"Closed; the embodiment is released","msg":{"jsonrpc":"2.0","method":"session.state","params":{"state":"closed","status_seq":7,"ts_mono_ns":914245000000,"reason":"session_closed"}}}
+{"from":"world","step":"Only now is the close answered: every action has ended and the arm is at rest (AWP-SES-011)","msg":{"jsonrpc":"2.0","id":10,"result":{}}}
