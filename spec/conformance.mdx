@@ -7,11 +7,11 @@ description: "Conformance classes, the requirement matrix, and how normative req
 
 - **Core World** — implements every MUST in the Core profile on the world side. `[AWP-CNF-001]`
 - **Core Agent** — implements every MUST in the Core profile on the agent side. `[AWP-CNF-002]`
-- **Profile conformance** — a Core-conformant implementation additionally satisfying all MUSTs of a named [profile](/spec/profiles/core). Claims are per-profile and name the draft revision (e.g. "Core World + sim + robotics (experimental; no force monitoring), self-assessed against 0.1-draft.8"). `[AWP-CNF-003]`
+- **Profile conformance** — a Core-conformant implementation additionally satisfying all MUSTs of a named [profile](/spec/profiles/core). Claims are per-profile and name the draft revision (e.g. "Core World + sim + robotics (experimental; no force monitoring), self-assessed against 0.1-draft.9"). `[AWP-CNF-003]`
 
 ## Requirement mapping
 
-Every requirement ID has a row in the [requirement matrix](/spec/requirements) giving its side (world / agent / both), applicability (all / lockstep / streaming), feature gate (profile or capability key), and the assertion that tests it — or `manual` / `untestable` with the reason. Each MUST/MUST NOT maps to at least one assertion, named after its requirement ID; SHOULD items generate warnings, not failures. The [conformance suite](/conformance/test-suite), `awp-conformance`, runs the assertions; each suite release targets one draft revision and reports a verdict per requirement ID. The matrix is generated from `spec/requirements.yaml` and CI fails if a bracketed ID in the specification is missing from it. `[AWP-CNF-004]`
+Every requirement ID has a row in the [requirement matrix](/spec/requirements) giving its side (world / agent / both), applicability (all / lockstep / streaming), feature gate (profile or capability key), and the assertion that tests it — or `manual` / `untestable` with the reason — with a separate entry for the agent side of a row where that side is tested differently. Each MUST/MUST NOT maps to at least one assertion, named after its requirement ID; SHOULD items generate warnings, not failures. The [conformance suite](/conformance/test-suite), `awp-conformance`, runs the assertions; each suite release targets one draft revision and reports a verdict per requirement ID. The matrix is generated from `spec/requirements.yaml` and CI fails if a bracketed ID in the specification is missing from it. `[AWP-CNF-004]`
 
 ## Claiming conformance
 

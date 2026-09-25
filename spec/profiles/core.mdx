@@ -30,7 +30,7 @@ Core is deliberately small: a WebSocket, JSON-RPC, one time model, the action li
 - Generate unique `action_id`s, resubmit only with identical content, and never reuse an admitted `action_id` (AWP-ACT-001, AWP-ACT-009, AWP-ACT-010). `[AWP-AGT-004]`
 - Handle every lifecycle state, including `pending_approval`, `queued`, `cancelling`, and `preempted`, and deduplicate redelivered statuses on `status_seq` (AWP-LIF-009). `[AWP-AGT-005]`
 - Send heartbeats at the negotiated interval carrying `origin_ns`, answer the world's pings with `receive_ns` and `transmit_ns`, and in lockstep call `world.tick` rather than waiting for completion (AWP-SAF-001, AWP-CLK-007, AWP-TIM-002). `[AWP-AGT-006]`
-- On `session.resume`, pass `last_status_seq` and treat the embodiment as being in safe state until a new action executes (AWP-CTL-008, AWP-SAF-008). `[AWP-AGT-007]`
+- On `session.resume`, pass `last_status_seq`, process the replay through `replay_to_status_seq` before resubmitting an action whose admission it has not seen, and treat the embodiment as being in safe state until a new action executes (AWP-CTL-008, AWP-SAF-008). `[AWP-AGT-007]`
 - Maintain the clock-offset estimate from heartbeat exchanges and express every agent-originated session-clock value through it (AWP-CLK-008, AWP-CLK-009). `[AWP-AGT-008]`
 - Expose `world.tick` as an explicit call and never advance time as a side effect of any other operation; an SDK helper that submits and ticks in one step MUST be a distinct, lockstep-only entry point that fails in a streaming session. `[AWP-AGT-009]`
 

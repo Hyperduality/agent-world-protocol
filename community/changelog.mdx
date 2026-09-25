@@ -5,6 +5,32 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-25" description="0.1-draft.9">
+Standing approvals, and the answers to what the first independent implementation, a TypeScript agent written from the specification alone, found unclear.
+
+**Wire-visible changes**
+
+- **Standing approvals.** A world declares support with `safety_policy.standing_approvals`. An approver grants one alongside an approval, `standing: { scope: { type, predicate }, expires_at_ns }` — renamed from `expires_at` — scoped to the requesting session and its clock and ending with it. Submissions within it are admitted without approval, and their `action.submit` result carries the grant's `approval_id`. A world refuses a standing approval with `AWP_PARAMS_INVALID` if it does not declare them, if the decision is `deny`, if the scope's type is not the request's, or if the predicate is not a JSON Schema (AWP-APR-004).
+- **Out-of-range integers.** The 2^53 − 1 bound applies to binary frames too. A receiver answers the request that carried a larger value with `AWP_INTEGER_RANGE`; a world closes the session with the new `session.state` reason `protocol_error`, and an agent sends `session.close` without awaiting its result. Either side then closes the connection with WebSocket close code 1002 and reason `AWP_INTEGER_RANGE` (AWP-CTL-009).
+- **Malformed frames.** A frame is malformed if its magic, version, or length is wrong, its extension block is inconsistent, a type repeats, or it carries `resync` without `keyframe`. The receiver drops it and, on a stream connection, closes the connection with close code 1002 and reason `AWP_MALFORMED` (new AWP-DAT-010, AWP-TRN-013). Extension types `0x00` and `0x04`–`0x7F` are reserved. New vectors: an unknown version, trailing bytes, and resync without keyframe.
+- **Lockstep resumption.** After the replay, the world sends a resync keyframe carrying the current tick on every subscribed per-tick channel, `latest-wins` ones included, which also completes an advance whose frames were lost with the connection (AWP-TIM-009, AWP-TRN-008).
+- **Transitions are reported once.** A transition an `action.cancel` causes is reported in its result, every other one as an `action.status` notification (AWP-LIF-001); `status_seq` counts both (AWP-CTL-008).
+- **Defaults.** A submission that selects no preemption policy gets the first its type declares (AWP-PRE-001). After `world.reset` or `world.restore`, the fresh per-tick frames precede the initiating session's result (AWP-PRM-006).
+- **Schemas.** Channel ids start at 1. `session.state` no longer lists `negotiating`, which is never sent. `stream.clamped_count` is required on streaming actions' statuses. `reconnect_window_ms` and `heartbeat_interval_ms` in `session.ready` are required and have no default. The error message pattern admits JSON-RPC's own `Invalid Request`.
+
+**Clarifications**
+
+- **Schema forms.** The canonical schemas are in receiver form; `x-awp-closed` and `x-awp-lint` define the sender form every sent message must satisfy (AWP-VER-004).
+- **A lost session.** After `AWP_SESSION_UNKNOWN` the agent treats the session as closed and assumes nothing of it survives; opening a new session is how it continues, not an obligation (AWP-SES-008).
+- **Resumption.** An agent processes the replay through `replay_to_status_seq` before resubmitting an action whose admission it has not seen (AWP-AGT-007).
+- **Retries.** A resubmission retries a refused one when its `type`, `params`, and `embodiment_id` match, whatever its `action_id` (AWP-ERR-001).
+- **Connections.** The control connection's WebSocket binding uses the `awp` subprotocol, one JSON-RPC message per text message (AWP-TRN-001). Neither side detects loss by silence before `session.ready`, or on a new connection before the `session.resume` result (AWP-SES-012). The agent clock is monotonic across the agent's connections and sessions (AWP-CLK-006). A world never grants a `reconnect_window_ms` shorter than its `watchdog_ms` (AWP-SAF-003).
+- **Channels.** Per-tick channels are those a lockstep session is granted with `rate_hz: null` (AWP-TIM-003). Command channels are listed in `granted.channels`, and an endpoint without `channels` carries them too (AWP-CMD-002, AWP-TRN-012). While a lost stream connection is down its channels are sent in neither direction, not even inline, and one closed over a malformed frame is re-established like any lost one (AWP-TRN-010, AWP-DAT-010). An `obs.report`'s `gaps` leaves out the gap before a resync frame.
+- The inline frame schema's `flags` description and the `minimal` vector's payload length now match the text.
+
+**Requirement matrix.** A row on both sides may give its agent side a separate test. The agent side of AWP-DAT-001 and AWP-DAT-009 is tested from the agent's `obs.report` where it sends one, and needs manual evidence otherwise. AWP-OBS-007 is on both sides: worlds must accept the report, agents should send it. AWP-AGT-008 applies to streaming. New row AWP-DAT-010.
+</Update>
+
 <Update label="2026-09-25" description="0.1-draft.8">
 Two rules the first conformance claim had to interpret, stated.
 

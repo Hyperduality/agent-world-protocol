@@ -30,7 +30,7 @@ Fragment (illustrative) of a manifest declaring one command channel and its anch
 ```
 
 - Command channels are gated on the `command_channels` capability, declared in the manifest's top-level `command_channels` list using the standard [channel schema](/api-reference/schemas/observation-channel), and available only in the streaming time model. `[AWP-CMD-001]`
-- Every action schema naming a `command_channel` MUST declare `duration: "streaming"` and reference a declared command channel; a granted streaming action type implies access to its bound channel, whose `channel_id` is assigned in `session.ready` like any other. `[AWP-CMD-002]`
+- Every action schema naming a `command_channel` MUST declare `duration: "streaming"` and reference a declared command channel; a granted streaming action type implies access to its bound channel, which `session.ready` lists in `granted.channels` with its `channel_id` and rate like any other channel. `[AWP-CMD-002]`
 - Frames are accepted on a command channel only while exactly one bound action is `executing`; worlds MUST discard frames received outside such a binding. `[AWP-CMD-003]`
 - A streaming action never completes on its own: it remains `executing` while the stream is live and reaches a terminal state only via `action.cancel` (safe abort per AWP-LIF-005, then `cancelled`, closing the channel), preemption, failure, or deadline. `deadline_ms`, when given, bounds the total stream lifetime and is binding. `[AWP-CMD-004]`
 - Streaming action types MUST declare `watchdog_ms`. If no valid frame arrives within `watchdog_ms` while the action is `executing`, the world MUST apply the type's safe-abort behavior and fail the action with reason `watchdog`. `[AWP-CMD-005]`

@@ -6,7 +6,7 @@ description: "Protocol semver, version negotiation, and deprecation."
 - The protocol uses **semver** (`MAJOR.MINOR.PATCH`). From 1.0, wire-visible breaking changes bump MAJOR and additive capabilities bump MINOR; PATCH releases are editorial. Versions below 1.0 follow [Before 1.0](#before-1-0). `[AWP-VER-001]`
 - Agents send the list of protocol versions they support in `initialize`; the world MUST select the highest mutually supported version and echo it, or reject with `AWP_VERSION_UNSUPPORTED`. `[AWP-VER-002]`
 - Unknown fields in any message MUST be ignored, never treated as errors (forward compatibility). `[AWP-VER-003]`
-- Extension fields and modalities MUST use the `x-<vendor>.` prefix. `[AWP-VER-004]`
+- Extension fields and modalities MUST use the `x-<vendor>.` prefix, and every message a sender produces MUST be valid against the [sender form](#canonical-schemas) of its schema. `[AWP-VER-004]`
 - Deprecated features remain functional for at least one MINOR release after the deprecation notice appears in the [changelog](/community/changelog). `[AWP-VER-005]`
 
 ## Before 1.0
@@ -14,9 +14,13 @@ description: "Protocol semver, version negotiation, and deprecation."
 - While MAJOR is `0`, a MINOR bump may contain wire-visible breaking changes.
 - The version negotiated in `initialize` (`protocol_versions`, `protocol_version`) is the string `MAJOR.MINOR`, e.g. `"0.1"`. PATCH releases never change the wire, so PATCH is not negotiated. Worlds and agents MUST send and compare protocol versions as `MAJOR.MINOR` only, with no PATCH component or draft suffix. `[AWP-VER-008]`
 - Within 0.1 the text is published as numbered **draft revisions**, `0.1-draft.N`. Each is recorded in the [changelog](/community/changelog) and tagged `spec-v0.1-draft.N` in git. Every draft revision negotiates `"0.1"`; draft revisions are not guaranteed wire-compatible with each other.
-- Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.8"); `"0.1"` alone does not identify a contract. `[AWP-VER-009]`
+- Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.9"); `"0.1"` alone does not identify a contract. `[AWP-VER-009]`
 - Adding a MUST or MUST NOT to Core or to a profile is a breaking change for conformance claims even when no wire field changes: an implementation conformant to one revision need not be conformant to the next.
 - Profiles have no versions of their own. Profile text is versioned with the specification, so citing the draft revision pins every profile a claim names.
+
+## Canonical schemas
+
+The JSON Schemas in [`schemas/v0.1/`](https://github.com/Hyperduality/agent-world-protocol/tree/main/schemas/v0.1) are in **receiver form**: they accept unknown fields, as receivers must (AWP-VER-003). Two annotations carry the stricter rules for senders, and the **sender form** of a schema applies them: an object marked `x-awp-closed: true` admits only its declared properties and `x-<vendor>.` fields, and the constraints under `x-awp-lint` are added to the schema that holds them. Receivers ignore both annotations.
 
 ## Wire version vs. artifact versions
 

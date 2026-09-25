@@ -13,6 +13,7 @@ description: "World → Agent transition notifications for every action."
 <ParamField body="state" type="string" required>One of `pending_approval`, `queued`, `accepted`, `executing`, `cancelling`, `rejected`, `completed`, `failed`, `preempted`, `cancelled` ([lifecycle](/spec/loop/action-lifecycle)).</ParamField>
 <ParamField body="status_seq" type="integer" required>Per-session sequence shared by `action.status`, `world.event`, and `session.state`, and by the `action.submit` / `action.cancel` results. Unique within the session; receivers deduplicate on it (AWP-LIF-009) and pass the highest seen value to `session.resume` (AWP-CTL-008).</ParamField>
 <ParamField body="ts_mono_ns" type="integer" required>Time of the transition in the world, on the session clock.</ParamField>
+<ParamField body="tick" type="integer">Lockstep: the tick of the transition.</ParamField>
 <ParamField body="progress" type="number">0–1 during `executing` for `extended` types.</ParamField>
 <ParamField body="reason" type="string">Required in `rejected`, `failed`, `cancelled`; from the [status reason registry](/spec/loop/events-and-errors#status-reasons).</ParamField>
 <ParamField body="detail" type="string">Human-readable elaboration of `reason`.</ParamField>

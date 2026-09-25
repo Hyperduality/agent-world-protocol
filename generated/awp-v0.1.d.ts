@@ -151,7 +151,7 @@ export type ActionStatus = {
     /**
      * Unsigned 64-bit value carried as a JSON integer; bounded by 2^53-1 (AWP-CTL-009).
      */
-    clamped_count?: number;
+    clamped_count: number;
     [k: string]: unknown;
   };
   [k: string]: unknown;
@@ -185,6 +185,10 @@ export interface ActionSubmitResult {
    * Time of the reported transition.
    */
   ts_mono_ns: number;
+  /**
+   * Present when the action was admitted under a standing approval: the approval_id of the request the grant answered (AWP-APR-004).
+   */
+  approval_id?: string;
   /**
    * Present when an idempotent resubmission reports a rejected, failed, or cancelled action.
    */
@@ -318,7 +322,7 @@ export interface ApprovalRespond {
   decision: "approve" | "deny";
   note?: string;
   /**
-   * Scoped standing approval (AWP-APR-004).
+   * Scoped standing approval (AWP-APR-004); only with decision approve, on a world declaring safety_policy.standing_approvals.
    */
   standing?: {
     scope: {
@@ -327,14 +331,14 @@ export interface ApprovalRespond {
        */
       type: string;
       /**
-       * JSON Schema the params must satisfy.
+       * JSON Schema the params must satisfy; absent, any params.
        */
       predicate?: {};
     };
     /**
-     * Nanoseconds on the session monotonic clock (AWP-CLK-001).
+     * End of the grant, on the requesting session's clock.
      */
-    expires_at: number;
+    expires_at_ns: number;
   };
 }
 
@@ -403,6 +407,9 @@ export interface Error {
  */
 
 export interface FrameInline {
+  /**
+   * Channels ≥ 1; channel 0 is the control channel, which carries no frames (AWP-TRN-005).
+   */
   channel_id: number;
   /**
    * Per-channel frame sequence number (AWP-DAT-001).
@@ -413,7 +420,7 @@ export interface FrameInline {
    */
   ts_mono_ns: number;
   /**
-   * Bit 0 keyframe, bit 1 end-of-burst, bit 3 resync. Senders set bit 2 (extensions are explicit fields in JSON) and bits 4-7 to 0 and never set resync without keyframe (AWP-DAT-004/005/009); receivers ignore bits 4-7.
+   * Bit 0 keyframe, bit 1 end-of-burst, bit 3 resync. Senders set bits 2 and 4-7 to 0 (extensions are explicit fields in JSON) and never set resync without keyframe (AWP-DAT-004/005/009); receivers ignore bits 4-7.
    */
   flags: number;
   /**
@@ -539,7 +546,7 @@ export interface PerChannel {
      */
     frames: number;
     /**
-     * Frames missing, by seq.
+     * Frames missing, by seq; the gap before a resync frame is not counted (AWP-DAT-009).
      */
     gaps: number;
     /**
@@ -726,6 +733,10 @@ export interface SafetyPolicy {
    */
   approval_timeout_ms?: number;
   /**
+   * The world accepts scoped standing approvals (AWP-APR-004).
+   */
+  standing_approvals?: boolean;
+  /**
    * Where approval requests are routed (deployment-defined).
    */
   approval_channel?: string;
@@ -834,6 +845,9 @@ export interface SessionReady {
    * Credential; redacted in the audit log (AWP-SEC-003, AWP-AUD-006).
    */
   session_token: string;
+  /**
+   * AWP-CTL-005.
+   */
   reconnect_window_ms: number;
   /**
    * session.resume result only: the highest status_seq assigned before resumption. Replay ends with this notification; later ones are live (AWP-CTL-008).
@@ -919,6 +933,9 @@ export interface ChannelGrant {
    */
   channel: string;
   rate_hz: number | null;
+  /**
+   * Channels ≥ 1; channel 0 is the control channel, which carries no frames (AWP-TRN-005).
+   */
   channel_id: number;
 }
 
@@ -939,7 +956,7 @@ export interface SessionResume {
 }
 
 export interface SessionState {
-  state: "negotiating" | "ready" | "active" | "suspended" | "closed";
+  state: "ready" | "active" | "suspended" | "closed";
   /**
    * Per-session notification sequence shared by action.status, world.event, and session.state (AWP-CTL-008).
    */
@@ -960,7 +977,8 @@ export interface SessionState {
     | "window_expired"
     | "world_shutdown"
     | "transferred"
-    | "connection_replaced";
+    | "connection_replaced"
+    | "protocol_error";
 }
 
 /**
@@ -1179,7 +1197,7 @@ export type WorldEvent = {
    */
   ts_mono_ns: number;
   /**
-   * Lockstep tick number.
+   * Lockstep: the tick of the event.
    */
   tick?: number;
   detail?: {};
