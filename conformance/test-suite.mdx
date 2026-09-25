@@ -3,7 +3,7 @@ title: "Conformance test suite"
 description: "awp-conformance: tests a world at a URL, or an agent against a harness world, against the requirement matrix."
 ---
 
-[`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.7** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
+[`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.8** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
 
 <Warning>
 Alpha. Coverage grows release by release; a requirement the suite does not yet exercise is reported `untested`, and a claim with any untested requirement in scope is self-assessed (AWP-CNF-005).
@@ -21,7 +21,7 @@ awp-conformance world ws://127.0.0.1:8710 --fixture my-world.json --out report/
 
 The suite connects as one or more agents. It checks everything the world sends — schemas in receiver and sender form, `status_seq` sequencing and replay, every action transition against the lifecycle table, frame sequencing per channel, closing, integer bounds — and runs active tests named after the requirements they cover: version negotiation, grants and subscriptions, idempotency and conflicts, preemption, deadlines, closing during motion, lockstep advancement and its clock, streaming delivery and telemetry, the watchdog, stale intents, resumption from a partial acknowledgement, half-open connections, reconnect-window expiry, heartbeat loss, resets, session isolation, the e-stop, and the audit log. `awp-conformance tests` lists them; `awp-conformance requirements` shows which cover each ID.
 
-A manifest declares action types but not which parameters make an action run long enough to interrupt, so the world supplies a **fixture**: three or more extended moves in one concurrency group, and optionally params that fail validation or leave an envelope, operator commands that engage and release the e-stop, and the directory of the audit log. The fixture for the reference world is [`fixtures/awp-sim.json`](https://github.com/Hyperduality/awp-conformance/blob/main/fixtures/awp-sim.json).
+A manifest declares action types but not which parameters make an action run long enough to interrupt, so the world supplies a **fixture**: three or more extended moves in one concurrency group, and optionally params that fail validation or leave an envelope, params that make a move outlast its type's `max_duration_ms` (`long_params`), operator commands that engage and release the e-stop, and the directory of the audit log. The fixture for the reference world is [`fixtures/awp-sim.json`](https://github.com/Hyperduality/awp-conformance/blob/main/fixtures/awp-sim.json).
 
 Timing-bound tests — the watchdog, heartbeat loss, reconnect-window expiry — wait as long as the world declares. `max_wait_s` in the fixture bounds a single wait (default 45 s); `--slow` lifts it.
 
