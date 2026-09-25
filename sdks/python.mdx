@@ -3,10 +3,10 @@ title: "Python SDK"
 description: "awp-python: the agent side of AWP as a sans-IO state machine, with an asyncio WebSocket client."
 ---
 
-[`awp-python`](https://github.com/Hyperduality/awp-python) provides two packages: `awp`, the client protocol layer described here, and `awp_sim`, the [reference world](/adapters/awp-sim). It targets **0.1-draft.9** and requires Python 3.11+.
+[`awp-python`](https://github.com/Hyperduality/awp-python) is the agent side of AWP. It provides `awp`, the client protocol layer described here. The [reference world](/adapters/awp-sim), awp-sim, is a separate package built on it. awp-python targets **0.1-draft.9** and requires Python 3.11+.
 
 <Warning>
-Alpha. The API changes with each draft revision; each alpha release on PyPI names the revision it targets. Its demo agent, `awp-sim demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models; the [reports and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005).
+Alpha. The API changes with each draft revision; each alpha release on PyPI names the revision it targets. Its demo agent, `awp-demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models; the [reports and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005).
 </Warning>
 
 ```bash
