@@ -49,6 +49,7 @@ export function decodeFrame(bytes) {
   const version = dv.getUint8(4);
   if (version !== VERSION) throw new FrameError("AWP_MALFORMED", `unsupported version ${version}`);
   const flags = dv.getUint8(5);
+  if (flags & FLAG_RESYNC && !(flags & FLAG_KEYFRAME)) throw new FrameError("AWP_MALFORMED", "resync without keyframe");
   const channel_id = dv.getUint16(6, true);
   const seq = u64ToNumber(dv.getBigUint64(8, true), "seq");
   const ts_mono_ns = u64ToNumber(dv.getBigUint64(16, true), "ts_mono_ns");
@@ -93,7 +94,7 @@ export function decodeFrame(bytes) {
       } else if (type >= 0x80) {
         out.vendor.push({ type, value: Array.from(buf.subarray(valueOffset, valueOffset + len)) });
       }
-      // 0x04..0x7f: unknown registered-range types are skipped (AWP-DAT-006)
+      // reserved types (0x00, 0x04..0x7f) and unknown vendor types are skipped (AWP-DAT-006)
       offset = valueOffset + len;
     }
     offset = end;

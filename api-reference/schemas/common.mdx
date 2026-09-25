@@ -76,13 +76,13 @@ Type: `string`
 
 
 
-Type: `negotiating | ready | active | suspended | closed`
+Type: `ready | active | suspended | closed`
 
 ### `channel_id`
 
+Channels ≥ 1; channel 0 is the control channel, which carries no frames (AWP-TRN-005).
 
-
-Type: `integer`, minimum 0, maximum 65535
+Type: `integer`, minimum 1, maximum 65535
 
 ### `channel_grant`
 

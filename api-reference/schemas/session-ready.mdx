@@ -9,9 +9,9 @@ description: "Canonical schema for session.ready (result of session.open / sessi
 
 <ResponseField name="session_id" type="session_id" required> </ResponseField>
 <ResponseField name="session_token" type="string" required>Credential; redacted in the audit log (AWP-SEC-003, AWP-AUD-006).</ResponseField>
-<ResponseField name="reconnect_window_ms" type="integer" required>Default `30000`.</ResponseField>
+<ResponseField name="reconnect_window_ms" type="integer" required>AWP-CTL-005.</ResponseField>
 <ResponseField name="replay_to_status_seq" type="status_seq">session.resume result only: the highest status_seq assigned before resumption. Replay ends with this notification; later ones are live (AWP-CTL-008).</ResponseField>
-<ResponseField name="heartbeat_interval_ms" type="integer" required>AWP-SAF-001. Default `5000`.</ResponseField>
+<ResponseField name="heartbeat_interval_ms" type="integer" required>AWP-SAF-001.</ResponseField>
 <ResponseField name="granted" type="object" required>
   
 

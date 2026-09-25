@@ -5,7 +5,7 @@ description: "Ending, resuming, and handing off sessions, and the transition not
 
 ## session.close
 
-No params. Pre-execution actions → `cancelled` (`session_closed`); `executing` actions → `cancelling` → `cancelled` after safe abort (AWP-SES-006). The embodiment is released after safe state (AWP-EMB-002). Result `{}`.
+No params: `params` is `{}` or omitted. Pre-execution actions → `cancelled` (`session_closed`); `executing` actions → `cancelling` → `cancelled` after safe abort (AWP-SES-006). The embodiment is released after safe state (AWP-EMB-002). Result `{}`.
 
 ## session.resume
 
@@ -38,7 +38,7 @@ World → Agent on every transition from `Ready` onward (AWP-SES-007). Shares th
 <ParamField body="state" type="string" required>`ready`, `active`, `suspended`, or `closed`.</ParamField>
 <ParamField body="status_seq" type="integer" required>Shared per-session sequence (AWP-CTL-008).</ParamField>
 <ParamField body="ts_mono_ns" type="integer" required>Time of the transition.</ParamField>
-<ParamField body="reason" type="string">`opened`, `first_activity`, `connection_lost`, `resumed`, `session_closed`, `window_expired`, `world_shutdown`, `transferred`, or `connection_replaced` (AWP-SES-010).</ParamField>
+<ParamField body="reason" type="string">`opened`, `first_activity`, `connection_lost`, `resumed`, `session_closed`, `window_expired`, `world_shutdown`, `transferred`, `connection_replaced`, or `protocol_error` (AWP-SES-010, AWP-CTL-009).</ParamField>
 
 ```json awp:session-state
 { "jsonrpc": "2.0", "method": "session.state",

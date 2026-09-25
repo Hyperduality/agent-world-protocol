@@ -40,7 +40,7 @@ Worlds MUST emit a `session.state` notification — `{ state, status_seq, ts_mon
 
 ### Connections without a session
 
-- Heartbeat obligations begin at `session.ready` (AWP-SAF-001). A world MAY close a connection that has no session after a period of agent silence of its choosing, which SHOULD be at least 15 s (three default heartbeat intervals). An agent that holds such a connection open SHOULD send `ping` meanwhile; its result is stamped on a world clock that is not a session clock and MUST NOT enter the offset estimate (AWP-CLK-008). `[AWP-SES-012]`
+- Heartbeat obligations begin at `session.ready` (AWP-SAF-001). A world MAY close a connection that has no session after a period of agent silence of its choosing, which SHOULD be at least 15 s. Neither side detects loss by silence before `session.ready`, or on a new connection before the `session.resume` result (AWP-SAF-002); an agent that holds such a connection open SHOULD send `ping` meanwhile, at least every 5 s; its result is stamped on a world clock that is not a session clock and MUST NOT enter the offset estimate (AWP-CLK-008). `[AWP-SES-012]`
 
 ## Session identity
 
@@ -48,4 +48,4 @@ Worlds MUST emit a `session.state` notification — `{ state, status_seq, ts_mon
 
 ## Recovery scope
 
-Recovery in v0.1 covers loss of the control connection while the world process is alive. If the world has restarted or otherwise no longer holds the session, `session.resume` MUST fail with `AWP_SESSION_UNKNOWN`; the agent MUST treat the session as `Closed`, re-run `initialize` and `session.open`, and MUST NOT assume any prior action or grant survives. Crash-durable sessions are out of scope for v0.1 and MUST NOT be claimed. `[AWP-SES-008]`
+Recovery in v0.1 covers loss of the control connection while the world process is alive. If the world has restarted or otherwise no longer holds the session, `session.resume` MUST fail with `AWP_SESSION_UNKNOWN`; the agent MUST treat the session as `Closed` and MUST NOT assume any prior action or grant survives; to continue, it runs `initialize` and `session.open` for a new session. Crash-durable sessions are out of scope for v0.1 and MUST NOT be claimed. `[AWP-SES-008]`

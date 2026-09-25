@@ -10,7 +10,7 @@ description: "Canonical schema for world.event notifications."
 <ResponseField name="event" type="entity_appeared | entity_removed | collision | e_stop_engaged | e_stop_released | envelope_violation | grant_expired | safe_state_entered | safe_state_exited | channel_degraded | world_resetting | world_shutdown | embodiment_transferred | vendor_key" required> </ResponseField>
 <ResponseField name="status_seq" type="status_seq" required> </ResponseField>
 <ResponseField name="ts_mono_ns" type="ts_mono_ns" required> </ResponseField>
-<ResponseField name="tick" type="tick"> </ResponseField>
+<ResponseField name="tick" type="tick">Lockstep: the tick of the event.</ResponseField>
 <ResponseField name="detail" type="object"> </ResponseField>
 
 ## Conditional rules
