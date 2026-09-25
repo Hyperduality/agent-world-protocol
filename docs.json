@@ -14,7 +14,7 @@
   },
   "favicon": "/favicon.svg",
   "banner": {
-    "content": "v0.1 draft. The Python SDK, the awp-sim reference world, and the conformance suite are in alpha on PyPI; other SDKs and adapters are not published.",
+    "content": "v0.1 draft. The Python SDK, the awp-sim reference world, and the conformance suite are in alpha on PyPI, and the TypeScript SDK on npm; adapters are not published.",
     "dismissible": true
   },
   "navigation": {
