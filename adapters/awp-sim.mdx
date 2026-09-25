@@ -6,7 +6,7 @@ description: "The reference world: a simulated arm served over WebSocket, in eit
 [`awp-sim`](https://github.com/Hyperduality/awp-sim) is the reference world. It is built on the protocol layer of the [Python SDK](/sdks/python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.9**.
 
 <Warning>
-Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [reports and manual evidence](https://github.com/Hyperduality/awp-sim/tree/main/conformance) are published (AWP-CNF-005). So is every feature it offers: **Core World + sim (lockstep)** with `--features task,approval,blend,transfer,sim`, and Core World (streaming) with `--features task,approval,blend,transfer,servo` on the `ws` stream binding. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models, and **Core World + sim (lockstep)** with every feature enabled ([reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance)).
 </Warning>
 
 ```bash
@@ -77,4 +77,4 @@ The world is a sans-IO engine: `awp_sim.world.World` takes messages and the curr
 
 ## Not implemented
 
-Multi-bind, shared control, and the `barrier` tick authority, which need a second embodiment; grant expiry; stream bindings other than `ws` and inline; the robotics profile, since a simulated arm proves nothing physical.
+Multi-bind, shared control, and the `barrier` tick authority, which need a second embodiment; grant expiry; stream bindings other than `ws` and inline; the robotics profile.

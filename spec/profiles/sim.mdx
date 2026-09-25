@@ -10,4 +10,4 @@ Adds to Core:
 - Sim-time timestamps (`ts_sim_ns`, `tick`) in the frame extension block — AWP-CLK-003, AWP-DAT-007
 - `world.reset`: the manifest MUST list at least one entry in `initial_states`, and `world.reset { initial_state }` MUST return the world to that named state (with `seed` when `capabilities.seed` is advertised) with the cross-session effects of AWP-PRM-006. `[AWP-SIM-001]`
 
-Intended for: RL/eval harnesses, game-logic testbeds, digital twins in analysis mode. The planned [gymnasium-bridge](/adapters/gymnasium-bridge) targets this profile for environments that support snapshot/restore (picklable state); other environments can claim Core only.
+Intended for: RL/eval harnesses, game-logic testbeds, digital twins in analysis mode. A Gymnasium bridge can claim it only for environments that support snapshot/restore (picklable state); others can claim Core only.

@@ -3,10 +3,10 @@ title: "TypeScript SDK"
 description: "awp-typescript: an agent SDK for Node, written from the specification and schemas alone."
 ---
 
-[`awp-typescript`](https://github.com/Hyperduality/awp-typescript) (`@hyperduality/awp`) is an agent SDK for Node 20+, written independently of the Python implementation from the specification text and the canonical schemas. It targets **0.1-draft.9** and vendors that revision's schemas, frame vectors, and lifecycle table.
+[`awp-typescript`](https://github.com/Hyperduality/awp-typescript) (`@hyperduality/awp`) is an agent SDK for Node 20+, written from the specification and the canonical schemas alone. It targets **0.1-draft.9** and vendors that revision's schemas, frame vectors, and lifecycle table.
 
 <Warning>
-Alpha, published to npm under the `alpha` dist-tag. Its demo agent, `awp-demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models; the [reports and manual evidence](https://github.com/Hyperduality/awp-typescript/tree/main/conformance) are published (AWP-CNF-005).
+Alpha: the API changes with each draft revision. Its demo agent, `awp-demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models ([reports](https://github.com/Hyperduality/awp-typescript/tree/main/conformance)).
 </Warning>
 
 ```bash
@@ -45,7 +45,7 @@ The control connection and JSON-RPC over WebSocket, manifest validation, grants,
 ## Demo agent
 
 ```bash
-node dist/demo.js --url ws://127.0.0.1:8710 --token <token>
+npx awp-demo --url ws://127.0.0.1:8710 --token <token>
 ```
 
 It moves the reference arm through four targets, cancels one move while it executes, and closes; it resumes after a lost connection and continues in a new session if the world no longer holds the old one.

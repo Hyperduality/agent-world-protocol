@@ -35,13 +35,13 @@ stateDiagram-v2
     cancelled --> [*]
 ```
 
-The diagram is drawn from the normative transition table [`spec/action-lifecycle.yaml`](https://github.com/Hyperduality/agent-world-protocol/blob/main/spec/action-lifecycle.yaml), which also lists the reasons each transition may carry; CI fails if the two disagree and checks every [wire trace](/spec/wire-traces) against the table.
+The normative transition table, including the reasons each transition may carry, is [`spec/action-lifecycle.yaml`](https://github.com/Hyperduality/agent-world-protocol/blob/main/spec/action-lifecycle.yaml).
 
 ## States
 
 | State | Class | Meaning |
 |---|---|---|
-| `submitted` | transient | The world has received the intent. Never reported on the wire; exists to name the validation step. |
+| `submitted` | transient | The world has received the intent. Never reported on the wire. |
 | `pending_approval` | pre-execution | Validation passed; the type requires approval ([approval](/spec/safety/approval)) and no decision has arrived. |
 | `queued` | pre-execution | Validation (and approval, if any) passed; another action in the same concurrency group is executing and the submission chose `preempt: "queue"`. |
 | `accepted` | pre-execution | Permission to execute has been granted. The world will begin execution at the next opportunity (immediately in streaming; at the next advance in lockstep). |

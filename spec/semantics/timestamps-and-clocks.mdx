@@ -36,4 +36,4 @@ Every latency quantity in this specification is one of the differences below, in
 | Admission latency | admission acknowledgement transmitted − `received_ts_mono_ns` | world, per submission | `session.telemetry` `admission_latency_ns` |
 | Command latency | world receipt − `ts_mono_ns` of a command frame | world, per frame | `session.telemetry` `command_latency_ns` |
 
-Staleness at the moment of use equals staleness at receipt plus decision latency; observation-to-action latency equals staleness at use plus the agent→world transit of the submission. Together the two reports account for every segment between a sensor reading and the world's receipt of the intent built on it.
+Staleness at the moment of use equals staleness at receipt plus decision latency; observation-to-action latency equals staleness at use plus the agent→world transit of the submission.

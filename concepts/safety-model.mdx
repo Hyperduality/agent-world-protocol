@@ -1,6 +1,6 @@
 ---
 title: "Safety model"
-description: "Scoped grants, server-side envelopes, approval hooks, and a normative audit log — built into the protocol, not bolted on."
+description: "Scoped grants, world-side envelopes, approval hooks, safe state, and a normative audit log."
 icon: "shield"
 ---
 
@@ -12,10 +12,10 @@ Five mechanisms compose:
 
 **1. Scoped grants.** A session carries explicit grants: which action types, which observation channels, which embodiments, with optional expiry. Anything not granted is rejected with `AWP_FORBIDDEN`. See [permissions](/spec/safety/permissions).
 
-**2. Envelopes.** Worlds declare and enforce quantitative limits — spatial bounds, maximum velocity, force, and action rate. Enforcement is **server-side**: a world MUST clamp or reject actions that exceed an envelope, per its declared clamp-vs-reject policy, regardless of what the agent sends. See [envelopes](/spec/safety/envelopes).
+**2. Envelopes.** Worlds declare and enforce quantitative limits — spatial bounds, maximum velocity, force, and action rate. Enforcement is **world-side**: a world MUST clamp or reject actions that exceed an envelope, per its declared clamp-vs-reject policy, regardless of what the agent sends. See [envelopes](/spec/safety/envelopes).
 
 **3. Human-in-the-loop approval.** Action types marked `requires_approval` pause at the boundary and emit an approval request on a dedicated channel; a human or supervising system approves, denies, or lets it time out. See [approval](/spec/safety/approval).
 
 **4. Safe state.** A world-side watchdog stops motion when the agent goes quiet, independently of whether the connection has been declared lost, and a resumed session never restarts stale motion. See [liveness and safe state](/spec/safety/safe-state).
 
-**5. Audit log.** Every session is an append-only record of manifests, grants, actions, status transitions, and observation frames (payloads or their hashes), with credentials redacted. A log with full payloads is a replay bundle and a dataset; a hash-only log is an audit trail that can verify a replay but cannot reconstruct observations. See [audit log](/spec/safety/audit-log).
+**5. Audit log.** Every session is an append-only record of manifests, grants, actions, status transitions, and observation frames (payloads or their hashes), with credentials redacted. A log with full payloads is a replay bundle, from which a dataset can be exported; a hash-only log is an audit trail that can verify a replay but cannot reconstruct observations. See [audit log](/spec/safety/audit-log).

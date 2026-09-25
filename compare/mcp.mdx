@@ -13,7 +13,7 @@ description: "Tools vs worlds — and how they compose."
 | Authority | the host mediates consent per call | a session holds negotiated grants over an embodiment; default-deny, expiring, audited |
 | Record | none specified | a normative session record: audit log, replay bundle, dataset export |
 
-MCP is not "instantaneous" and AWP does not claim to be the only asynchronous protocol. MCP has progress, cancellation, and (experimentally) durable tasks. The difference is what those primitives are about. An MCP task is a unit of work the server performs for the caller. An AWP action is an intent applied to a shared, continuously changing environment, where the world keeps moving between your calls, other agents may hold other embodiments, physical limits apply to every command, and the observations you act on are already stale by the time you act.
+MCP has progress, cancellation, and (experimentally) durable tasks. The difference is what those primitives are about. An MCP task is a unit of work the server performs for the caller. An AWP action is an intent applied to a shared, continuously changing environment, where the world keeps moving between your calls, other agents may hold other embodiments, physical limits apply to every command, and the observations you act on are already stale by the time you act.
 
 The combination AWP standardizes, and MCP does not: embodied semantics (frames, units, clocks, modalities), observation freshness as a first-class quantity, actions with duration and preemption over shared physical state, session authority over an embodiment, and a portable, replayable record of the session.
 

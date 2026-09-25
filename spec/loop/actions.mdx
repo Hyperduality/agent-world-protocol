@@ -31,6 +31,6 @@ description: "Submission envelope, idempotency, validation."
 
 ## Trajectory chunks (informative idiom)
 
-Policies that emit action chunks — timed sequences of setpoints executed at 10–50 Hz — map onto the lifecycle without any special machinery: **a chunk is one action**. Submit `type: "follow_trajectory"` with `params.points` as an array of timestamped setpoints and `preempt: "replace"` (or `"blend"`); when the policy emits its next chunk, the new submission replaces the unexecuted tail of the running one, and the replaced action terminates `preempted` per [preemption](/spec/loop/preemption). This yields exactly the receding-horizon behavior chunked policies expect, plus acceptance, progress, clamping, and audit that raw streaming never had.
+Policies that emit action chunks — timed sequences of setpoints executed at 10–50 Hz — map onto the lifecycle directly: **a chunk is one action**. Submit `type: "follow_trajectory"` with `params.points` as an array of timestamped setpoints and `preempt: "replace"` (or `"blend"`); when the policy emits its next chunk, the new submission replaces the unexecuted tail of the running one, and the replaced action terminates `preempted` per [preemption](/spec/loop/preemption).
 
 For true high-rate servoing (100–1000 Hz setpoints), per-setpoint JSON-RPC submissions are inappropriate; setpoints stream over agent→world [command channels](/spec/loop/command-channels), opened by a `duration: "streaming"` action.
