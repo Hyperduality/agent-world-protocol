@@ -5,10 +5,11 @@ description: "Implementations and the claims their suite reports support."
 
 | Implementation | Side | Time models | Claim | Suite |
 |---|---|---|---|---|
-| [awp-sim](/adapters/awp-sim) | world | streaming, lockstep | Core World, self-assessed against 0.1-draft.7 | awp-conformance 0.1.0a1: no failures |
+| [awp-sim](/adapters/awp-sim) | world | lockstep | Core World (lockstep): AWP-conformant against 0.1-draft.7 | awp-conformance 0.1.0a1: no failures, nothing untested; [report and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) |
+| [awp-sim](/adapters/awp-sim) | world | streaming | Core World (streaming), self-assessed against 0.1-draft.7 | awp-conformance 0.1.0a1: no failures; AWP-ACT-008 untested |
 | [awp-sim](/adapters/awp-sim) `--features sim` | world | lockstep | Core World + sim, self-assessed against 0.1-draft.7 | awp-conformance 0.1.0a1: no failures |
 | [awp-python](/sdks/python) (`awp-sim demo`) | agent | streaming, lockstep | Core Agent, self-assessed against 0.1-draft.7 | awp-conformance 0.1.0a1: no failures |
 
-Both are self-assessed: their reports pass every assertion the suite ran and leave some requirements untested, so neither may yet claim "AWP-conformant" (AWP-CNF-005).
+awp-sim in lockstep is the first AWP-conformant implementation: its report has no failure and nothing untested, with evidence attached for every `manual` row (AWP-CNF-005). The other entries pass every assertion the suite ran and leave some requirements untested, so they are self-assessed. All four come from one codebase, awp-python; the [roadmap](/community/roadmap) asks for three independent implementations.
 
 To add an implementation, open a pull request against this page with its `report.json` from a suite release that targets the claimed revision.

@@ -6,7 +6,7 @@ description: "The reference world: a simulated arm served over WebSocket, in eit
 `awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.7**.
 
 <Warning>
-Alpha. The world targets Core World for both time models, and the sim profile in lockstep with `--features sim`, self-assessed against 0.1-draft.7 (AWP-CNF-005): the [conformance suite](/conformance/test-suite) reports no failure and leaves a few requirements untested. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+Alpha. In lockstep the world is **Core World (lockstep): AWP-conformant against 0.1-draft.7**: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [report and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005). Core World in streaming, and the sim profile in lockstep with `--features sim`, are self-assessed against 0.1-draft.7: the suite reports no failure and leaves a few requirements untested. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
 </Warning>
 
 ```bash
