@@ -23,4 +23,15 @@ Approval happens while the action is in `pending_approval`; the agent already ho
   "params": { "approval_id": "ap_31", "decision": "approve", "note": "Allowlisted domain." } }
 ```
 
-Approve → the action becomes `accepted` (or `queued`). Deny → `rejected`, reason `approval_denied` (error 4003 on the pull path); timeout → `rejected`, reason `approval_timeout` (4004). Standing approvals, where supported, carry `{ scope: { type, predicate }, expires_at }` and are audit-logged (AWP-APR-004). `params`, `task`, and `note` are redacted in the audit log per `safety_policy.audit.redact_paths` (AWP-APR-006, AWP-AUD-006).
+A standing approval for an hour, for `navigate` to the same domain:
+
+```json awp:approval-respond
+{ "jsonrpc": "2.0", "id": 45, "method": "safety.approval.respond",
+  "params": { "approval_id": "ap_31", "decision": "approve",
+              "standing": { "scope": { "type": "navigate",
+                                       "predicate": { "properties": { "url": { "type": "string", "pattern": "^https://example\\.com/" } },
+                                                      "required": ["url"] } },
+                            "expires_at_ns": 4513065200000 } } }
+```
+
+Approve → the action becomes `accepted` (or `queued`). Deny → `rejected`, reason `approval_denied` (error 4003 on the pull path); timeout → `rejected`, reason `approval_timeout` (4004). On a world that declares `safety_policy.standing_approvals`, an approval may also grant a standing approval, `standing: { scope: { type, predicate }, expires_at_ns }`: until it expires, the requesting session's submissions of that type whose params satisfy the predicate are admitted without approval, and their `action.submit` result carries the grant's `approval_id` (AWP-APR-004). `params`, `task`, and `note` are redacted in the audit log per `safety_policy.audit.redact_paths` (AWP-APR-006, AWP-AUD-006).

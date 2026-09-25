@@ -113,6 +113,7 @@ for (const r of rows.values()) {
   if (!SIDES.has(r.side)) { console.error(`${r.id}: bad side ${r.side}`); problems++; }
   if (!APPLIES.has(r.applies)) { console.error(`${r.id}: bad applies ${r.applies}`); problems++; }
   if (!r.gate || !r.test) { console.error(`${r.id}: gate and test are required`); problems++; }
+  if (r.agent_test && r.side !== "both") { console.error(`${r.id}: agent_test is only for both-sides rows`); problems++; }
 }
 // Claimable profiles must not contain a MUST with no test at all.
 for (const r of rows.values()) {
@@ -145,7 +146,7 @@ const counts = { world: 0, agent: 0, both: 0, MUST: 0, SHOULD: 0, MAY: 0, manual
 for (const r of rows.values()) {
   counts[r.side]++;
   counts[defs.get(r.id)?.level ?? "MUST"]++;
-  if (/^manual/.test(r.test)) counts.manual++;
+  if (/^manual/.test(r.test) || /manual:/.test(r.agent_test ?? "")) counts.manual++;
   if (/^untestable/.test(r.test)) counts.untestable++;
 }
 
@@ -160,7 +161,7 @@ description: "Every normative requirement with its side, applicability, feature 
 ${rows.size} requirements: ${counts.world} world-side, ${counts.agent} agent-side, ${counts.both} both. ${counts.MUST} MUST, ${counts.SHOULD} SHOULD, ${counts.MAY} MAY. ${counts.manual} require manual evidence; ${counts.untestable} are process or deployment policy and are not tested by the suite. CI fails if a bracketed ID in the specification has no row here, or a row names an ID the specification no longer defines.
 </Note>
 
-**Columns.** *Side*: who must implement it. *Applies*: time model(s) it applies to. *Gate*: \`core\` (every conformant implementation), \`core (streaming)\` / \`core (non-loopback)\` (Core when that mode is offered), \`profile:<name>\`, \`capability:<key>\` (only when the manifest advertises the key, AWP-VER-007), or \`feature:<condition>\`. *Test*: the conformance-suite assertion, named after the ID (AWP-CNF-004), run by [awp-conformance](/conformance/test-suite); \`(warning)\` for SHOULD, \`manual:\` for evidence attached to the report, \`untestable:\` for process rules.
+**Columns.** *Side*: who must implement it. *Applies*: time model(s) it applies to. *Gate*: \`core\` (every conformant implementation), \`core (streaming)\` / \`core (non-loopback)\` (Core when that mode is offered), \`profile:<name>\`, \`capability:<key>\` (only when the manifest advertises the key, AWP-VER-007), or \`feature:<condition>\`. *Test*: the conformance-suite assertion, named after the ID (AWP-CNF-004), run by [awp-conformance](/conformance/test-suite); \`(warning)\` for SHOULD, \`manual:\` for evidence attached to the report, \`untestable:\` for process rules. A row on both sides whose agent side is tested differently gives it after *agent:*; \`, else manual:\` means the suite tests it where it can observe it and evidence is attached otherwise.
 
 `;
 for (const [area, list] of byArea) {
@@ -168,7 +169,7 @@ for (const [area, list] of byArea) {
   out += `## ${AREA_NAMES[area] ?? area} — \`AWP-${area}\`\n\nDefined in [${first.route}](${first.route}).\n\n| ID | Level | Side | Applies | Gate | Test | Requirement |\n|---|---|---|---|---|---|---|\n`;
   for (const r of list) {
     const d = defs.get(r.id);
-    out += `| [${r.id}](${d.route}) | ${d.level} | ${r.side} | ${r.applies} | \`${esc(r.gate)}\` | ${esc(r.test)} | ${esc(short(d.text))} |\n`;
+    out += `| [${r.id}](${d.route}) | ${d.level} | ${r.side} | ${r.applies} | \`${esc(r.gate)}\` | ${esc(r.test)}${r.agent_test ? `; agent: ${esc(r.agent_test)}` : ""} | ${esc(short(d.text))} |\n`;
   }
   out += "\n";
 }

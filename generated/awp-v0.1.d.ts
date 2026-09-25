@@ -186,6 +186,10 @@ export interface ActionSubmitResult {
    */
   ts_mono_ns: number;
   /**
+   * Present when the action was admitted under a standing approval: the approval_id of the request the grant answered (AWP-APR-004).
+   */
+  approval_id?: string;
+  /**
    * Present when an idempotent resubmission reports a rejected, failed, or cancelled action.
    */
   reason?:
@@ -318,7 +322,7 @@ export interface ApprovalRespond {
   decision: "approve" | "deny";
   note?: string;
   /**
-   * Scoped standing approval (AWP-APR-004).
+   * Scoped standing approval (AWP-APR-004); only with decision approve, on a world declaring safety_policy.standing_approvals.
    */
   standing?: {
     scope: {
@@ -327,14 +331,14 @@ export interface ApprovalRespond {
        */
       type: string;
       /**
-       * JSON Schema the params must satisfy.
+       * JSON Schema the params must satisfy; absent, any params.
        */
       predicate?: {};
     };
     /**
-     * Nanoseconds on the session monotonic clock (AWP-CLK-001).
+     * End of the grant, on the requesting session's clock.
      */
-    expires_at: number;
+    expires_at_ns: number;
   };
 }
 
@@ -725,6 +729,10 @@ export interface SafetyPolicy {
    * AWP-APR-003.
    */
   approval_timeout_ms?: number;
+  /**
+   * The world accepts scoped standing approvals (AWP-APR-004).
+   */
+  standing_approvals?: boolean;
   /**
    * Where approval requests are routed (deployment-defined).
    */

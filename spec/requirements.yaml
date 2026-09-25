@@ -1,6 +1,8 @@
 # Requirement matrix source of truth. Columns: side (world|agent|both), applies (all|lockstep|streaming),
 # gate (core | core (<condition>) | profile:<name> | capability:<key> | feature:<condition>), test (assertion id,
-# "<id> (warning)" for SHOULD, "manual: …", or "untestable: …"). Regenerate spec/requirements.mdx with `npm run gen:requirements`.
+# "<id> (warning)" for SHOULD, "manual: …", or "untestable: …"), and, on a both-sides row whose agent side is tested
+# differently, agent_test (the same forms, or "<id>, else manual: …" when the suite tests it only where it can observe
+# it). Regenerate spec/requirements.mdx with `npm run gen:requirements`.
 requirements:
   - id: AWP-ACT-001
     side: both
@@ -357,6 +359,7 @@ requirements:
     applies: all
     gate: core
     test: AWP-DAT-001
+    agent_test: "AWP-DAT-001, else manual: attach the receiver's tests of loss accounting by seq gap"
   - id: AWP-DAT-002
     side: both
     applies: streaming
@@ -397,6 +400,7 @@ requirements:
     applies: all
     gate: core
     test: AWP-DAT-009
+    agent_test: "AWP-DAT-009, else manual: attach the receiver's tests that a gap before a resync frame is not counted as loss and that delta state before it is discarded"
   - id: AWP-EMB-001
     side: world
     applies: all
