@@ -38,7 +38,7 @@ The payload begins at offset `28` (no extension block) or `30 + ext_len` (extens
 ## Requirements
 
 - Frames MUST carry per-channel monotonically increasing `seq`; receivers detect loss by gaps. `[AWP-DAT-001]`
-- Channels declare their class in the manifest as `loss_class` (AWP-TRN-006): `reliable` (no loss permitted) or `latest-wins` (droppable; senders MUST drop the older frame rather than queue when a newer one is produced before the older is sent). `[AWP-DAT-002]`
+- Channels declare their class in the manifest as `loss_class` (AWP-TRN-006): `reliable` (no loss permitted) or `latest-wins` (droppable). In streaming, a sender MUST drop the older frame on a `latest-wins` channel rather than queue it when a newer one is produced before the older is sent. In lockstep no frame is dropped: every advance delivers its frame on every subscribed per-tick channel (AWP-TIM-003). `[AWP-DAT-002]`
 - Senders MUST NOT exceed the negotiated per-channel rate; receivers MAY request a rate change via `obs.subscribe`. `[AWP-DAT-003]`
 - **Inline binding.** In the `inline` binding a frame is carried as the params of an `obs.frame` (world→agent) or `cmd.frame` (agent→world) notification with the header and extension fields as JSON and the payload base64-encoded: `{ channel_id, seq, ts_mono_ns, flags, tick?, ts_sim_ns?, ts_send_ns?, payload_b64 }`. `flags` carries bits 0, 1, and 3 only; bit 2 MUST be 0 because extensions are explicit fields. Registered extensions map to their named fields; vendor extensions map to `x-<vendor>.<name>` fields. A Core implementation therefore needs no binary parser. `[AWP-DAT-004]`
 - **Reserved flag bits.** Senders MUST set flags bits 4–7 to zero. Receivers MUST ignore bits 4–7 and MUST NOT reject a frame because of them. `[AWP-DAT-005]`

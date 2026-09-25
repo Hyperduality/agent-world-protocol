@@ -359,8 +359,8 @@ requirements:
     test: AWP-DAT-001
   - id: AWP-DAT-002
     side: both
-    applies: all
-    gate: core
+    applies: streaming
+    gate: core (streaming)
     test: "manual: needs control of transport backpressure; attach the sender's drop policy and a stalled-receiver test"
   - id: AWP-DAT-003
     side: both
