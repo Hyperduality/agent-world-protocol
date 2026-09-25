@@ -6,11 +6,11 @@ description: "awp-python: the agent side of AWP as a sans-IO state machine, with
 [`awp-python`](https://github.com/Hyperduality/awp-python) provides two packages: `awp`, the client protocol layer described here, and `awp_sim`, the [reference world](/adapters/awp-sim). It targets **0.1-draft.7** and requires Python 3.11+.
 
 <Warning>
-Alpha. The API changes with each draft revision, and the package is not yet on PyPI. The client targets Core Agent for both time models, self-assessed against 0.1-draft.7 (AWP-CNF-005).
+Alpha. The API changes with each draft revision; each alpha release on PyPI names the revision it targets. The client targets Core Agent for both time models, self-assessed against 0.1-draft.7 (AWP-CNF-005).
 </Warning>
 
 ```bash
-pip install "awp-python @ git+https://github.com/Hyperduality/awp-python"
+pip install --pre awp-python
 ```
 
 ## Two layers
