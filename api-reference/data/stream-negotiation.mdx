@@ -13,7 +13,7 @@ description: "How frame channels are mapped onto connections."
   { "binding": "inline" } ] }
 ```
 
-The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). Stream connections authenticate with the session token in the `Authorization` header or the `awp.bearer.<token>` WebSocket subprotocol, never in the URL (AWP-SEC-004..006), and are re-established from the re-issued endpoints after `session.resume` (AWP-TRN-008).
+The agent connects to the first binding it supports; `inline` is always last and always available (AWP-TRN-004). An endpoint without `channels` carries every channel of the session. Each channel stays inline until its stream connection is up, then moves there with a resync keyframe; a late inline frame of that channel is discarded, not counted as loss (AWP-TRN-012). On `ws`, every message is one binary frame (AWP-TRN-013). Stream connections authenticate with the session token in the `Authorization` header or the `awp.bearer.<token>` WebSocket subprotocol, never in the URL (AWP-SEC-004..006), and are re-established from the re-issued endpoints after `session.resume` (AWP-TRN-008).
 
 | Binding | Transport | Independent flow control per channel |
 |---|---|---|

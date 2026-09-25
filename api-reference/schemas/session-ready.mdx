@@ -30,7 +30,7 @@ description: "Canonical schema for session.ready (result of session.open / sessi
     <ResponseField name="binding" type="inline | ws | grpc | webrtc | webtransport | shm" required>Stream binding (AWP-TRN-003).</ResponseField>
     <ResponseField name="url" type="string"> </ResponseField>
     <ResponseField name="signaling" type="string"> </ResponseField>
-    <ResponseField name="channels" type="channel_id[]"> </ResponseField>
+    <ResponseField name="channels" type="channel_id[]">Channels this endpoint carries; when omitted, every channel of the session, including channels subscribed later (AWP-TRN-012).</ResponseField>
     <ResponseField name="max_frame_bytes" type="integer">Largest frame this endpoint carries (AWP-TRN-011). Default `16777216`.</ResponseField>
   </Expandable>
 </ResponseField>

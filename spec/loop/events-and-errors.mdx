@@ -5,7 +5,7 @@ description: "World events, the error taxonomy, and recovery expectations."
 
 ## World events
 
-Worlds emit `world.event` notifications for state changes not tied to a specific action: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `channel_degraded`, `world_resetting`, `world_shutdown`. Events carry `ts_mono_ns`, `status_seq`, and structured detail. Custom events use `x-<vendor>.` names. `[AWP-EVT-001]`
+Worlds emit `world.event` notifications for state changes not tied to a specific action: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `channel_degraded`, `world_resetting`, `world_shutdown`, `embodiment_transferred`. Events carry `ts_mono_ns`, `status_seq`, and structured detail. Custom events use `x-<vendor>.` names. `[AWP-EVT-001]`
 
 `world.event` notifications travel only on the control channel, where `status_seq` orders them against action statuses and resumption replays them. A `text/event+json` observation channel carries the world's own structured samples — detections, scene deltas, game state — and MUST NOT carry the events of this registry. `[AWP-EVT-003]`
 

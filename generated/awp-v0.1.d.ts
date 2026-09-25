@@ -864,6 +864,9 @@ export interface SessionReady {
       binding: "inline" | "ws" | "grpc" | "webrtc" | "webtransport" | "shm";
       url?: string;
       signaling?: string;
+      /**
+       * Channels this endpoint carries; when omitted, every channel of the session, including channels subscribed later (AWP-TRN-012).
+       */
       channels?: number[];
       /**
        * Largest frame this endpoint carries (AWP-TRN-011).
@@ -878,6 +881,9 @@ export interface SessionReady {
       binding: "inline" | "ws" | "grpc" | "webrtc" | "webtransport" | "shm";
       url?: string;
       signaling?: string;
+      /**
+       * Channels this endpoint carries; when omitted, every channel of the session, including channels subscribed later (AWP-TRN-012).
+       */
       channels?: number[];
       /**
        * Largest frame this endpoint carries (AWP-TRN-011).
@@ -1161,6 +1167,7 @@ export type WorldEvent = {
         | "channel_degraded"
         | "world_resetting"
         | "world_shutdown"
+        | "embodiment_transferred"
       )
     | string;
   /**

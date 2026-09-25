@@ -5,6 +5,24 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-24" description="0.1-draft.7">
+What a stream binding and the features beyond Core had to decide, found by implementing them in the reference world and testing them with the suite.
+
+**Wire-visible changes**
+
+- **Moving a channel.** A channel is delivered inline until a stream connection carrying it is established, then only there, starting with a resync keyframe; an endpoint without `channels` carries every channel of the session. A late inline frame is discarded by its receiver, not counted as loss (AWP-TRN-012).
+- **Stream connections.** On `ws`, one binary frame per message, the session token as the bearer credential, the `awp` subprotocol; a message that is not a valid frame closes the connection with `AWP_MALFORMED` (AWP-TRN-013). While a lost stream connection is down its channels are not delivered inline (AWP-TRN-010); suspension closes stream connections, and after resumption channels are inline until they are re-established (AWP-TRN-008).
+- **Transfer.** Transfer tokens are single-use and expire; a bad one fails `AWP_EMBODIMENT_UNAVAILABLE` and changes nothing. The previous holder continues as an observer and receives the new event `embodiment_transferred` (AWP-EMB-003, AWP-EVT-001).
+- **Approvers.** An approver is a control connection the deployment authorizes; it needs no session. `safety.approval.respond` from anyone else fails `AWP_FORBIDDEN`, and for an unknown or decided approval `AWP_PARAMS_INVALID`. `expires_at_ns` is on the requester's session clock (AWP-APR-007).
+- **Lockstep clock.** The session clock counts advances and never moves backward; the tick is world state that reset and restore may move, carried as simulated time in `ts_sim_ns` once the two diverge (AWP-TIM-013). `approval_timeout_ms` is measured on the session clock.
+- **Seeding and snapshots.** `seed` seeds random sources and changes no other state; determinism holds for runs from the same state (AWP-REP-001). Restore brings back random sources and the tick; an unknown snapshot token fails `AWP_PARAMS_INVALID` (AWP-REP-002). Replay feeds every call that changes action state — including `world.reset`, `world.restore`, and `session.close` — in recorded order (AWP-REP-003).
+- **Command frames.** They travel inline as `cmd.frame` or on a stream connection; dropped and clamped frames count in `stream.clamped_count` (AWP-CMD-006).
+
+**Requirement matrix.** AWP-SEC-003 applies to every session; AWP-SEC-004 applies whenever stream endpoints are offered; AWP-AUD-005 needs a recorded replay as evidence.
+
+**Artifacts.** The reference world implements the ws binding, task, approval, blend, transfer, seeding, snapshots, replay bundles, and a servo command channel; the conformance suite tests each.
+</Update>
+
 <Update label="2026-09-24" description="0.1-draft.6">
 The conformance suite is published, and the claim rules say what its report must show.
 

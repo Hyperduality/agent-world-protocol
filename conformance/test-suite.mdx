@@ -3,7 +3,7 @@ title: "Conformance test suite"
 description: "awp-conformance: tests a world at a URL, or an agent against a harness world, against the requirement matrix."
 ---
 
-[`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.6** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
+[`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.7** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
 
 <Warning>
 Alpha. Coverage grows release by release; a requirement the suite does not yet exercise is reported `untested`, and a claim with any untested requirement in scope is self-assessed (AWP-CNF-005).
@@ -49,6 +49,6 @@ Every requirement receives one outcome:
 
 The report states the claim its outcomes support (AWP-CNF-005): **AWP-conformant** with no failure and nothing untested in scope, **self-assessed** when nothing failed but something went untested, and **not conformant** otherwise. `--out` writes `report.json` and a wire trace per connection in the [trace format](/spec/wire-traces).
 
-## Not yet covered
+## Beyond Core
 
-The first release covers Core on the inline binding. Stream bindings, command channels, approval, `task`, snapshots, replay, multi-bind, and transfer are reported `n/a` when a world does not offer them and `untested` when it does.
+Tests for the `ws` stream binding, task, approval (with `approver_token` in the fixture), blend, transfer, seeding, snapshots and replay, and command channels (with a `servo` entry: its action, a setpoint, and optionally one outside the envelope) run when the world's manifest or `session.ready` offers them, and report `n/a` otherwise. Not yet covered: multi-bind and shared control, the `barrier` tick authority, grant expiry, standing approvals, and stream bindings other than `ws`.

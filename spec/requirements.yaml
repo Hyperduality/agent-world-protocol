@@ -137,6 +137,11 @@ requirements:
     applies: all
     gate: feature:requires_approval
     test: AWP-APR-006
+  - id: AWP-APR-007
+    side: world
+    applies: all
+    gate: feature:requires_approval
+    test: AWP-APR-007
   - id: AWP-AUD-001
     side: world
     applies: all
@@ -161,7 +166,7 @@ requirements:
     side: world
     applies: all
     gate: capability:replay
-    test: AWP-AUD-005 (replay bundle drives AWP-REP-003)
+    test: "manual: replay a recorded replay bundle with the world's own tooling and attach the result (AWP-REP-003)"
   - id: AWP-AUD-006
     side: world
     applies: all
@@ -875,12 +880,12 @@ requirements:
   - id: AWP-SEC-003
     side: world
     applies: all
-    gate: core (non-loopback)
+    gate: core
     test: AWP-SEC-003
   - id: AWP-SEC-004
     side: world
     applies: all
-    gate: core (non-loopback)
+    gate: feature:stream endpoints offered
     test: AWP-SEC-004
   - id: AWP-SEC-005
     side: both
@@ -1077,6 +1082,16 @@ requirements:
     applies: all
     gate: core
     test: AWP-TRN-011
+  - id: AWP-TRN-012
+    side: both
+    applies: all
+    gate: feature:stream endpoints offered
+    test: AWP-TRN-012
+  - id: AWP-TRN-013
+    side: both
+    applies: all
+    gate: feature:stream endpoints offered
+    test: AWP-TRN-013
   - id: AWP-TSK-001
     side: world
     applies: all

@@ -3,10 +3,10 @@ title: "awp-sim"
 description: "The reference world: a simulated arm served over WebSocket, in either time model, with scripted failure scenarios."
 ---
 
-`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.6**.
+`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.7**.
 
 <Warning>
-Alpha. The world is intended to satisfy Core World for both time models on the inline binding, self-assessed against 0.1-draft.6 (AWP-CNF-005). A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+Alpha. The world targets Core World for both time models, and the sim profile in lockstep with `--features sim`, self-assessed against 0.1-draft.7 (AWP-CNF-005): the [conformance suite](/conformance/test-suite) reports no failure and leaves a few requirements untested. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
 </Warning>
 
 ```bash
@@ -27,7 +27,22 @@ awp-sim manifest                   # print the world manifest
 | Envelope | Axis-aligned box in `base`, `max_velocity_mps` 0.5, `max_action_rate_hz` 20, `command_check` with `on_violation: reject` |
 | Streaming | Watchdog 2000 ms with `safe_stop`; `max_basis_age_ms` 500; `session.telemetry` every second |
 | Lockstep | `tick_policy: on_tick`, `tick_authority: any_session`, 20 ms per tick; the arm binds to one session at a time, and observer sessions may watch |
-| Reset | `world.reset` to `home`, granted to at most one session |
+| Reset | `world.reset` to `home` (tick 0), granted to at most one session |
+
+## Beyond Core
+
+Each is off by default and enabled with `--features` (comma-separated):
+
+| Feature | What the world offers |
+|---|---|
+| `task` | `capabilities.task`: a task on `session.open`, `task.update`, the task shown to approvers (AWP-TSK) |
+| `approval` | `park`, an extended action with `requires_approval`; approvers connect with `--approver-token` and receive `safety.approval_requested`; `--approval-timeout-ms` (AWP-APR) |
+| `blend` | `blend` preemption on `move_to_pose`: the arm carries its speed into the new target (AWP-PRE-004) |
+| `transfer` | `session.transfer` and `session.open { takeover }` (AWP-EMB-003) |
+| `sim` | Lockstep only: `seed`, `snapshot`, and `replay` capabilities, seeded sensor noise, `ts_sim_ns`, `world.snapshot` / `world.restore`; with `--replay-dir`, every session is written as a replay bundle and `awp-sim replay BUNDLE` reproduces it (AWP-REP, sim profile) |
+| `servo` | Streaming only: the `servo_arm` command channel (`servo/json` velocity setpoints) opened by the `servo` streaming action, with a 200 ms stream watchdog (AWP-CMD) |
+
+`--stream-binding ws` offers frames on a `ws` stream connection at `/stream` as well as inline (AWP-TRN-003, AWP-TRN-012..013).
 
 ## Serving
 
@@ -62,4 +77,4 @@ The world is a sans-IO engine: `awp_sim.world.World` takes messages and the curr
 
 ## Not implemented
 
-Approval, command channels, and `task`; stream bindings other than inline; `blend` preemption; seeding, snapshots, restore, and replay; multi-bind, transfer, and shared control.
+Multi-bind, shared control, and the `barrier` tick authority, which need a second embodiment; standing approvals and grant expiry; stream bindings other than `ws` and inline; the robotics profile, since a simulated arm proves nothing physical.
