@@ -3,17 +3,17 @@ title: "awp-sim"
 description: "The reference world: a simulated arm served over WebSocket, in either time model, with scripted failure scenarios."
 ---
 
-`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.9**.
+[`awp-sim`](https://github.com/Hyperduality/awp-sim) is the reference world. It is built on the protocol layer of the [Python SDK](/sdks/python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.9**.
 
 <Warning>
-Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [reports and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005). So is every feature it offers: **Core World + sim (lockstep)** with `--features task,approval,blend,transfer,sim`, and Core World (streaming) with `--features task,approval,blend,transfer,servo` on the `ws` stream binding. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [reports and manual evidence](https://github.com/Hyperduality/awp-sim/tree/main/conformance) are published (AWP-CNF-005). So is every feature it offers: **Core World + sim (lockstep)** with `--features task,approval,blend,transfer,sim`, and Core World (streaming) with `--features task,approval,blend,transfer,servo` on the `ws` stream binding. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
 </Warning>
 
 ```bash
-pip install --pre awp-python
+pip install --pre awp-sim
 awp-sim serve                      # streaming world on ws://127.0.0.1:8710
 awp-sim serve --mode lockstep      # lockstep world
-awp-sim demo                       # scripted agent against a running world
+awp-demo                           # awp-python's scripted agent against a running world
 awp-sim manifest                   # print the world manifest
 ```
 

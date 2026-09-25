@@ -10,19 +10,19 @@ No world SDK is published yet. The starting point is [awp-sim](/adapters/awp-sim
 <Steps>
   <Step title="Run the reference world">
     ```bash
-    pip install --pre awp-python
+    pip install --pre awp-sim
     awp-sim serve                    # or: awp-sim serve --mode lockstep
-    awp-sim demo                     # in another terminal
+    awp-demo                         # in another terminal
     ```
   </Step>
   <Step title="Write your manifest">
     `awp-sim manifest` prints a complete, valid [world manifest](/spec/session/world-manifest). Replace its embodiments, observation channels, and action schemas with your world's; validate the result against [`world-manifest.schema.json`](/api-reference/schemas/world-manifest).
   </Step>
   <Step title="Implement the loop">
-    The engine is [`src/awp_sim/world.py`](https://github.com/Hyperduality/awp-python/blob/main/src/awp_sim/world.py). Each requirement it implements is cited by ID at the point where it applies, so it reads alongside the [specification](/spec/index): admission checks, the action lifecycle, lockstep advances, the watchdog, replay, and closing. Replace the simulated arm with your simulator or controller.
+    The engine is [`src/awp_sim/world.py`](https://github.com/Hyperduality/awp-sim/blob/main/src/awp_sim/world.py). Each requirement it implements is cited by ID at the point where it applies, so it reads alongside the [specification](/spec/index): admission checks, the action lifecycle, lockstep advances, the watchdog, replay, and closing. Replace the simulated arm with your simulator or controller.
   </Step>
   <Step title="Check it">
-    Record your world's traffic in the [trace format](/spec/wire-traces) and run the specification's trace checker over it, as awp-python does for every scenario (`scripts/check_traces.py`).
+    Record your world's traffic in the [trace format](/spec/wire-traces) and run the specification's trace checker over it, as awp-sim does for every scenario (`scripts/check_traces.py`).
   </Step>
 </Steps>
 
