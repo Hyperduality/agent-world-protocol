@@ -5,6 +5,17 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-25" description="0.1-draft.8">
+Two rules the first conformance claim had to interpret, stated.
+
+**Wire-visible changes.** None.
+
+- **Latest-wins in lockstep.** The sender's drop rule for `latest-wins` channels applies in streaming; in lockstep no frame is dropped, since every advance delivers its frame on every subscribed per-tick channel (AWP-DAT-002, AWP-TIM-003).
+- **Milliseconds.** `_ms` is a unit suffix, as the specification's own fields (`deadline_ms`, `watchdog_ms`, and others) already use it (AWP-UNI-001).
+
+**Requirement matrix.** AWP-DAT-002 applies to streaming.
+</Update>
+
 <Update label="2026-09-24" description="0.1-draft.7">
 What a stream binding and the features beyond Core had to decide, found by implementing them in the reference world and testing them with the suite.
 

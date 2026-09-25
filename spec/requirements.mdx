@@ -158,7 +158,7 @@ Defined in [/spec/transport/frames](/spec/transport/frames).
 | ID | Level | Side | Applies | Gate | Test | Requirement |
 |---|---|---|---|---|---|---|
 | [AWP-DAT-001](/spec/transport/frames) | MUST | both | all | `core` | AWP-DAT-001 | Frames MUST carry per-channel monotonically increasing `seq`; receivers detect loss by gaps. |
-| [AWP-DAT-002](/spec/transport/frames) | MUST | both | all | `core` | manual: needs control of transport backpressure; attach the sender's drop policy and a stalled-receiver test | Channels declare their class in the manifest as `loss_class` (AWP-TRN-006): `reliable` (no loss permitted) or `latest-wins` (droppable; senders… |
+| [AWP-DAT-002](/spec/transport/frames) | MUST | both | streaming | `core (streaming)` | manual: needs control of transport backpressure; attach the sender's drop policy and a stalled-receiver test | Channels declare their class in the manifest as `loss_class` (AWP-TRN-006): `reliable` (no loss permitted) or `latest-wins` (droppable). In… |
 | [AWP-DAT-003](/spec/transport/frames) | MUST | both | all | `core` | AWP-DAT-003 | Senders MUST NOT exceed the negotiated per-channel rate; receivers MAY request a rate change via `obs.subscribe`. |
 | [AWP-DAT-004](/spec/transport/frames) | MUST | both | all | `core` | AWP-DAT-004 | Inline binding. In the `inline` binding a frame is carried as the params of an `obs.frame` (world→agent) or `cmd.frame` (agent→world) notification… |
 | [AWP-DAT-005](/spec/transport/frames) | MUST | both | all | `core` | AWP-DAT-005 | Reserved flag bits. Senders MUST set flags bits 4–7 to zero. Receivers MUST ignore bits 4–7 and MUST NOT reject a frame because of them. |
@@ -478,7 +478,7 @@ Defined in [/spec/semantics/units-and-frames](/spec/semantics/units-and-frames).
 
 | ID | Level | Side | Applies | Gate | Test | Requirement |
 |---|---|---|---|---|---|---|
-| [AWP-UNI-001](/spec/semantics/units-and-frames) | MUST | world | all | `core` | manual: review of field names and units in the manifest and payload schemas | All physical quantities use SI units. Field names carry unit suffixes: `_m`, `_rad`, `_s`, `_ns`, `_mps`, `_radps`, `_n` (newtons), `_nm`… |
+| [AWP-UNI-001](/spec/semantics/units-and-frames) | MUST | world | all | `core` | manual: review of field names and units in the manifest and payload schemas | All physical quantities use SI units. Field names carry unit suffixes: `_m`, `_rad`, `_s`, `_ms`, `_ns`, `_mps`, `_radps`, `_n` (newtons), `_nm`… |
 | [AWP-UNI-002](/spec/semantics/units-and-frames) | MUST | world | all | `core` | AWP-UNI-002 | Coordinate systems are right-handed; rotations are unit quaternions `q: [x, y, z, w]`. |
 | [AWP-UNI-003](/spec/semantics/units-and-frames) | MUST | world | all | `core` | AWP-UNI-003 | The world publishes a frame tree in `session.ready`: named frames with parent links and static or timestamped transforms. Every pose in any… |
 | [AWP-UNI-004](/spec/semantics/units-and-frames) | MUST | world | all | `core` | AWP-UNI-004 | Dynamic transforms (e.g. `base` → `world` for a mobile robot) are published on the reserved `awp.tf` channel. |
@@ -497,5 +497,5 @@ Defined in [/spec/versioning-policy](/spec/versioning-policy).
 | [AWP-VER-006](/spec/versioning-policy) | MUST | both | all | `core` | untestable: process or deployment policy | The negotiated protocol version alone determines wire compatibility; before 1.0 it is qualified by the draft revision (AWP-VER-009). Schema… |
 | [AWP-VER-007](/spec/versioning-policy) | MUST | both | all | `core` | AWP-VER-007 | Within a wire version, optional features are discovered through the `capabilities` maps exchanged in manifests — never by version sniffing. A… |
 | [AWP-VER-008](/spec/versioning-policy) | MUST | both | all | `core` | AWP-VER-008 | The version negotiated in `initialize` (`protocol_versions`, `protocol_version`) is the string `MAJOR.MINOR`, e.g. `"0.1"`. PATCH releases never… |
-| [AWP-VER-009](/spec/versioning-policy) | MUST | both | all | `core` | manual: the implementation's documentation and the conformance report name the draft revision | Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.7"); `"0.1"` alone does… |
+| [AWP-VER-009](/spec/versioning-policy) | MUST | both | all | `core` | manual: the implementation's documentation and the conformance report name the draft revision | Implementations and conformance reports MUST name the draft revision they target (e.g. "self-assessed against 0.1-draft.8"); `"0.1"` alone does… |
 

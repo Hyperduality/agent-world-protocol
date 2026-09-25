@@ -3,7 +3,7 @@ title: "Units and frames"
 description: "SI units, unit-suffixed field names, and the frame tree."
 ---
 
-- All physical quantities use **SI units**. Field names carry unit suffixes: `_m`, `_rad`, `_s`, `_ns`, `_mps`, `_radps`, `_n` (newtons), `_nm` (newton-metres), `_kg`, `_hz`. `[AWP-UNI-001]`
+- All physical quantities use **SI units**. Field names carry unit suffixes: `_m`, `_rad`, `_s`, `_ms`, `_ns`, `_mps`, `_radps`, `_n` (newtons), `_nm` (newton-metres), `_kg`, `_hz`. `[AWP-UNI-001]`
 - Coordinate systems are **right-handed**; rotations are unit quaternions `q: [x, y, z, w]`. `[AWP-UNI-002]`
 - The world publishes a **frame tree** in `session.ready`: named frames with parent links and static or timestamped transforms. Every pose in any message MUST name its frame; the frame MUST exist in the tree. `[AWP-UNI-003]`
 - Dynamic transforms (e.g. `base` → `world` for a mobile robot) are published on the reserved `awp.tf` channel. `[AWP-UNI-004]`
