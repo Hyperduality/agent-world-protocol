@@ -3,10 +3,10 @@ title: "awp-sim"
 description: "The reference world: a simulated arm served over WebSocket, in either time model, with scripted failure scenarios."
 ---
 
-`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.8**.
+`awp-sim` is the reference world in [`awp-python`](https://github.com/Hyperduality/awp-python). It exposes one simulated end effector, `arm_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.9**.
 
 <Warning>
-Alpha. The world is **Core World: AWP-conformant against 0.1-draft.8** in both time models: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [reports and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005). The sim profile in lockstep with `--features sim` is self-assessed against 0.1-draft.8: the suite reports no failure and leaves a requirement untested. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
+Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models: the [conformance suite](/conformance/test-suite) reports no failure and nothing untested, and the [reports and manual evidence](https://github.com/Hyperduality/awp-python/tree/main/conformance) are published (AWP-CNF-005). So is every feature it offers: **Core World + sim (lockstep)** with `--features task,approval,blend,transfer,sim`, and Core World (streaming) with `--features task,approval,blend,transfer,servo` on the `ws` stream binding. A simulated arm proves nothing physical: awp-sim makes no robotics-profile claim.
 </Warning>
 
 ```bash
@@ -36,7 +36,7 @@ Each is off by default and enabled with `--features` (comma-separated):
 | Feature | What the world offers |
 |---|---|
 | `task` | `capabilities.task`: a task on `session.open`, `task.update`, the task shown to approvers (AWP-TSK) |
-| `approval` | `park`, an extended action with `requires_approval`; approvers connect with `--approver-token` and receive `safety.approval_requested`; `--approval-timeout-ms` (AWP-APR) |
+| `approval` | `park`, an extended action with `requires_approval`; approvers connect with `--approver-token` and receive `safety.approval_requested`; `--approval-timeout-ms`; standing approvals, declared as `safety_policy.standing_approvals` (AWP-APR) |
 | `blend` | `blend` preemption on `move_to_pose`: the arm carries its speed into the new target (AWP-PRE-004) |
 | `transfer` | `session.transfer` and `session.open { takeover }` (AWP-EMB-003) |
 | `sim` | Lockstep only: `seed`, `snapshot`, and `replay` capabilities, seeded sensor noise, `ts_sim_ns`, `world.snapshot` / `world.restore`; with `--replay-dir`, every session is written as a replay bundle and `awp-sim replay BUNDLE` reproduces it (AWP-REP, sim profile) |
@@ -77,4 +77,4 @@ The world is a sans-IO engine: `awp_sim.world.World` takes messages and the curr
 
 ## Not implemented
 
-Multi-bind, shared control, and the `barrier` tick authority, which need a second embodiment; standing approvals and grant expiry; stream bindings other than `ws` and inline; the robotics profile, since a simulated arm proves nothing physical.
+Multi-bind, shared control, and the `barrier` tick authority, which need a second embodiment; grant expiry; stream bindings other than `ws` and inline; the robotics profile, since a simulated arm proves nothing physical.
