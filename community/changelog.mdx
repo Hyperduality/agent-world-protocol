@@ -5,6 +5,24 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-09-26" description="0.1-draft.10">
+Rules for worlds that bind several embodiments or several lockstep sessions, found by giving the reference world a second, shared embodiment, and requirement IDs for normative sentences that had none.
+
+**Wire-visible changes**
+
+- **Barrier calls.** Under `tick_authority: "barrier"`, a `world.tick` records its session's readiness for `count` advances. The world advances while every bound non-observer lockstep session, suspended ones included, has advances left, and answers each call after its last advance. A session has one pending call; another fails with `AWP_BUSY`. A pending call is discarded with a lost connection, fails with `AWP_TICK_MISMATCH` when a reset or restore moves the tick, and fails with `AWP_SESSION_EXPIRED` or `AWP_TICK_NOT_AUTHORIZED` when its session closes or becomes an observer (new AWP-TIM-014).
+- **Multi-bind.** A submission without `embodiment_id` in a multi-bind session fails with `-32602`, and one whose type the named embodiment does not offer with `AWP_FORBIDDEN` (AWP-EMB-005). A takeover names the one embodiment it takes; `takeover` with `embodiments` fails with `AWP_EMBODIMENT_UNAVAILABLE`. A holder bound to several embodiments keeps the others and loses the transferred one's action types and channel grants; it becomes an observer only when none is left (AWP-EMB-003).
+- **Events about embodiments.** `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `safe_state_entered`, `safe_state_exited`, and `embodiment_transferred` name their embodiment in `detail.embodiment`, and an occurrence that concerns several embodiments is reported once per embodiment (new AWP-EVT-004). Safe-state entry leaves a shared embodiment that another session's action is executing on to that session (AWP-SAF-004).
+- **Tick grants.** A world that may bind several lockstep sessions under `any_session` grants `tick` to at most one session at a time, as AWP-PRM-005 has it, rather than to exactly one (AWP-MA-005).
+- **Reserved extension types.** Senders MUST NOT emit types `0x00` or `0x04`–`0x7F`, now under AWP-DAT-006.
+
+**Clarifications**
+
+- New SHOULDs with IDs: a streaming action's status carries `stream` at least once per second (AWP-CMD-009), and a robotics-profile world offers servo- or torque-level control on command channels (AWP-ROB-008).
+- The scene channel is optional; its rules apply to a world that offers one.
+- Approval requests go to the world's approver connections on the control channel (AWP-APR-001).
+</Update>
+
 <Update label="2026-09-25" description="0.1-draft.9">
 Standing approvals, and the answers to what the first independent implementation, a TypeScript agent written from the specification alone, found unclear.
 

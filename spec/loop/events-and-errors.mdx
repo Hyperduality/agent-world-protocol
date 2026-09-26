@@ -9,6 +9,8 @@ Worlds emit `world.event` notifications for state changes not tied to a specific
 
 `world.event` notifications travel only on the control channel, where `status_seq` orders them against action statuses and resumption replays them. A `text/event+json` observation channel carries the world's own structured samples — detections, scene deltas, game state — and MUST NOT carry the events of this registry. `[AWP-EVT-003]`
 
+`e_stop_engaged`, `e_stop_released`, `envelope_violation`, `safe_state_entered`, `safe_state_exited`, and `embodiment_transferred` concern an embodiment and MUST name it in `detail.embodiment`. An occurrence that concerns several embodiments, such as an e-stop that halts them all or safe-state entry of a multi-bind session, is reported as one event per embodiment. `[AWP-EVT-004]`
+
 `e_stop_engaged` MUST terminate every non-terminal action: `executing` actions → `failed` (reason `e_stop`); `pending_approval`, `queued`, and `accepted` actions → `cancelled` (reason `e_stop`). Action admission is suspended (`AWP_ESTOP_ACTIVE`) until `e_stop_released`. `[AWP-EVT-002]`
 
 ## Status reasons

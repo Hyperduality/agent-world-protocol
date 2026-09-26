@@ -15,7 +15,7 @@ description: "The complete AWP error registry."
 | 2006 | AWP_INTEGER_RANGE | session | no | A 64-bit field exceeded 2^53−1 in JSON (AWP-CTL-009) |
 | 2007 | AWP_CHANNEL_UNKNOWN | session | no | `obs.subscribe` or `obs.unsubscribe` named a channel the manifest does not declare (AWP-NEG-004) |
 | 3001 | AWP_PARAMS_INVALID | action | no | Params fail the type's schema |
-| 3002 | AWP_BUSY | action | yes | `reject` preemption policy and an action is running |
+| 3002 | AWP_BUSY | action | yes | `reject` preemption policy and an action is running; or a barrier `world.tick` of the session is pending (AWP-TIM-014) |
 | 3003 | AWP_QUEUE_FULL | action | yes | `queue` policy depth exceeded |
 | 3004 | AWP_ACTION_ID_CONFLICT | action | no | Same `action_id` resubmitted with different content (AWP-ACT-001) |
 | 3005 | AWP_ESTOP_ACTIVE | action | yes | Admission suspended while e-stop is engaged (AWP-EVT-002) |
