@@ -17,4 +17,4 @@ What changes between sim and real:
 | Determinism | seeded, replayable | none |
 | Envelopes | often loose | enforced tight |
 
-What must not change: channel ids, action types, param schemas, frames, units. Practical recipe: develop in lockstep against a simulator adapter ([`awp-sim`](/adapters/awp-sim), the reference world, offers both time models); graduate to *streaming against the simulator* (same worlds often offer both) to shake out staleness handling; only then point the same binary at the robotics adapter with conservative envelopes and approval on risky types.
+What must not change: channel ids, action types, param schemas, frames, units. Practical recipe: develop in lockstep against a simulator adapter ([`awp-sim`](/adapters/awp-sim), the reference world, offers both time models); graduate to *streaming against the simulator* (same worlds often offer both) to shake out staleness handling; only then point the same binary at a robotics adapter for your platform with conservative envelopes and approval on risky types.

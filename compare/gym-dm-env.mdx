@@ -11,6 +11,6 @@ Gymnasium and dm_env do expose their interfaces at runtime: `env.action_space` a
 - **Time.** `step()` is the only time model; there is no streaming mode where the world advances while the policy thinks.
 - **Actions.** A Gym action is applied atomically per step. An AWP action has admission, permission, execution, progress, preemption, and a deadline.
 - **Authority and audit.** There are no grants, envelopes, approval hooks, or a normative session record; the trainer is trusted by construction.
-- **Reward.** AWP has no reward in the core; worlds MAY expose reward as an ordinary channel, keeping the protocol reward-agnostic.
+- **Reward.** AWP has no reward in the core; worlds may expose reward as an ordinary channel, keeping the protocol reward-agnostic.
 
-They compose: a Gymnasium bridge exposes a Gymnasium env as an AWP world, generating the channel and action schemas from the runtime spaces. It can claim the sim profile only for environments whose state can be snapshotted; otherwise it claims Core.
+They compose: a Gymnasium bridge, which anyone can build, would expose a Gymnasium env as an AWP world, generating the channel and action schemas from the runtime spaces. It could claim the sim profile only for environments whose state can be snapshotted; otherwise it would claim Core.

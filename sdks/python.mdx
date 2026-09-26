@@ -6,7 +6,7 @@ description: "awp-python: the agent side of AWP as a sans-IO state machine, with
 [`awp-python`](https://github.com/Hyperduality/awp-python) is the agent side of AWP. It provides `awp`, the client protocol layer described here. The [reference world](/adapters/awp-sim), awp-sim, is a separate package built on it. awp-python targets **0.1-draft.9** and requires Python 3.11+.
 
 <Warning>
-Alpha: the API changes with each draft revision. Its demo agent, `awp-demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models ([reports](https://github.com/Hyperduality/awp-python/tree/main/conformance)).
+Alpha: the API changes with each draft revision. Its demo agent, `awp-demo`, is **Core Agent (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** and **Core Agent (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** ([reports](https://github.com/Hyperduality/awp-python/tree/main/conformance)).
 </Warning>
 
 ```bash
@@ -63,7 +63,7 @@ while not record.terminal:
 
 ## Heartbeats
 
-`AsyncClient(heartbeat=True)`, the default, pings from a timer at the smaller of `heartbeat_interval_ms` and half the watchdog. An agent that actuates something should pass `heartbeat=False` and call `await client.ping()` from the loop that produces its intents, so that a stalled policy also stops the heartbeat holding off the world's watchdog (AWP-SAF-005).
+`AsyncClient(heartbeat=True)`, the default, pings from a timer at the smaller of `heartbeat_interval_ms` and half the watchdog. In a streaming session, an agent that actuates something should pass `heartbeat=False` and call `await client.ping()` from the loop that produces its intents, so that a stalled policy also stops the heartbeat holding off the world's watchdog (AWP-SAF-005). Lockstep has no watchdog, and under `tick_authority: "barrier"` an `advance()` waits for the other sessions (AWP-TIM-012), so the timer pings there regardless.
 
 ## What the connection tracks
 
@@ -84,22 +84,25 @@ while not record.terminal:
 ## Without asyncio
 
 ```python
-events = conn.receive(message)      # typed events for one decoded message
-for out in conn.outgoing():         # messages to send, in order
-    transport.send(json.dumps(out))
+from awp import jsonrpc
+
+events = conn.receive(jsonrpc.decode(text))  # typed events for one message
+for out in conn.outgoing():                  # messages to send, in order
+    transport.send(jsonrpc.encode(out))
 ```
 
 ## Beyond Core
 
 | Call | Does |
 |---|---|
+| `open_session(..., embodiments=[…])`; `submit(..., embodiment_id=…)` | Bind several embodiments of one `multi_bind_group`; each submission names its embodiment (AWP-EMB-005) |
 | `update_task(task)` | `task.update` (AWP-TSK-003) |
 | `transfer()`; `open_session(..., takeover=True, transfer_token=…)` | Hand an embodiment to another session (AWP-EMB-003) |
 | `reset(initial_state, seed)`, `snapshot()`, `restore(token)` | Administrative calls, with the matching `admin` grant (AWP-PRM-005, AWP-REP-002) |
 | `respond_approval(approval_id, decision)` | For an approver connection; `ApprovalRequested` events carry the requests (AWP-APR-007) |
 | `command(channel, payload)` | A setpoint on a command channel, stamped on the session clock through the offset (AWP-CLK-009); `AsyncClient.command` sends it on the stream connection when there is one (AWP-CMD-007) |
 
-**Stream connections.** When `session.ready` offers a `ws` endpoint, `AsyncClient` connects to it with the session token and receives binary frames there; it re-establishes it if only the stream connection drops (AWP-TRN-010..013). `AsyncClient(streams=False)` keeps everything inline.
+**Stream connections.** When `session.ready` offers a `ws` endpoint, `AsyncClient` connects to it with the session token and receives binary frames there; it re-establishes it if only the stream connection drops (AWP-TRN-010..013). `AsyncClient(streams=False)` keeps everything inline. Stream bindings other than `ws` are not covered.
 
 ## Other modules
 
