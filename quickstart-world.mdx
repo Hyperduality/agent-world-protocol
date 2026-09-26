@@ -5,7 +5,7 @@ description: "What a world implements, and the reference world to start from."
 icon: "cube"
 ---
 
-No world SDK is published yet. The starting point is [awp-sim](/adapters/awp-sim), the reference world, whose engine is written to be read: a sans-IO state machine that takes messages and the current time and returns what to send.
+Start from [awp-sim](/adapters/awp-sim), the reference world. Its engine is a sans-IO state machine that takes messages and the current time and returns what to send.
 
 <Steps>
   <Step title="Run the reference world">
@@ -22,7 +22,7 @@ No world SDK is published yet. The starting point is [awp-sim](/adapters/awp-sim
     The engine is [`src/awp_sim/world.py`](https://github.com/Hyperduality/awp-sim/blob/main/src/awp_sim/world.py). Each requirement it implements is cited by ID at the point where it applies, so it reads alongside the [specification](/spec/index): admission checks, the action lifecycle, lockstep advances, the watchdog, replay, and closing. Replace the simulated arm with your simulator or controller.
   </Step>
   <Step title="Check it">
-    Record your world's traffic in the [trace format](/spec/wire-traces) and run the specification's trace checker over it, as awp-sim does for every scenario (`scripts/check_traces.py`).
+    Run the [conformance suite](/conformance/test-suite) against your world: `awp-conformance world ws://127.0.0.1:8710 --fixture my-world.json`.
   </Step>
 </Steps>
 

@@ -42,4 +42,4 @@ Physical actuation on an observation the agent made too long ago is a safety fau
 
 - A robotics-profile world MUST offer, for every `latest-wins` observation or command channel, at least one stream binding with independent flow control (`webrtc`, `webtransport`, or `shm`), so that a stalled sensor stream can never delay the control channel; the inline binding remains available as the fallback (AWP-TRN-004). `[AWP-ROB-006]`
 
-The planned [ros2-bridge](/adapters/ros2-bridge) and [lerobot-bridge](/adapters/lerobot-bridge) target this profile; neither is published. Chunk-based policies map onto the chunk-replacement idiom (see [Actions](/spec/loop/actions)); for servo- or torque-level control at 100–1000 Hz, worlds SHOULD declare [command channels](/spec/loop/command-channels) rather than accept per-setpoint submissions.
+Chunk-based policies map onto the chunk-replacement idiom (see [Actions](/spec/loop/actions)); for servo- or torque-level control at 100–1000 Hz, worlds SHOULD declare [command channels](/spec/loop/command-channels) rather than accept per-setpoint submissions.

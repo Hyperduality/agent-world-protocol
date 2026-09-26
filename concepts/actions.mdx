@@ -4,7 +4,7 @@ description: "Actions are typed intents with duration and a lifecycle — not fi
 icon: "bolt"
 ---
 
-The single biggest departure from tool-calling protocols: an AWP action is an **intent that unfolds over time**. "Move arm to pose X" takes two seconds and might fail halfway. The protocol therefore gives every action a lifecycle:
+An AWP action is an **intent that unfolds over time**. "Move arm to pose X" takes two seconds and might fail halfway. The protocol therefore gives every action a lifecycle:
 
 ```
 submit → admitted as pending_approval | queued | accepted   (or rejected)

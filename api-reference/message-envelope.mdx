@@ -20,11 +20,11 @@ description: "The JSON-RPC 2.0 wrapper used by every control-channel message."
 ```
 </CodeGroup>
 
-The blocks above are illustrative fragments. Complete, validated messages appear on each method page tagged with their schema (for example ```` ```json awp:action-submit ````).
+The blocks above are fragments; complete messages appear on each method page.
 
 Rules:
 
 - `id` values are unique per sender per connection; batching is prohibited (AWP-CTL-006); unknown fields are ignored (AWP-VER-003); unknown methods return JSON-RPC `-32601`.
 - One connection carries at most one session (AWP-CTL-007).
 - Every `action.status`, `world.event`, and `session.state` notification carries `status_seq`; the agent returns the highest value it has processed in `session.resume` (AWP-CTL-008).
-- All 64-bit fields (`ts_mono_ns`, `ts_sim_ns`, `ts_send_ns`, `received_ts_mono_ns`, `basis_ts_mono_ns`, `valid_until_ns`, `origin_ns`, `receive_ns`, `transmit_ns`, `seq`, `tick`, `status_seq`, `expires_at_ns`, …) are JSON integers ≤ 2^53 − 1 (AWP-CTL-009). This is safe in every mainstream JSON implementation without BigInt or string encoding; sessions are bounded at ~104 days as a consequence.
+- All 64-bit fields (`ts_mono_ns`, `ts_sim_ns`, `ts_send_ns`, `received_ts_mono_ns`, `basis_ts_mono_ns`, `valid_until_ns`, `origin_ns`, `receive_ns`, `transmit_ns`, `seq`, `tick`, `status_seq`, `expires_at_ns`, …) are JSON integers ≤ 2^53 − 1 (AWP-CTL-009).

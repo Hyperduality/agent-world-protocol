@@ -3,7 +3,7 @@ title: "Liveness and safe state"
 description: "Connection liveness, the world-side watchdog, safe-state entry, session retention, channel degradation, and stale-intent enforcement, each on its own clock."
 ---
 
-A responsive connection does not prove that the agent is still driving; a live agent process does not prove that its policy is still deciding; a retained session token does not mean stale motion may continue; a fresh intent may rest on an old observation. This page separates the mechanisms that guard each case and fixes which clock governs each.
+A responsive connection does not prove that the agent is still driving; a live agent process does not prove that its policy is still deciding; a retained session token does not mean stale motion may continue; a fresh intent may rest on an old observation.
 
 | Mechanism | Owner | Clock | Effect |
 |---|---|---|---|

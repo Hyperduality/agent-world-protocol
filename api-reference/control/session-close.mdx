@@ -25,7 +25,7 @@ Call after reconnecting and completing `initialize`, within `reconnect_window_ms
 
 ## session.transfer
 
-Current holder calls `session.transfer` with optional `{ expires_in_ms }` (default 30000) and receives `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). The previous holder's executing actions end `preempted` and its pre-execution actions `cancelled`, reason `transferred` (AWP-EMB-003). Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
+Current holder calls `session.transfer` with optional `{ expires_in_ms }` (default 30000) and receives `{ transfer_token, expires_in_ms }` for handoff; the receiver passes `transfer_token` to `session.open` with `takeover: true` (AWP-EMB-003). The previous holder's executing actions end `preempted` and its pre-execution actions `cancelled`, reason `transferred`. Transfer tokens are single-use and redacted in the audit log (AWP-AUD-006).
 
 ```json awp:session-transfer-result
 { "transfer_token": "tt_4c1…", "expires_in_ms": 30000 }

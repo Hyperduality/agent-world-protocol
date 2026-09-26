@@ -6,7 +6,7 @@ description: "awp-conformance: tests a world at a URL, or an agent against a har
 [`awp-conformance`](https://github.com/Hyperduality/awp-conformance) runs the assertions of the [requirement matrix](/spec/requirements) (AWP-CNF-004). It targets **0.1-draft.9** and shares no code with any implementation: it speaks the protocol from the canonical schemas, the [lifecycle table](/spec/loop/action-lifecycle), and the matrix of the revision it pins.
 
 <Warning>
-Alpha. Coverage grows release by release; a requirement the suite does not yet exercise is reported `untested`, and a claim with any untested requirement in scope is self-assessed (AWP-CNF-005).
+Alpha: coverage grows with each release.
 </Warning>
 
 ```bash
@@ -53,4 +53,4 @@ The report states the claim its outcomes support (AWP-CNF-005): **AWP-conformant
 
 ## Beyond Core
 
-Tests for the `ws` stream binding, task, approval (with `approver_token` in the fixture), blend, transfer, seeding, snapshots and replay, and command channels (with a `servo` entry: its action, a setpoint, and optionally one outside the envelope) run when the world's manifest or `session.ready` offers them, and report `n/a` otherwise. Standing approvals are tested when the safety policy declares `standing_approvals`; otherwise the suite checks that a response carrying one is refused. Not yet covered: multi-bind and shared control, the `barrier` tick authority, grant expiry, and stream bindings other than `ws`.
+Tests for the `ws` stream binding, task, approval (with `approver_token` in the fixture), blend, transfer, seeding, snapshots and replay, and command channels (with a `servo` entry: its action, a setpoint, and optionally one outside the envelope) run when the world's manifest or `session.ready` offers them, and report `n/a` otherwise. Standing approvals are tested when the safety policy declares `standing_approvals`; otherwise the suite checks that a response carrying one is refused. Not covered: multi-bind and shared control, the `barrier` tick authority, grant expiry, and stream bindings other than `ws`.

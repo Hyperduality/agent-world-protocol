@@ -1,6 +1,6 @@
 ---
 title: "Time models"
-description: "Lockstep and streaming — the make-or-break design axis that lets one agent run in simulation and on hardware."
+description: "Lockstep and streaming, and how one agent runs in simulation and on hardware."
 icon: "clock"
 ---
 
@@ -8,7 +8,7 @@ A simulator can pause and wait for the agent. Reality cannot. AWP therefore defi
 
 ## Lockstep
 
-The world advances only when the agent calls `world.tick`. Submitting an action stages it; the next tick executes it and delivers the resulting observation. Perfect for turn-based games, deterministic simulation, and evaluation harnesses.
+The world advances only when the agent calls `world.tick`. Submitting an action stages it; the next tick executes it and delivers the resulting observation. Suited to turn-based games, deterministic simulation, and evaluation harnesses.
 
 ```mermaid
 sequenceDiagram
@@ -44,7 +44,7 @@ sequenceDiagram
     W-->>A: session.telemetry (1 Hz latency stats)
 ```
 
-## Why this is the crux
+## One agent, both models
 
 <Warning>
 An agent written only for lockstep will silently misbehave in streaming mode: its observations are stale by the time it acts. Streaming worlds stamp every frame with capture and send time and publish latency telemetry once a second; agents synchronize their clock to the session clock over the heartbeat, measure the staleness of every observation, and name the basis of every action so the world can refuse an intent built on old data.

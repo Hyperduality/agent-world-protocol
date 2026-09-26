@@ -1,9 +1,9 @@
 ---
 title: "World manifest"
-description: "The self-description a world returns from initialize — the heart of AWP discoverability."
+description: "The self-description a world returns from initialize."
 ---
 
-Returned by `initialize`. A complete, valid manifest (validated in CI against [`world-manifest.schema.json`](/api-reference/schemas/world-manifest); the file is [`examples/v0.1/world-manifest.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/world-manifest.json)):
+Returned by `initialize`. A complete manifest ([`examples/v0.1/world-manifest.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/world-manifest.json)), valid against [`world-manifest.schema.json`](/api-reference/schemas/world-manifest):
 
 ```json awp:world-manifest
 {
@@ -76,5 +76,3 @@ Local `$ref`s inside `params_schema` resolve against the manifest's own `$defs`;
 - Worlds declaring the `command_channels` capability additionally list `command_channels` — agent→world channels, same schema as observation channels — see [command channels](/spec/loop/command-channels). `[AWP-MAN-005]`
 - Worlds offering `lockstep` MUST declare `tick_policy` (`on_tick`) and `tick_authority` (`any_session` | `barrier`); worlds offering `streaming` MUST declare `safety_policy.safe_state` and MAY declare `safety_policy.max_basis_age_ms` ([time models](/spec/loop/time-models), [safe state](/spec/safety/safe-state)). `[AWP-MAN-006]`
 - Embodiments that may be bound together by one session share a `multi_bind_group`; `session.open` names them in `embodiments` and submissions then carry `embodiment_id` (AWP-EMB-005). `[AWP-MAN-007]`
-
-Canonical schema: [world-manifest](/api-reference/schemas/world-manifest).

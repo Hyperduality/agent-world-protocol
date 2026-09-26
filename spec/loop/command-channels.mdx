@@ -7,7 +7,7 @@ Frame channels run in both directions. Worlds MAY declare **command channels** â
 
 A command channel is not opened directly. The agent submits a granted action of `duration: "streaming"`; the action is the channel's anchor â€” grants, envelopes, lifecycle, preemption, and audit all apply through it. The action is best read as a mode switch ("enter servo control"), and the frames as data within that mode.
 
-Fragment (illustrative) of a manifest declaring one command channel and its anchoring action; the complete, validated manifest is [`examples/v0.1/world-manifest-servo.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/world-manifest-servo.json):
+A manifest fragment declaring one command channel and its anchoring action (full example: [`examples/v0.1/world-manifest-servo.json`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/world-manifest-servo.json)):
 
 ```json
 "capabilities": { "command_channels": true },

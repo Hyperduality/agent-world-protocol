@@ -24,5 +24,3 @@ Physical actuation. Implement the [robotics profile](/spec/profiles/robotics) co
     Choose `safety_policy.safe_state.behavior` (`safe_stop` for arms, `hold` for grippers) and a `watchdog_ms` your controller can honor (robotics default 2000 ms). The watchdog runs on the adapter, from the last message the agent originated — answering the adapter's pings does not count — and fires whether or not the connection has been declared lost (AWP-SAF-003/004). Declare `max_duration_ms` on every extended action type so a stalled policy cannot keep a long motion going (AWP-ROB-007). Test it: kill the agent process mid-motion and measure, on the adapter's clock, last-message → actuator-stop; the number must be within `watchdog_ms` + 100 ms and goes in your conformance report (AWP-SAF-012). The reconnect window only decides how long the session token stays valid; a resumed agent must submit a new action to move again (AWP-SAF-008).
   </Step>
 </Steps>
-
-Planned reference implementations (not yet published): [ros2-bridge](/adapters/ros2-bridge) for ROS 2 stacks, [lerobot-bridge](/adapters/lerobot-bridge) for LeRobot-class affordable arms (no ROS required).

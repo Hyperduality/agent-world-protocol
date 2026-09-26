@@ -24,6 +24,4 @@ The same JSONL format serves three purposes with different completeness requirem
 | **Replay bundle** | Audit record + initial `snapshot_token` (and the snapshot bytes or a reference resolvable by the world) + full frame payloads | Everything above, plus deterministic replay and inspection of what the agent saw | — |
 | **Dataset export** | Derived from a replay bundle: (observation, action, outcome) trajectories joined on `action_id`, with redactions applied | Training and evaluation | Serve as an audit record (it is derived, not primary) |
 
-A hash-only log is an audit record, not a dataset: the hashes let a replay prove it reproduced the original observations, but nothing in the log can regenerate them.
-
-The log is deliberately triple-purpose: safety audit trail, debugging record, and dataset — see [Record and replay](/guides/record-and-replay).
+See [Record and replay](/guides/record-and-replay).

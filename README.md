@@ -9,13 +9,13 @@ This repository is the public documentation and v0.1 draft specification for **[
 ```bash
 npm i -g mint
 mint dev            # http://localhost:3000
-mint broken-links   # link check (run in CI too)
+mint broken-links   # link check
 ```
 
 ## Layout
 
 - `docs.json` (nav/theme) · `*.mdx` pages per tab (Documentation, Specification, API Reference, SDKs & Adapters, Community) · `logo/`, `images/`, `snippets/`.
-- `schemas/v0.1/*.schema.json` — canonical JSON Schemas (Apache-2.0); `schemas/test-vectors/frames.json` — frame test vectors; `examples/v0.1/traces/*.jsonl` — complete wire traces, validated in CI and rendered at `spec/wire-traces`.
+- `schemas/v0.1/*.schema.json` — canonical JSON Schemas (Apache-2.0); `schemas/test-vectors/frames.json` — frame test vectors; `examples/v0.1/traces/*.jsonl` — complete wire traces, rendered at `spec/wire-traces`.
 - `examples/v0.1/*.json` — complete instances validated against the schemas.
 - `generated/awp-v0.1.d.ts` — TypeScript types generated from the schemas.
 - `spec/requirements.yaml` → `spec/requirements.mdx` — the requirement matrix (side, applicability, gate, test) for every `AWP-*` ID.
@@ -30,7 +30,7 @@ npm run check   # schemas, examples, tagged doc blocks, frame vectors, generated
 npm run gen     # regenerate api-reference/schemas/*.mdx, generated/, spec/requirements.mdx
 ```
 
-Tagged JSON blocks in the docs (```` ```json awp:<schema> ````) are validated in CI; untagged blocks are illustrative fragments.
+`npm run check` validates tagged JSON blocks in the docs (```` ```json awp:<schema> ````); untagged blocks are illustrative fragments.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose changes and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards.
 

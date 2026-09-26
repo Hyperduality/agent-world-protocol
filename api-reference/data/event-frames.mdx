@@ -3,7 +3,7 @@ title: "Events"
 description: "world.event travels on the control channel; text/event+json channels carry the world's own samples."
 ---
 
-`world.event` is a control-channel notification (AWP-EVT-001, AWP-EVT-003). Standard events: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `channel_degraded`, `world_resetting`, `world_shutdown`. Every event carries `status_seq`, shared with `action.status` (AWP-CTL-008), so events order against action transitions and replay on `session.resume`:
+`world.event` is a control-channel notification (AWP-EVT-001, AWP-EVT-003). Standard events: `entity_appeared`, `entity_removed`, `collision`, `e_stop_engaged`, `e_stop_released`, `envelope_violation`, `grant_expired`, `safe_state_entered`, `safe_state_exited`, `channel_degraded`, `world_resetting`, `world_shutdown`, `embodiment_transferred`. Every event carries `status_seq`, shared with `action.status` (AWP-CTL-008), so events order against action transitions and replay on `session.resume`:
 
 ```json awp:world-event
 { "jsonrpc": "2.0", "method": "world.event",

@@ -24,4 +24,4 @@ The agent connects to the first binding it supports; `inline` is always last and
 | `webtransport` | QUIC streams and datagrams | yes |
 | `shm` | POSIX shared memory (local) | yes |
 
-On a binding without independent flow control, a `latest-wins` channel is delivered without transit loss and the sender holds at most one undelivered frame per channel (AWP-TRN-009). Profiles that stream sensors next to safety-critical control — realtime A/V and robotics — require a binding from the lower three rows for those channels (AWP-AV-001, AWP-ROB-006).
+On a binding without independent flow control, a `latest-wins` channel is delivered without transit loss and the sender holds at most one undelivered frame per channel (AWP-TRN-009). Profiles that stream sensors next to safety-critical control — realtime A/V and robotics — require a binding from the lower three rows for those channels (AWP-TRN-003, AWP-ROB-006).

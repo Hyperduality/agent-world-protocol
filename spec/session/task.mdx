@@ -3,7 +3,7 @@ title: "Task"
 description: "The language instruction conditioning the agent — a first-class, auditable session field."
 ---
 
-Language-conditioned policies (VLA-class) are a mainstream consumer of embodied interfaces. The instruction that conditions them ("pick up the red block") is session state, not an action: it names what the agent is trying to do, it can change mid-session, and approvers and audit tooling need to see it. AWP gives it one standard home — `awp.task`.
+The instruction that conditions a language-conditioned policy ("pick up the red block") is session state, not an action: it names what the agent is trying to do, it can change mid-session, and approvers and audit tooling need to see it. AWP gives it one standard home — `awp.task`.
 
 ```json awp:task
 {

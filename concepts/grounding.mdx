@@ -4,10 +4,10 @@ description: "Shared conventions — units, frames, clocks, encodings — so pay
 icon: "compass"
 ---
 
-Interoperability dies in the details, so Layer 3 pins them down:
+Layer 3 fixes the shared conventions:
 
 - **Units** — SI everywhere, encoded in field names (`_m`, `_rad`, `_mps`, `_n`). No implicit unit negotiation. See [units and frames](/spec/semantics/units-and-frames).
 - **Coordinate frames** — right-handed, with an explicit **frame tree** (named frames and parent transforms) published at `session.ready`, borrowed conceptually from ROS tf. Every pose names its frame.
 - **Time** — monotonic nanosecond timestamps against a session clock, anchored to wall-clock and (in sims) to sim-time. See [timestamps and clocks](/spec/semantics/timestamps-and-clocks).
 - **Modalities** — a registry of standard encodings (`image/jpeg`, `audio/pcm`, `proprio/json`, `text/event+json`, …) with `x-vendor.*` extension naming. See [modalities](/spec/semantics/modalities).
-- **Scene graphs** — an optional semantic channel exposing entities, affordances, and relations as structured JSON. Enormously valuable for LLM agents that reason in symbols rather than pixels. See [scene graphs](/spec/semantics/scene-graphs).
+- **Scene graphs** — an optional semantic channel exposing entities, affordances, and relations as structured JSON. Useful for agents that reason in symbols rather than pixels. See [scene graphs](/spec/semantics/scene-graphs).
