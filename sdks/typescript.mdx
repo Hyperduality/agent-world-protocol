@@ -6,7 +6,7 @@ description: "awp-typescript: an agent SDK for Node, written from the specificat
 [`awp-typescript`](https://github.com/Hyperduality/awp-typescript) (`@hyperduality/awp`) is an agent SDK for Node 20+, written from the specification and the canonical schemas alone. It targets **0.1-draft.9** and vendors that revision's schemas, frame vectors, and lifecycle table.
 
 <Warning>
-Alpha: the API changes with each draft revision. Its demo agent, `awp-demo`, is **Core Agent: AWP-conformant against 0.1-draft.9** in both time models ([reports](https://github.com/Hyperduality/awp-typescript/tree/main/conformance)).
+Alpha: the API changes with each draft revision. Its demo agent, `awp-demo`, is **Core Agent (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** and **Core Agent (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** ([reports](https://github.com/Hyperduality/awp-typescript/tree/main/conformance)).
 </Warning>
 
 ```bash
@@ -40,7 +40,7 @@ In lockstep, advance explicitly: `await client.advance(1)` returns once the resu
 
 ## What it covers
 
-The control connection and JSON-RPC over WebSocket, manifest validation, grants, the binary and inline frame forms, per-channel loss accounting and resync, the action lifecycle and `status_seq` replay, heartbeats and clock synchronization, receiver reports, lockstep advancement, reconnection with resumption, the `ws` stream binding, and command channels. Not covered: stream bindings other than `ws`, the approver role, `session.transfer`, and multi-bind sessions.
+The control connection and JSON-RPC over WebSocket, manifest validation, grants, the binary and inline frame forms, per-channel loss accounting and resync, the action lifecycle and `status_seq` replay, heartbeats and clock synchronization, receiver reports, lockstep advancement, reconnection with resumption, the `ws` stream binding, and command channels. Not covered: stream bindings other than `ws`, the approver role, `session.transfer`, and the `awp.bearer.<token>` subprotocol for the credential (the client sends `Authorization`).
 
 ## Demo agent
 

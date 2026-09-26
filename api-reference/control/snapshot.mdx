@@ -11,6 +11,8 @@ All three require the corresponding entry in `granted.admin` (AWP-PRM-005); othe
 
 **world.reset** — `{ initial_state?, seed? }` → return to a named initial state (default: the manifest's first `initial_states` entry); same cross-session effects as restore, with `"kind": "reset"`. `seed` requires `capabilities.seed`. Result as for restore.
 
+**Errors:** 4001 (`AWP_FORBIDDEN`: no matching `admin` grant, AWP-PRM-005), 3001 (`AWP_PARAMS_INVALID`: `world.restore` with a token the world does not hold, AWP-REP-002). Without `capabilities.snapshot`, `world.snapshot` and `world.restore` are unknown methods (AWP-VER-007).
+
 ```json awp:reset
 { "jsonrpc": "2.0", "id": 21, "method": "world.reset", "params": { "initial_state": "empty_board", "seed": 7 } }
 ```

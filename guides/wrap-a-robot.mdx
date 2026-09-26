@@ -15,7 +15,7 @@ Physical actuation. Implement the [robotics profile](/spec/profiles/robotics) co
     Clamp or reject before commands reach the controller (AWP-ENV-001). Do this in the adapter even if the controller has its own limits — the audit log must show protocol-level enforcement.
   </Step>
   <Step title="Wire the e-stop both ways">
-    Hardware e-stop → `world.event: e_stop_engaged` + preempt all actions (AWP-EVT-002). Expose a `stop` action type with `preemption: replace` as the software path.
+    Hardware e-stop → `world.event: e_stop_engaged`; `executing` actions end `failed` and pre-execution actions `cancelled`, both with reason `e_stop`, and submissions fail with `AWP_ESTOP_ACTIVE` until `e_stop_released` (AWP-EVT-002). Expose a `stop` action type with `preemption: replace` as the software path.
   </Step>
   <Step title="Stamp, synchronize, and report">
     Set `ts_mono_ns` from the sensor's capture time and `ts_send_ns` when the frame leaves the adapter (AWP-OBS-006); answer every `ping` with `receive_ns` and `transmit_ns` taken at the socket (AWP-CLK-007). Send `session.telemetry` once a second from those stamps and from `received_ts_mono_ns` on each submission (AWP-TIM-006). Declare `max_basis_age_ms` and reject any submission without a `basis_ts_mono_ns` or with one older than the bound (AWP-SAF-013, AWP-ROB-005).

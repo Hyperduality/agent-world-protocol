@@ -3,13 +3,17 @@ title: "Registry"
 description: "Implementations and the claims their suite reports support."
 ---
 
-| Implementation | Side | Time models | Claim | Suite |
+| Implementation | Side | Time model | Claim | Reports |
 |---|---|---|---|---|
-| [awp-sim](/adapters/awp-sim) | world | lockstep | Core World (lockstep): AWP-conformant against 0.1-draft.9 | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
-| [awp-sim](/adapters/awp-sim) | world | streaming | Core World (streaming): AWP-conformant against 0.1-draft.9 | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
-| [awp-sim](/adapters/awp-sim), every feature | world | lockstep | Core World + sim (lockstep): AWP-conformant against 0.1-draft.9 | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
-| [awp-sim](/adapters/awp-sim), every feature | world | streaming | Core World (streaming): AWP-conformant against 0.1-draft.9 | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
-| [awp-python](/sdks/python) (`awp-demo`) | agent | lockstep, streaming | Core Agent: AWP-conformant against 0.1-draft.9, in each time model | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-python/tree/main/conformance) |
-| [awp-typescript](/sdks/typescript) (`awp-demo`) | agent | lockstep, streaming | Core Agent: AWP-conformant against 0.1-draft.9, in each time model | awp-conformance 0.1.0a5; [reports](https://github.com/Hyperduality/awp-typescript/tree/main/conformance) |
+| [awp-sim](/adapters/awp-sim) | world | lockstep | Core World (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-sim](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
+| [awp-sim](/adapters/awp-sim) | world | streaming | Core World (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-sim](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
+| [awp-sim](/adapters/awp-sim), all lockstep features | world | lockstep | Core World + sim (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-sim](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
+| [awp-sim](/adapters/awp-sim), all streaming features | world | streaming | Core World (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-sim](https://github.com/Hyperduality/awp-sim/tree/main/conformance) |
+| [awp-python](/sdks/python) (`awp-demo`) | agent | lockstep | Core Agent (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-python](https://github.com/Hyperduality/awp-python/tree/main/conformance) |
+| [awp-python](/sdks/python) (`awp-demo`) | agent | streaming | Core Agent (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-python](https://github.com/Hyperduality/awp-python/tree/main/conformance) |
+| [awp-typescript](/sdks/typescript) (`awp-demo`) | agent | lockstep | Core Agent (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-typescript](https://github.com/Hyperduality/awp-typescript/tree/main/conformance) |
+| [awp-typescript](/sdks/typescript) (`awp-demo`) | agent | streaming | Core Agent (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6) | [awp-typescript](https://github.com/Hyperduality/awp-typescript/tree/main/conformance) |
+
+The feature configurations are listed with their flags in the [awp-sim reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance).
 
 To add an implementation, open a pull request against this page with its `report.json` from a suite release that targets the claimed revision.

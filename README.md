@@ -19,15 +19,15 @@ mint broken-links   # link check
 - `examples/v0.1/*.json` — complete instances validated against the schemas.
 - `generated/awp-v0.1.d.ts` — TypeScript types generated from the schemas.
 - `spec/requirements.yaml` → `spec/requirements.mdx` — the requirement matrix (side, applicability, gate, test) for every `AWP-*` ID.
-- `scripts/` — `validate.mjs`, `gen-schema-docs.mjs`, `gen-types.mjs`, `gen-requirements.mjs`, and the reference `frame-codec.mjs`.
+- `scripts/` — `validate.mjs`, `gen-schema-docs.mjs`, `gen-types.mjs`, `gen-requirements.mjs`, `gen-traces.mjs`, and the reference `frame-codec.mjs`.
 - `rfds/0000-template.md` — the RFD template.
 
 ## Checks
 
 ```bash
-npm install
-npm run check   # schemas, examples, tagged doc blocks, frame vectors, generated-file drift
-npm run gen     # regenerate api-reference/schemas/*.mdx, generated/, spec/requirements.mdx
+npm ci
+npm run check   # schemas, examples, tagged doc blocks, frame vectors, traces, generated-file drift
+npm run gen     # regenerate api-reference/schemas/*.mdx, generated/awp-v0.1.d.ts, spec/requirements.mdx, spec/wire-traces.mdx
 ```
 
 `npm run check` validates tagged JSON blocks in the docs (```` ```json awp:<schema> ````); untagged blocks are illustrative fragments.

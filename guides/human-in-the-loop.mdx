@@ -5,6 +5,6 @@ description: "Approval, teleop takeover, and shadow mode."
 
 **Approval** — mark risky action types `requires_approval`; a human approves per action or grants scoped standing approvals ([spec](/spec/safety/approval)). The agent gets an immediate `pending_approval` acknowledgement and should treat it as a state to wait in, not a stall: the action becomes `accepted` on approval, or `rejected` (`approval_denied`, `approval_timeout`, or `deadline_exceeded` if its own deadline is shorter) otherwise. Best for low-frequency, high-stakes actions (navigation off-allowlist, force above a threshold, purchases).
 
-**Takeover** — a human client is just another AWP agent: use `session.transfer` (AWP-EMB-003) to hand the embodiment to a teleop UI, then transfer back. In-flight agent actions end `preempted`, which the agent handles like any other lifecycle outcome.
+**Takeover** — a human client is just another AWP agent: use `session.transfer` (AWP-EMB-003) to hand the embodiment to a teleop UI, then transfer back. The agent's executing actions end `preempted` and its pre-execution actions `cancelled`, both with reason `transferred`, which it handles like any other lifecycle outcome.
 
 **Shadow mode** — run the agent in an observer session (AWP-EMB-004) against the live world while a human drives; log what the agent *would* have submitted and compare against the human's actions offline. Zero actuation risk, full evaluation signal.

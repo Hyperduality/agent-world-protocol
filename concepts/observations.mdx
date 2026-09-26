@@ -4,7 +4,7 @@ description: "Typed, timestamped, multi-channel percepts — pulled per tick or 
 icon: "eye"
 ---
 
-Worlds expose named **observation channels**, each declaring a modality, encoding, schema, resolution, and nominal rate in the manifest. An agent subscribes to the subset it can consume.
+Worlds expose named **observation channels**, each declaring in the manifest a modality (which fixes the encoding, e.g. `image/jpeg`), a nominal rate, a loss class (`reliable` or `latest-wins`), and a schema for the payload, such as an image's resolution. An agent subscribes to the subset it can consume.
 
 Every frame has the same shape regardless of what it carries: a per-channel sequence number, a capture timestamp, in streaming a send timestamp, and a payload. The payload is exactly the bytes of the channel's declared modality — a JPEG for an image channel, UTF-8 JSON for a proprioception or event channel — and nothing else.
 
@@ -21,7 +21,7 @@ Every frame has the same shape regardless of what it carries: a per-channel sequ
     |---|---|
     | `seq` | 88123 |
     | `ts_mono_ns` | 913004498000 |
-    | `payload` | `{"joints_rad": [0.12, -1.04, 0.88], "gripper": 0.5}` |
+    | `payload` | `{"joints_rad": [0.12, -1.04, 0.88], "gripper_width_m": 0.04}` |
   </Tab>
   <Tab title="Semantic event">
     | Field | Value |
