@@ -20,7 +20,7 @@ description: "Submit a typed intent. Agent → World."
 
 `state` is the post-validation state: `accepted` (permission to execute), `pending_approval` (waiting for an approver), or `queued` (waiting for the concurrency group). An idempotent resubmission instead reports the action's current state, any from `pending_approval` to a terminal one, with its most recent transition's `status_seq`, `ts_mono_ns`, and `reason` if it has one (AWP-ACT-001). `approval_id` is present when the action was admitted under a [standing approval](/spec/safety/approval): the request the grant answered (AWP-APR-004). A JSON-RPC error means the action is `rejected` and never executed. Subsequent transitions arrive as [`action.status` notifications](/api-reference/control/action-status); the result's `status_seq` is the sequence number of this first status, so the agent can order it against later notifications. `received_ts_mono_ns` is when the world received the submission — the origin of `deadline_ms` and of the admission and observation-to-action latencies in `session.telemetry`; `ts_mono_ns` is the time of the reported transition.
 
-**Errors:** 3001, 3002, 3003, 3004, 3005, 3007, 4001, 4002.
+**Errors:** 3001, 3002, 3003, 3004, 3005, 3007, 4001, 4002; −32602 for a submission without `embodiment_id` in a multi-bind session (AWP-EMB-005).
 
 ```json awp:action-submit
 { "jsonrpc": "2.0", "id": 7, "method": "action.submit",

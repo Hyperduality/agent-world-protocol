@@ -274,6 +274,11 @@ requirements:
     applies: streaming
     gate: capability:command_channels
     test: AWP-CMD-008
+  - id: AWP-CMD-009
+    side: world
+    applies: streaming
+    gate: capability:command_channels
+    test: AWP-CMD-009 (warning)
   - id: AWP-CNF-001
     side: world
     applies: all
@@ -477,6 +482,11 @@ requirements:
     applies: all
     gate: core
     test: AWP-EVT-003
+  - id: AWP-EVT-004
+    side: world
+    applies: all
+    gate: core
+    test: AWP-EVT-004
   - id: AWP-GUI-001
     side: world
     applies: all
@@ -798,6 +808,11 @@ requirements:
     applies: streaming
     gate: profile:robotics
     test: AWP-ROB-007
+  - id: AWP-ROB-008
+    side: world
+    applies: streaming
+    gate: profile:robotics
+    test: AWP-ROB-008 (warning)
   - id: AWP-SAF-001
     side: both
     applies: all
@@ -1038,6 +1053,11 @@ requirements:
     applies: lockstep
     gate: core
     test: AWP-TIM-013
+  - id: AWP-TIM-014
+    side: world
+    applies: lockstep
+    gate: feature:tick_authority barrier
+    test: AWP-TIM-014
   - id: AWP-TRN-001
     side: both
     applies: all

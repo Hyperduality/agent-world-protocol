@@ -38,4 +38,6 @@ A manifest fragment declaring one command channel and its anchoring action (full
 - Frames carry the standard [frame envelope](/spec/transport/frames) with per-channel monotonically increasing `seq` and `ts_mono_ns` as the setpoint's issue time on the session clock (AWP-CLK-009); worlds MUST apply frames in `seq` order and, on `latest-wins` channels, MUST drop a frame older than the last applied one. `[AWP-CMD-007]`
 - The [audit log](/spec/safety/audit-log) records inbound frames — payload or SHA-256 hash plus header — exactly as observation frames. `[AWP-CMD-008]`
 
-During `executing`, `progress` is not meaningful and MAY be omitted; status updates SHOULD instead carry a `stream` object (`{ frames_applied, last_seq, clamped_count }`, see [action.status](/api-reference/control/action-status)) at ≥1 Hz. Preemption and concurrency groups apply to streaming actions as to any other: a `replace` submission preempts the running stream and closes its channel.
+- During `executing`, `progress` is not meaningful and MAY be omitted. Status updates instead carry a `stream` object (`{ frames_applied, last_seq, clamped_count }`, see [action.status](/api-reference/control/action-status)), and the world SHOULD send one at least once per second while the stream is live. `[AWP-CMD-009]`
+
+Preemption and concurrency groups apply to streaming actions as to any other: a `replace` submission preempts the running stream and closes its channel.

@@ -16,10 +16,10 @@ Only valid in lockstep sessions. For each advance the world sends, before starti
 { "tick": 4212 }
 ```
 
-Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call blocks until every bound non-observer lockstep session has called `world.tick` for the current tick; all sessions then receive the same advance, and no admin grant is needed. Under `any_session` on a world that may bind several lockstep sessions, the caller needs the `tick` admin grant (AWP-TIM-012, AWP-MA-005). A call retried after a lost result carries a stale `expected_tick` and is rejected, so time never advances twice:
+Staged actions (admitted since the previous advance) begin executing at the first advance (AWP-TIM-010). With `tick_authority: "barrier"` the call records the session's readiness for `count` advances: the world advances while every bound non-observer lockstep session has advances left, all sessions receive the same advances, and each call is answered after its last one. No admin grant is needed. A session has one pending call at a time; a lost connection discards it, and a reset, a restore, a close, or a transfer ends it with an error (AWP-TIM-014). Under `any_session` on a world that may bind several lockstep sessions, the caller needs the `tick` admin grant (AWP-TIM-012, AWP-MA-005). A call retried after a lost result carries a stale `expected_tick` and is rejected, so time never advances twice:
 
 ```json awp:error
 { "code": 3009, "message": "AWP_TICK_MISMATCH", "data": { "retryable": false, "tick": 4212, "detail": "expected_tick 4211, current 4212" } }
 ```
 
-**Errors:** 2003 (`AWP_SESSION_EXPIRED`: the session is closing, AWP-SES-011), 3006 (`AWP_TICK_NOT_AUTHORIZED`), 3009 (`AWP_TICK_MISMATCH`).
+**Errors:** 2003 (`AWP_SESSION_EXPIRED`: the session is closing or closed while its barrier call waited, AWP-SES-011, AWP-TIM-014), 3002 (`AWP_BUSY`: another barrier call of the session is pending, AWP-TIM-014), 3006 (`AWP_TICK_NOT_AUTHORIZED`), 3009 (`AWP_TICK_MISMATCH`, also for a barrier call a reset or restore overtook).
