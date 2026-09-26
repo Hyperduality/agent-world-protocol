@@ -25,10 +25,10 @@ Each of these has asynchrony, introspection, or security of its own. None of the
 
 **Self-describing worlds.** A world advertises its observation channels, action schemas, time models, and safety policy in a manifest. A generic agent can enter a world it has never seen and discover: *here I have two arms, a camera at 30 fps, and these 14 action types.*
 
-**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary can train against a simulator adapter and deploy against a robot adapter ([`awp-sim`](/adapters/awp-sim) is the reference simulator world). See [Sim-to-real](/guides/sim-to-real).
+**One agent, sim and real.** The protocol defines two time models — lockstep for pausable worlds, streaming for reality. The schemas stay identical, so the same agent binary can train against a simulator world and deploy against a robot world ([`awp-sim`](/adapters/awp-sim) is the reference simulator world). See [Sim-to-real](/guides/sim-to-real).
 
 **Safety at the boundary.** Scoped grants, world-side envelopes, approval hooks, and a normative audit log live in the protocol itself, not in each integration. See the [safety model](/concepts/safety-model).
 
 **Sessions as data.** Every session is a timestamped log of observations and actions — replayable for debugging, reusable as evaluation benchmarks and training data. See [Record and replay](/guides/record-and-replay).
 
-AWP does not replace any of the standards above — it composes with them. An AWP world can expose MCP tools; an AWP robotics adapter is designed to sit on ROS topics; agents inside an AWP world can talk A2A to each other. See the [Compare](/compare/mcp) section.
+AWP does not replace any of the standards above — it composes with them. An AWP world can expose MCP tools; an AWP robotics adapter can sit on ROS topics; agents inside an AWP world can talk A2A to each other. See the [Compare](/compare/mcp) section.

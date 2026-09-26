@@ -12,9 +12,9 @@ Five mechanisms compose:
 
 **1. Scoped grants.** A session carries explicit grants: which action types, which observation channels, which embodiments, with optional expiry. Anything not granted is rejected with `AWP_FORBIDDEN`. See [permissions](/spec/safety/permissions).
 
-**2. Envelopes.** Worlds declare and enforce quantitative limits — spatial bounds, maximum velocity, force, and action rate. Enforcement is **world-side**: a world MUST clamp or reject actions that exceed an envelope, per its declared clamp-vs-reject policy, regardless of what the agent sends. See [envelopes](/spec/safety/envelopes).
+**2. Envelopes.** Worlds declare and enforce quantitative limits — spatial bounds, maximum velocity, force, and action rate. Enforcement is **world-side**: a world clamps or rejects actions that exceed an envelope, per its declared clamp-vs-reject policy, regardless of what the agent sends. See [envelopes](/spec/safety/envelopes).
 
-**3. Human-in-the-loop approval.** Action types marked `requires_approval` pause at the boundary and emit an approval request on a dedicated channel; a human or supervising system approves, denies, or lets it time out. See [approval](/spec/safety/approval).
+**3. Human-in-the-loop approval.** Action types marked `requires_approval` pause at the boundary, and the world sends `safety.approval_requested` over the control channel to its approver connections; a human or supervising system approves, denies, or lets it time out. See [approval](/spec/safety/approval).
 
 **4. Safe state.** A world-side watchdog stops motion when the agent goes quiet, independently of whether the connection has been declared lost, and a resumed session never restarts stale motion. See [liveness and safe state](/spec/safety/safe-state).
 

@@ -11,13 +11,13 @@ No. AWP defines the wire boundary between any agent and any world. Frameworks (a
 No — see [Compare](/compare/mcp). Tools stay on MCP; intra-robot plumbing stays on ROS; AWP is the seam between a mind and an environment.
 </Accordion>
 <Accordion title="Where are rewards?">
-Deliberately out of core. Worlds MAY publish reward on an ordinary channel; the protocol stays reward-agnostic so the same world serves RL training, evaluation, and deployment.
+Deliberately out of core. Worlds may publish reward on an ordinary channel; the protocol stays reward-agnostic so the same world serves RL training, evaluation, and deployment.
 </Accordion>
 <Accordion title="How does AWP relate to ACP (Agent Client Protocol)?">
 They are siblings in genre, different in boundary: ACP connects code editors to coding agents; AWP connects agents to worlds. In ACP both parties are software minds; in AWP one party is an environment enforcing physics and safety. See [AWP vs ACP](/compare/acp).
 </Accordion>
 <Accordion title="What about vectorized RL training environments?">
-Out of scope by design. Thousands of parallel env instances inside one trainer process are an in-process, training-time pattern; train vectorized in-process, then evaluate and deploy over AWP. A trainer MAY expose a single instance over AWP for inspection.
+Out of scope by design. Thousands of parallel env instances inside one trainer process are an in-process, training-time pattern; train vectorized in-process, then evaluate and deploy over AWP. A trainer may expose a single instance over AWP for inspection.
 </Accordion>
 <Accordion title="Can I use AWP for games?">
 Yes — the [game profile](/spec/profiles/game) covers avatars, spectators, multi-session play, and match replays.

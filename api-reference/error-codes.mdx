@@ -9,10 +9,10 @@ description: "The complete AWP error registry."
 | 1002 | AWP_MALFORMED | protocol | no | Message violates envelope or schema |
 | 2001 | AWP_EMBODIMENT_UNAVAILABLE | session | yes | Embodiment bound elsewhere or offline |
 | 2002 | AWP_TIME_MODEL_UNSUPPORTED | session | no | Requested mode not offered |
-| 2003 | AWP_SESSION_EXPIRED | session | no | Token invalid or reconnect window passed |
+| 2003 | AWP_SESSION_EXPIRED | session | no | Token invalid or reconnect window passed, or the session is closing (AWP-SES-011) |
 | 2004 | AWP_SESSION_EXISTS | session | no | This control connection already carries a session (AWP-CTL-007) |
 | 2005 | AWP_SESSION_UNKNOWN | session | no | `session.resume` for a session the world no longer holds (e.g. world restarted; AWP-SES-008) |
-| 2006 | AWP_INTEGER_RANGE | protocol | no | A 64-bit field exceeded 2^53−1 in JSON (AWP-CTL-009) |
+| 2006 | AWP_INTEGER_RANGE | session | no | A 64-bit field exceeded 2^53−1 in JSON (AWP-CTL-009) |
 | 2007 | AWP_CHANNEL_UNKNOWN | session | no | `obs.subscribe` or `obs.unsubscribe` named a channel the manifest does not declare (AWP-NEG-004) |
 | 3001 | AWP_PARAMS_INVALID | action | no | Params fail the type's schema |
 | 3002 | AWP_BUSY | action | yes | `reject` preemption policy and an action is running |
@@ -28,4 +28,4 @@ description: "The complete AWP error registry."
 | 4003 | AWP_APPROVAL_DENIED | safety | no | Approver denied the action |
 | 4004 | AWP_APPROVAL_TIMEOUT | safety | yes | No approver response in time |
 
-Reserved JSON-RPC codes (−32700…−32600) retain their standard meanings.
+Reserved JSON-RPC codes (−32768…−32000, e.g. `-32601` for an unknown method) retain their standard meanings and may omit `data` (AWP-ERR-001).

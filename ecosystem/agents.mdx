@@ -3,9 +3,9 @@ title: "Agents"
 description: "Published AWP agents."
 ---
 
-| Agent | Time models | Claim |
-|---|---|---|
-| `awp-demo` — a scripted agent in [awp-python](/sdks/python) that moves the reference arm, cancels a move, and triggers an envelope refusal | lockstep, streaming | Core Agent: AWP-conformant against 0.1-draft.9 |
-| `awp-demo` — the same exercise in [awp-typescript](/sdks/typescript) | lockstep, streaming | Core Agent: AWP-conformant against 0.1-draft.9 |
+| Agent | Time models |
+|---|---|
+| `awp-demo` in [awp-python](/sdks/python) — a scripted agent that moves the reference arm, cancels a move, and triggers an envelope refusal | lockstep, streaming |
+| `awp-demo` in [awp-typescript](/sdks/typescript) — a scripted agent that moves the reference arm through four targets, cancels a move while it executes, and resumes after a lost connection | lockstep, streaming |
 
-To list an agent, open a pull request against this page naming the draft revision the claim targets.
+Their conformance claims are in the [registry](/conformance/registry). To list an agent, open a pull request against this page and the registry with its `report.json` from a suite release that targets the claimed revision.

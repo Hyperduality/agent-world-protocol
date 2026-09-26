@@ -34,4 +34,8 @@ A standing approval for an hour, for `navigate` to the same domain:
                             "expires_at_ns": 4513065200000 } } }
 ```
 
-Approve → the action becomes `accepted` (or `queued`). Deny → `rejected`, reason `approval_denied` (error 4003 on the pull path); timeout → `rejected`, reason `approval_timeout` (4004). On a world that declares `safety_policy.standing_approvals`, an approval may also grant a standing approval, `standing: { scope: { type, predicate }, expires_at_ns }`: until it expires, the requesting session's submissions of that type whose params satisfy the predicate are admitted without approval, and their `action.submit` result carries the grant's `approval_id` (AWP-APR-004). `params`, `task`, and `note` are redacted in the audit log per `safety_policy.audit.redact_paths` (AWP-APR-006, AWP-AUD-006).
+Approve → the action becomes `accepted` (or `queued`). Deny → `rejected`, reason `approval_denied`; timeout → `rejected`, reason `approval_timeout` (AWP-APR-003). On a world that declares `safety_policy.standing_approvals`, an approval may also grant a standing approval, `standing: { scope: { type, predicate }, expires_at_ns }`: until it expires, the requesting session's submissions of that type whose params satisfy the predicate are admitted without approval, and their `action.submit` result carries the grant's `approval_id` (AWP-APR-004). `params`, `task`, and `note` are redacted in the audit log per `safety_policy.audit.redact_paths` (AWP-APR-006, AWP-AUD-006).
+
+**Result:** `{}`.
+
+**Errors:** 4001 (`AWP_FORBIDDEN`: the connection is not an authorized approver), 3001 (`AWP_PARAMS_INVALID`: the `approval_id` is unknown or already decided, AWP-APR-007, or a `standing` grant is refused, AWP-APR-004). Neither changes the action.

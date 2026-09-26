@@ -18,4 +18,4 @@ sequenceDiagram
 
 The **world manifest** is what makes AWP worlds self-describing: a generic agent discovers at runtime what bodies exist, what it can perceive, and what it can do — the same way an MCP client discovers tools. The **agent manifest** declares supported modalities and protocol versions so the world can tailor or reject.
 
-Negotiation always resolves to a subset: the world MAY grant fewer channels, action types, or looser rates than requested, and MUST say exactly what was granted in `session.ready`. Renegotiation mid-session uses the same messages. Normative rules: [session lifecycle](/spec/session/lifecycle) and [negotiation](/spec/session/negotiation).
+Negotiation always resolves to a subset: the world may grant fewer channels, fewer action types, or lower rates than requested, and says exactly what it granted in `session.ready`. Mid-session, `obs.subscribe` and `obs.unsubscribe` change the channel grants; action-type grants are fixed for the session. Normative rules: [session lifecycle](/spec/session/lifecycle) and [negotiation](/spec/session/negotiation).

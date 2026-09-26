@@ -9,7 +9,7 @@ Design choices that work well:
 
 - **Communication as world actions.** A `say` action and `heard` events keep inter-agent talk inside the audit log and the world's physics (range, interception) — usually better than out-of-band channels for games and sims.
 - **A2A out of band** when agents must coordinate privately or across worlds; AWP deliberately does not define this ([multi-agent](/spec/multi-agent)).
-- **Spectator sessions** (AWP-EMB-004) for referees, evaluators, and dashboards.
-- **Shared control** with declared arbitration for human-takeover setups (AWP-MA-003) — see [Human in the loop](/guides/human-in-the-loop).
-- **Shared lockstep time.** Declare `tick_authority: "barrier"`: the world advances once every bound lockstep session has called `world.tick`, and every session receives the same advance (AWP-TIM-012). A stalled agent then blocks the round — give barrier worlds a per-tick timeout that treats a silent session as having ticked, and document it in the manifest.
+- **Observer sessions** (AWP-EMB-004) for referees, evaluators, and dashboards.
+- **Shared control** with declared arbitration for human-takeover setups (AWP-MA-003) — see [Human in the loop](/guides/human-in-the-loop). awp-sim's [`gripper` feature](/adapters/awp-sim#beyond-core) is a working example: several sessions bind `gripper_01`, and the first to submit has it until that action ends.
+- **Shared lockstep time.** Declare `tick_authority: "barrier"`: the world advances once every bound lockstep session has called `world.tick`, and every session receives the same advance (AWP-TIM-012). A stalled agent then blocks the round. awp-sim's lockstep world uses `barrier` when the gripper is enabled.
 - **Administrative mutations.** `world.reset`, `world.restore`, and — on a shared world with `tick_authority: "any_session"` — `world.tick` require the `admin` grant class (AWP-PRM-005); under `barrier`, every competing session ticks without it (AWP-TIM-012). Grant them to the harness session, not to competing agents; a reset cancels every session's in-flight actions (AWP-PRM-006).

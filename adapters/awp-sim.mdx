@@ -6,7 +6,7 @@ description: "The reference world: a simulated arm served over WebSocket, in eit
 [`awp-sim`](https://github.com/Hyperduality/awp-sim) is the reference world. It is built on the protocol layer of the [Python SDK](/sdks/python). It exposes a simulated arm, `arm_01`, and optionally a gripper, `gripper_01`, in either time model, and exists to exercise the protocol: moves take real time, aborts decelerate, and connections can be dropped mid-motion. It targets **0.1-draft.9**.
 
 <Warning>
-Alpha. The world is **Core World: AWP-conformant against 0.1-draft.9** in both time models, and **Core World + sim (lockstep)** with every feature enabled ([reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance)).
+Alpha. The world is **Core World (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** and **Core World (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)**. With all lockstep features enabled it is **Core World + sim (lockstep): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)**, and with all streaming features, **Core World (streaming): AWP-conformant against 0.1-draft.9 (awp-conformance 0.1.0a6)** ([reports](https://github.com/Hyperduality/awp-sim/tree/main/conformance)).
 </Warning>
 
 ```bash

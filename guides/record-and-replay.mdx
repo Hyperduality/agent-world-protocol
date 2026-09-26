@@ -11,8 +11,8 @@ Every session already produces a normative [audit log](/spec/safety/audit-log). 
 | Replay bundle (hashes + payloads + initial snapshot) | Everything above plus deterministic replay and inspection of what the agent saw |
 | Dataset export (derived) | Trajectories for training and evaluation, with redactions applied |
 
-**Debugging.** A log viewer reconstructs the timeline from the JSONL: every frame, submission, and transition on the session clock. Because timestamps mark capture/event time (AWP-CLK-004), latency problems are visible directly. Tokens are already redacted (AWP-AUD-006), so logs can be shared.
+**Debugging.** A log viewer reconstructs the timeline from the JSONL: every frame, submission, and transition on the session clock. Because timestamps mark capture/event time (AWP-CLK-004), latency problems are visible directly. Tokens and other credentials are always redacted (AWP-AUD-006); list approval params, task content, and personal data in `safety_policy.audit.redact_paths` before sharing logs.
 
-**Benchmarks.** On sim-profile worlds, a replay bundle is a reproducible episode: restore the initial snapshot, feed the recorded submissions and ticks in `status_seq` order, and the world must reproduce every frame hash and every action's state sequence (AWP-REP-003). Publish the snapshot plus a scoring script and any conformant agent can be evaluated on identical states.
+**Benchmarks.** On sim-profile worlds, a replay bundle is a reproducible episode: restore the initial snapshot, open the session as recorded, feed the recorded `action.submit`, `action.cancel`, `world.tick`, `world.reset`, `world.restore`, and `session.close` calls in their recorded order, and the world must reproduce every frame hash and every action's state sequence (AWP-REP-003). Publish the snapshot plus a scoring script and any conformant agent can be evaluated on identical states.
 
 **Datasets.** Only a replay bundle can become a dataset: filter by terminal status, join observations to actions on `action_id`, and export. A hash-only audit record cannot be turned into one after the fact, so decide the record class before the session starts.

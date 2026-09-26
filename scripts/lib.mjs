@@ -56,6 +56,14 @@ export function lintSchema(node) {
 
 export const rel = (p) => relative(ROOT, p);
 
+// The frontmatter title of the page at a site route such as "/spec/loop/actions".
+export function pageTitle(route) {
+  const text = readFileSync(join(ROOT, `${route.replace(/^\//, "").replace(/#.*$/, "")}.mdx`), "utf8");
+  const m = /^title:\s*"([^"]*)"/m.exec(text);
+  if (!m) throw new Error(`no title in ${route}`);
+  return m[1];
+}
+
 /** Write a generated file, or in --check mode fail if it differs. Returns true when content matches. */
 export function emit(path, content, check) {
   const current = existsSync(path) ? readFileSync(path, "utf8") : null;
