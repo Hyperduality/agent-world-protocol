@@ -1,11 +1,14 @@
 // Shared helpers for the docs tooling. Apache-2.0.
 import { readdirSync, readFileSync, statSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { join, dirname, relative } from "node:path";
+import { join, dirname, relative as nativeRelative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SCHEMA_DIR = join(ROOT, "schemas", "v0.1");
 export const SCHEMA_BASE = "https://agentworldprotocol.com/schemas/v0.1/";
+
+// Relative paths end up in $ids, routes, and generated files, so they use "/" on every platform.
+const relative = (from, to) => nativeRelative(from, to).split(sep).join("/");
 
 export function walk(dir, pred = () => true, acc = []) {
   for (const name of readdirSync(dir)) {
