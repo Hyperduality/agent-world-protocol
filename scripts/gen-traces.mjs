@@ -26,6 +26,8 @@ const TRACES = [
     intro: "The agent closes while an action is executing. The action is aborted through cancelling, a submission while the session is closing is refused, and the close is answered only once the action has ended and the session is closed." },
   { file: "lockstep-replace.jsonl", title: "Replace in lockstep",
     intro: "A replacing submission against an executing lockstep action is admitted and staged; the running action is preempted at the start of the next advance, not at admission." },
+  { file: "input-replace.jsonl", title: "Replacing device input",
+    intro: "A streaming game world takes keyboard and mouse input as `input_chunk` actions. A replacement submitted mid-slot takes over at the next slot boundary, a key held across the boundary stays down, and the replacement runs to completion." },
   { file: "quiet-agent.jsonl", title: "Quiet agent on a live connection",
     intro: "The agent's decision loop stalls while its transport keeps answering pings. The watchdog, which counts only messages the agent originates, enters safe state on a healthy connection; a fresh intent resumes control." },
 ];

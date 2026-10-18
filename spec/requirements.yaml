@@ -487,6 +487,26 @@ requirements:
     applies: all
     gate: core
     test: AWP-EVT-004
+  - id: AWP-GAM-001
+    side: world
+    applies: all
+    gate: feature:input_chunk declared
+    test: AWP-GAM-001
+  - id: AWP-GAM-002
+    side: world
+    applies: all
+    gate: feature:input_chunk declared
+    test: "manual: a device-level trace from the world's input layer showing slot timing and key state for a submitted chunk"
+  - id: AWP-GAM-003
+    side: world
+    applies: all
+    gate: feature:input_chunk declared
+    test: "manual: a device-level trace showing a held key kept down across a replace"
+  - id: AWP-GAM-004
+    side: world
+    applies: all
+    gate: feature:input_chunk declared
+    test: "manual: a device-level trace showing release on cancel and on safe-state entry"
   - id: AWP-GUI-001
     side: world
     applies: all

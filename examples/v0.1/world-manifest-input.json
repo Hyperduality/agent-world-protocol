@@ -1,0 +1,94 @@
+{
+  "$schema": "https://agentworldprotocol.com/schemas/v0.1/world-manifest.schema.json",
+  "protocol_version": "0.1",
+  "world": { "name": "kart-arena", "version": "1.4.0", "vendor": "acme" },
+  "time_models": ["lockstep", "streaming"],
+  "tick_policy": "on_tick",
+  "tick_authority": "any_session",
+  "capabilities": { "seed": true, "snapshot": true, "replay": true },
+  "initial_states": ["grid_start", "time_trial"],
+  "embodiments": [
+    {
+      "id": "kart_01",
+      "kind": "avatar",
+      "shared_control": false,
+      "action_types": ["input_chunk"],
+      "channels": ["screen"]
+    }
+  ],
+  "observation_channels": [
+    {
+      "id": "screen",
+      "modality": "image/jpeg",
+      "rate_hz": 30,
+      "loss_class": "latest-wins",
+      "schema": { "width": 1280, "height": 720, "color_space": "srgb" }
+    }
+  ],
+  "action_schemas": [
+    {
+      "type": "input_chunk",
+      "params_schema": { "$ref": "#/$defs/input_chunk_params" },
+      "duration": "extended",
+      "preemption": ["replace", "queue"],
+      "concurrency_group": "input",
+      "max_queue": 1,
+      "max_duration_ms": 1000,
+      "requires_approval": false
+    }
+  ],
+  "safety_policy": {
+    "envelopes": [],
+    "safe_state": { "behavior": "hold", "watchdog_ms": 2000 }
+  },
+  "$defs": {
+    "input_chunk_params": {
+      "type": "object",
+      "properties": {
+        "slot_ms": { "type": "integer", "minimum": 1, "maximum": 1000, "const": 33, "description": "Length of every slot, in milliseconds." },
+        "slots": {
+          "type": "array", "minItems": 1, "maxItems": 16,
+          "description": "Device states in execution order; each holds for slot_ms.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "keys": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/input_key_name" }, "description": "Keys and buttons held down for the slot; any key not listed is up." },
+              "sticks": {
+                "type": "object",
+                "description": "Analog stick deflection held for the slot; an absent axis is centered.",
+                "properties": {
+                  "left_x":  { "type": "number", "minimum": -1, "maximum": 1, "description": "Left stick, horizontal, unitless; positive is right." },
+                  "left_y":  { "type": "number", "minimum": -1, "maximum": 1, "description": "Left stick, vertical, unitless; positive is down." },
+                  "right_x": { "type": "number", "minimum": -1, "maximum": 1, "description": "Right stick, horizontal, unitless; positive is right." },
+                  "right_y": { "type": "number", "minimum": -1, "maximum": 1, "description": "Right stick, vertical, unitless; positive is down." }
+                },
+                "x-awp-closed": true
+              },
+              "triggers": {
+                "type": "object",
+                "description": "Analog trigger pull held for the slot (standard-mapping buttons 6 and 7); an absent trigger is released.",
+                "properties": {
+                  "left":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Left trigger, unitless; 0 is released, 1 fully pulled." },
+                  "right": { "type": "number", "minimum": 0, "maximum": 1, "description": "Right trigger, unitless; 0 is released, 1 fully pulled." }
+                },
+                "x-awp-closed": true
+              }
+            },
+            "x-awp-closed": true
+          }
+        }
+      },
+      "required": ["slot_ms", "slots"],
+      "x-awp-closed": true
+    },
+    "input_key_name": {
+      "description": "A W3C UI Events KeyboardEvent.code value other than Unidentified, a mouse button, or a button of the W3C Gamepad standard mapping named by position.",
+      "enum": [
+        "GamepadSouth", "GamepadEast", "GamepadWest", "GamepadNorth", "GamepadLeftBumper", "GamepadRightBumper",
+        "GamepadSelect", "GamepadStart", "GamepadLeftStick", "GamepadRightStick",
+        "GamepadDpadUp", "GamepadDpadDown", "GamepadDpadLeft", "GamepadDpadRight", "GamepadHome"
+      ]
+    }
+  },
+  "extensions": {}
+}
