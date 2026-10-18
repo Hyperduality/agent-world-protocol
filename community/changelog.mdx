@@ -5,6 +5,14 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-10-18" description="0.1-draft.11">
+Device-level input for game worlds.
+
+**Wire-visible changes**
+
+- **Device input.** The game profile reserves the action type `input_chunk`: keyboard, mouse, and gamepad state in fixed-length slots, with normative params in `schemas/v0.1/profiles/input-chunk.schema.json`. A world that declares it follows the declaration and narrowing, slot, replacement, and release rules (new AWP-GAM-001..004). A replacement takes over at the next slot boundary, and a chunk that ends without one releases everything, trading continuity for safety.
+</Update>
+
 <Update label="2026-09-26" description="0.1-draft.10">
 Rules for worlds that bind several embodiments or several lockstep sessions, found by giving the reference world a second, shared embodiment, and requirement IDs for normative sentences that had none.
 

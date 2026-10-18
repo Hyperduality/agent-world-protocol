@@ -2541,6 +2541,190 @@ A replacing submission against an executing lockstep action is admitted and stag
 }
 ```
 
+## Replacing device input
+
+A streaming game world takes keyboard and mouse input as `input_chunk` actions. A replacement submitted mid-slot takes over at the next slot boundary, a key held across the boundary stays down, and the replacement runs to completion. Source: [`input-replace.jsonl`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/traces/input-replace.jsonl).
+
+> **Transport.** A streaming session on a keyboard-and-mouse world, whose input_chunk type fixes slot_ms at 50, is active with nothing executing.
+
+**1. Submit a 6-slot chunk: turn right in slot 0, then sprint forward from slot 2** — agent → world
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "action.submit",
+  "params": {
+    "action_id": "in-1",
+    "type": "input_chunk",
+    "params": {
+      "slot_ms": 50,
+      "slots": [
+        {
+          "mouse_dx": 92
+        },
+        {},
+        {
+          "keys": ["ShiftLeft", "KeyW"]
+        },
+        {
+          "keys": ["ShiftLeft", "KeyW"]
+        },
+        {
+          "keys": ["ShiftLeft", "KeyW"]
+        },
+        {
+          "keys": ["ShiftLeft", "KeyW"]
+        }
+      ]
+    },
+    "preempt": "replace"
+  }
+}
+```
+
+**2. Admitted** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "action_id": "in-1",
+    "state": "accepted",
+    "status_seq": 3,
+    "received_ts_mono_ns": 2000000000,
+    "ts_mono_ns": 2000000000
+  }
+}
+```
+
+**3. Execution begins at admission: slot 0 starts and its 92 mouse counts are delivered within it; ShiftLeft and KeyW go down at the start of slot 2, 100 ms later (AWP-GAM-002)** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "action.status",
+  "params": {
+    "action_id": "in-1",
+    "state": "executing",
+    "status_seq": 4,
+    "ts_mono_ns": 2000000000,
+    "progress": 0
+  }
+}
+```
+
+**4. During slot 3, replace the chunk with one that strafes right, keeping ShiftLeft in its first slot** — agent → world
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "action.submit",
+  "params": {
+    "action_id": "in-2",
+    "type": "input_chunk",
+    "params": {
+      "slot_ms": 50,
+      "slots": [
+        {
+          "keys": ["ShiftLeft", "KeyD"]
+        },
+        {
+          "keys": ["ShiftLeft", "KeyD"]
+        },
+        {
+          "keys": ["KeyD"]
+        },
+        {}
+      ]
+    },
+    "preempt": "replace"
+  }
+}
+```
+
+**5. Admitted; in-1 runs on to the end of slot 3, the next slot boundary (AWP-GAM-003)** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "result": {
+    "action_id": "in-2",
+    "state": "accepted",
+    "status_seq": 5,
+    "received_ts_mono_ns": 2170000000,
+    "ts_mono_ns": 2170000000
+  }
+}
+```
+
+**6. At the boundary after slot 3, in-1 is preempted with 3 of 6 slots done; KeyW is released and ShiftLeft stays down without a release (AWP-GAM-003)** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "action.status",
+  "params": {
+    "action_id": "in-1",
+    "state": "preempted",
+    "status_seq": 6,
+    "ts_mono_ns": 2200000000,
+    "aborted_at_progress": 0.5
+  }
+}
+```
+
+**7. and in-2 begins executing, pressing KeyD** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "action.status",
+  "params": {
+    "action_id": "in-2",
+    "state": "executing",
+    "status_seq": 7,
+    "ts_mono_ns": 2200000000,
+    "progress": 0
+  }
+}
+```
+
+**8. Progress after two of four slots (AWP-LIF-003)** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "action.status",
+  "params": {
+    "action_id": "in-2",
+    "state": "executing",
+    "status_seq": 8,
+    "ts_mono_ns": 2300000000,
+    "progress": 0.5
+  }
+}
+```
+
+**9. The last slot ends with nothing held; the world has released every key (AWP-GAM-004) and reports completion** — world → agent
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "action.status",
+  "params": {
+    "action_id": "in-2",
+    "state": "completed",
+    "status_seq": 9,
+    "ts_mono_ns": 2400000000,
+    "progress": 1
+  }
+}
+```
+
 ## Quiet agent on a live connection
 
 The agent's decision loop stalls while its transport keeps answering pings. The watchdog, which counts only messages the agent originates, enters safe state on a healthy connection; a fresh intent resumes control. Source: [`quiet-agent.jsonl`](https://github.com/Hyperduality/agent-world-protocol/blob/main/examples/v0.1/traces/quiet-agent.jsonl).

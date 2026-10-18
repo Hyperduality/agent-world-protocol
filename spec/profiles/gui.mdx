@@ -10,3 +10,5 @@ Adds to Core:
 - Time model: streaming is REQUIRED; lockstep is OPTIONAL and, when offered, MUST follow the sim-profile lockstep rules (AWP-TIM-009..012) for deterministic page testing. `[AWP-GUI-003]`
 - Approval: `navigate` to a URL outside the manifest's declared allowlist and every action class that enters credentials MUST be declared `requires_approval: true` (AWP-APR-001). `[AWP-GUI-004]`
 - Safe state: `safety_policy.safe_state.behavior` MUST be `hold` (no further input is injected) with `watchdog_ms` ≤ 10000. `[AWP-GUI-005]`
+
+`key_input` types text and chords; a GUI world may also offer [`input_chunk`](/spec/profiles/game#device-input) under AWP-GAM-001..004.

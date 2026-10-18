@@ -681,6 +681,326 @@ export interface ProfilesGuiActions {
   [k: string]: unknown;
 }
 
+/**
+ * A W3C UI Events KeyboardEvent.code value other than Unidentified, a mouse button, or a button of the W3C Gamepad standard mapping named by position.
+ */
+
+export type KeyName =
+  | "Backquote"
+  | "Backslash"
+  | "BracketLeft"
+  | "BracketRight"
+  | "Comma"
+  | "Digit0"
+  | "Digit1"
+  | "Digit2"
+  | "Digit3"
+  | "Digit4"
+  | "Digit5"
+  | "Digit6"
+  | "Digit7"
+  | "Digit8"
+  | "Digit9"
+  | "Equal"
+  | "IntlBackslash"
+  | "IntlRo"
+  | "IntlYen"
+  | "KeyA"
+  | "KeyB"
+  | "KeyC"
+  | "KeyD"
+  | "KeyE"
+  | "KeyF"
+  | "KeyG"
+  | "KeyH"
+  | "KeyI"
+  | "KeyJ"
+  | "KeyK"
+  | "KeyL"
+  | "KeyM"
+  | "KeyN"
+  | "KeyO"
+  | "KeyP"
+  | "KeyQ"
+  | "KeyR"
+  | "KeyS"
+  | "KeyT"
+  | "KeyU"
+  | "KeyV"
+  | "KeyW"
+  | "KeyX"
+  | "KeyY"
+  | "KeyZ"
+  | "Minus"
+  | "Period"
+  | "Quote"
+  | "Semicolon"
+  | "Slash"
+  | "AltLeft"
+  | "AltRight"
+  | "Backspace"
+  | "CapsLock"
+  | "ContextMenu"
+  | "ControlLeft"
+  | "ControlRight"
+  | "Enter"
+  | "MetaLeft"
+  | "MetaRight"
+  | "ShiftLeft"
+  | "ShiftRight"
+  | "Space"
+  | "Tab"
+  | "Convert"
+  | "KanaMode"
+  | "Lang1"
+  | "Lang2"
+  | "Lang3"
+  | "Lang4"
+  | "Lang5"
+  | "NonConvert"
+  | "Delete"
+  | "End"
+  | "Help"
+  | "Home"
+  | "Insert"
+  | "PageDown"
+  | "PageUp"
+  | "ArrowDown"
+  | "ArrowLeft"
+  | "ArrowRight"
+  | "ArrowUp"
+  | "NumLock"
+  | "Numpad0"
+  | "Numpad1"
+  | "Numpad2"
+  | "Numpad3"
+  | "Numpad4"
+  | "Numpad5"
+  | "Numpad6"
+  | "Numpad7"
+  | "Numpad8"
+  | "Numpad9"
+  | "NumpadAdd"
+  | "NumpadBackspace"
+  | "NumpadClear"
+  | "NumpadClearEntry"
+  | "NumpadComma"
+  | "NumpadDecimal"
+  | "NumpadDivide"
+  | "NumpadEnter"
+  | "NumpadEqual"
+  | "NumpadHash"
+  | "NumpadMemoryAdd"
+  | "NumpadMemoryClear"
+  | "NumpadMemoryRecall"
+  | "NumpadMemoryStore"
+  | "NumpadMemorySubtract"
+  | "NumpadMultiply"
+  | "NumpadParenLeft"
+  | "NumpadParenRight"
+  | "NumpadStar"
+  | "NumpadSubtract"
+  | "Escape"
+  | "F1"
+  | "F2"
+  | "F3"
+  | "F4"
+  | "F5"
+  | "F6"
+  | "F7"
+  | "F8"
+  | "F9"
+  | "F10"
+  | "F11"
+  | "F12"
+  | "Fn"
+  | "FnLock"
+  | "PrintScreen"
+  | "ScrollLock"
+  | "Pause"
+  | "BrowserBack"
+  | "BrowserFavorites"
+  | "BrowserForward"
+  | "BrowserHome"
+  | "BrowserRefresh"
+  | "BrowserSearch"
+  | "BrowserStop"
+  | "Eject"
+  | "LaunchApp1"
+  | "LaunchApp2"
+  | "LaunchMail"
+  | "MediaPlayPause"
+  | "MediaSelect"
+  | "MediaStop"
+  | "MediaTrackNext"
+  | "MediaTrackPrevious"
+  | "Power"
+  | "Sleep"
+  | "AudioVolumeDown"
+  | "AudioVolumeMute"
+  | "AudioVolumeUp"
+  | "WakeUp"
+  | "Hyper"
+  | "Super"
+  | "Turbo"
+  | "Abort"
+  | "Resume"
+  | "Suspend"
+  | "Again"
+  | "Copy"
+  | "Cut"
+  | "Find"
+  | "Open"
+  | "Paste"
+  | "Props"
+  | "Select"
+  | "Undo"
+  | "Hiragana"
+  | "Katakana"
+  | "MouseLeft"
+  | "MouseRight"
+  | "MouseMiddle"
+  | "MouseBack"
+  | "MouseForward"
+  | "GamepadSouth"
+  | "GamepadEast"
+  | "GamepadWest"
+  | "GamepadNorth"
+  | "GamepadLeftBumper"
+  | "GamepadRightBumper"
+  | "GamepadSelect"
+  | "GamepadStart"
+  | "GamepadLeftStick"
+  | "GamepadRightStick"
+  | "GamepadDpadUp"
+  | "GamepadDpadDown"
+  | "GamepadDpadLeft"
+  | "GamepadDpadRight"
+  | "GamepadHome";
+
+/**
+ * Normative params_schema for the reserved action type input_chunk: device state for keyboard, mouse, and gamepad in fixed-length slots. +x is right and +y is down. Mouse and scroll deltas are device counts, a documented exception to AWP-UNI-001.
+ */
+
+export interface ProfilesInputChunk {
+  /**
+   * Length of every slot, in milliseconds.
+   */
+  slot_ms: number;
+  /**
+   * Device states in execution order; each holds for slot_ms.
+   *
+   * @minItems 1
+   * @maxItems 256
+   */
+  slots: [
+    {
+      /**
+       * Keys and buttons held down for the slot; any key not listed is up.
+       */
+      keys?: KeyName[];
+      /**
+       * Horizontal mouse motion over the slot, in device counts; positive is right.
+       */
+      mouse_dx?: number;
+      /**
+       * Vertical mouse motion over the slot, in device counts; positive is down.
+       */
+      mouse_dy?: number;
+      /**
+       * Wheel detents over the slot; positive moves the wheel away from the user.
+       */
+      scroll_steps?: number;
+      /**
+       * Analog stick deflection held for the slot; an absent axis is centered.
+       */
+      sticks?: {
+        /**
+         * Left stick, horizontal, unitless; positive is right.
+         */
+        left_x?: number;
+        /**
+         * Left stick, vertical, unitless; positive is down.
+         */
+        left_y?: number;
+        /**
+         * Right stick, horizontal, unitless; positive is right.
+         */
+        right_x?: number;
+        /**
+         * Right stick, vertical, unitless; positive is down.
+         */
+        right_y?: number;
+      };
+      /**
+       * Analog trigger pull held for the slot (standard-mapping buttons 6 and 7); an absent trigger is released.
+       */
+      triggers?: {
+        /**
+         * Left trigger, unitless; 0 is released, 1 fully pulled.
+         */
+        left?: number;
+        /**
+         * Right trigger, unitless; 0 is released, 1 fully pulled.
+         */
+        right?: number;
+      };
+    },
+    ...{
+      /**
+       * Keys and buttons held down for the slot; any key not listed is up.
+       */
+      keys?: KeyName[];
+      /**
+       * Horizontal mouse motion over the slot, in device counts; positive is right.
+       */
+      mouse_dx?: number;
+      /**
+       * Vertical mouse motion over the slot, in device counts; positive is down.
+       */
+      mouse_dy?: number;
+      /**
+       * Wheel detents over the slot; positive moves the wheel away from the user.
+       */
+      scroll_steps?: number;
+      /**
+       * Analog stick deflection held for the slot; an absent axis is centered.
+       */
+      sticks?: {
+        /**
+         * Left stick, horizontal, unitless; positive is right.
+         */
+        left_x?: number;
+        /**
+         * Left stick, vertical, unitless; positive is down.
+         */
+        left_y?: number;
+        /**
+         * Right stick, horizontal, unitless; positive is right.
+         */
+        right_x?: number;
+        /**
+         * Right stick, vertical, unitless; positive is down.
+         */
+        right_y?: number;
+      };
+      /**
+       * Analog trigger pull held for the slot (standard-mapping buttons 6 and 7); an absent trigger is released.
+       */
+      triggers?: {
+        /**
+         * Left trigger, unitless; 0 is released, 1 fully pulled.
+         */
+        left?: number;
+        /**
+         * Right trigger, unitless; 0 is released, 1 fully pulled.
+         */
+        right?: number;
+      };
+    }[]
+  ];
+}
+
 export interface ResetResult {
   /**
    * Present in lockstep sessions.

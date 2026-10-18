@@ -257,6 +257,7 @@ for (const p of traceFiles) {
       if (msg.id !== undefined) {
         if (!spec.params) return problem(n, `${msg.method} is notification-only`);
         check(spec.params, msg.params ?? {}, `${msg.method} params`);
+        if (msg.method === "action.submit" && msg.params?.type === "input_chunk") check("profiles/input-chunk", msg.params.params, "input_chunk params");
         pending.set(`${from}:${msg.id}`, { method: msg.method, params: msg.params ?? {}, closing });
         if (from === "agent" && msg.method === "session.close") closing = true;
         return;
