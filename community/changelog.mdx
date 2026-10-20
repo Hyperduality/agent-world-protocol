@@ -5,6 +5,18 @@ description: "Specification draft revisions, newest first."
 
 Draft revisions of 0.1 all negotiate `"0.1"` but are not wire-compatible with each other ([before 1.0](/spec/versioning-policy#before-1-0)); each entry lists its wire-visible changes. Revisions are tagged `spec-v0.1-draft.N` in git.
 
+<Update label="2026-10-19" description="0.1-draft.12">
+The game profile no longer requires snapshot/restore.
+
+**Wire-visible changes.** None.
+
+**Clarifications**
+
+- **Snapshot in the game profile.** The game profile no longer requires snapshot/restore. A world claims it when it advertises `snapshot`, and AWP-REP-002 binds those worlds as before. This lets game engines without exact restore claim the profile.
+- **Chunk start.** AWP-GAM-002 now starts a chunk at the world's first input update after admission, since worlds apply input at discrete steps.
+- **Trace.** The replacing-device-input trace reports the replaced chunk at 4 of 6 slots, the slots completed by the boundary where it is preempted.
+</Update>
+
 <Update label="2026-10-18" description="0.1-draft.11">
 Device-level input for game worlds.
 

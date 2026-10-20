@@ -2599,7 +2599,7 @@ A streaming game world takes keyboard and mouse input as `input_chunk` actions. 
 }
 ```
 
-**3. Execution begins at admission: slot 0 starts and its 92 mouse counts are delivered within it; ShiftLeft and KeyW go down at the start of slot 2, 100 ms later (AWP-GAM-002)** — world → agent
+**3. Execution begins at the world's first input update after admission, here at admission itself: slot 0 starts and its 92 mouse counts are delivered within it; ShiftLeft and KeyW go down at the start of slot 2, 100 ms later (AWP-GAM-002)** — world → agent
 
 ```json
 {
@@ -2661,7 +2661,7 @@ A streaming game world takes keyboard and mouse input as `input_chunk` actions. 
 }
 ```
 
-**6. At the boundary after slot 3, in-1 is preempted with 3 of 6 slots done; KeyW is released and ShiftLeft stays down without a release (AWP-GAM-003)** — world → agent
+**6. At the boundary after slot 3, in-1 is preempted with 4 of 6 slots done; KeyW is released and ShiftLeft stays down without a release (AWP-GAM-003)** — world → agent
 
 ```json
 {
@@ -2672,7 +2672,7 @@ A streaming game world takes keyboard and mouse input as `input_chunk` actions. 
     "state": "preempted",
     "status_seq": 6,
     "ts_mono_ns": 2200000000,
-    "aborted_at_progress": 0.5
+    "aborted_at_progress": 0.667
   }
 }
 ```
